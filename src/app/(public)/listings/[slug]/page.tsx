@@ -1,4 +1,5 @@
 import { getListingBySlug, getListings } from "@/lib/firestore";
+import { isFirebaseConfigured } from "@/lib/firebase";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -48,6 +49,7 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
+  if (!isFirebaseConfigured()) return [];
   const listings = await getListings({ status: "ACTIVE" });
   return listings.map((l) => ({ slug: l.slug }));
 }

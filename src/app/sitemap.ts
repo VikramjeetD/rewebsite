@@ -1,19 +1,11 @@
 import { getListings } from "@/lib/firestore";
+import { isFirebaseConfigured } from "@/lib/firebase";
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-  const listings = await getListings({ status: "ACTIVE" });
-
-  const listingUrls = listings.map((listing) => ({
-    url: `${baseUrl}/listings/${listing.slug}`,
-    lastModified: listing.updatedAt,
-    changeFrequency: "daily" as const,
-    priority: 0.8,
-  }));
-
-  return [
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -38,6 +30,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
-    ...listingUrls,
   ];
+
+  if (!isFirebaseConfigured()) {
+    return staticPages;
+  }
+
+  const listings = await getListings({ status: "ACTIVE" });
+
+  const listingUrls = listings.map((listing) => ({
+    url: `${baseUrl}/listings/${listing.slug}`,
+    lastModified: listing.updatedAt,
+    changeFrequency: "daily" as const,
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...listingUrls];
 }

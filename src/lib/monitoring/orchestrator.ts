@@ -5,7 +5,6 @@ import {
   addStatusChange,
 } from "@/lib/firestore";
 import { checkListingPage } from "./checker";
-import { sendStatusChangeEmail } from "@/lib/email";
 import { isTerminalStatus, cleanupListingAssets } from "@/lib/cleanup";
 import type { MonitoringSummary } from "./types";
 
@@ -96,15 +95,6 @@ export async function runMonitoringCycle(): Promise<MonitoringSummary> {
         source: "AUTO_DETECTED",
         notes: `Confidence: ${Math.round(result.confidence * 100)}%. ${result.reasoning ?? ""}`,
       });
-
-      // Send notification
-      await sendStatusChangeEmail(
-        listing.title,
-        listing.status,
-        result.detectedStatus,
-        result.confidence,
-        result.reasoning ?? ""
-      );
 
       // Auto-cleanup assets when listing reaches a terminal status
       if (isTerminalStatus(result.detectedStatus)) {
