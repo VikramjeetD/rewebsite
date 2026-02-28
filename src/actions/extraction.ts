@@ -1,0 +1,120 @@
+"use server";
+
+import { auth } from "@/lib/auth";
+import { fetchAndCleanPage, sha256Hash } from "@/lib/extraction/fetcher";
+import { extractListingFromHtml } from "@/lib/extraction/extractor";
+import {
+  createListing,
+  addStatusChange,
+  addPageSnapshot,
+} from "@/lib/firestore";
+import { slugify } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
+import type { ExtractionResult } from "@/types";
+
+export async function extractFromUrl(url: string): Promise<{
+  success: boolean;
+  data?: ExtractionResult;
+  error?: string;
+}> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const fetchResult = await fetchAndCleanPage(url);
+
+    if (fetchResult.httpStatus !== 200) {
+      return {
+        success: false,
+        error: `Page returned HTTP ${fetchResult.httpStatus}`,
+      };
+    }
+
+    const extracted = await extractListingFromHtml(
+      fetchResult.cleanedHtml,
+      url
+    );
+
+    return { success: true, data: extracted };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Extraction failed",
+    };
+  }
+}
+
+export async function saveExtractedListing(
+  data: ExtractionResult,
+  sourceUrl: string
+): Promise<{ success: boolean; listingId?: string; error?: string }> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const address = data.address ?? "Unknown Address";
+    const neighborhood = data.neighborhood ?? "Unknown";
+    const slug = slugify(`${address} ${neighborhood}`);
+
+    const listingId = await createListing({
+      slug,
+      title: data.title ?? `Listing at ${address}`,
+      description: data.description ?? "",
+      type: data.type ?? "RENTAL",
+      status: data.status ?? "ACTIVE",
+      price: data.price ?? 0,
+      priceUnit: data.priceUnit ?? null,
+      bedrooms: data.bedrooms ?? 0,
+      bathrooms: data.bathrooms ?? 1,
+      sqft: data.sqft ?? null,
+      address,
+      unit: data.unit ?? null,
+      neighborhood,
+      borough: data.borough ?? "Manhattan",
+      zipCode: null,
+      latitude: null,
+      longitude: null,
+      sourceUrl,
+      featured: false,
+      amenities: data.amenities,
+      photos: [],
+      availableDate: null,
+      listedDate: new Date(),
+    });
+
+    await addStatusChange(listingId, {
+      fromStatus: null,
+      toStatus: data.status ?? "ACTIVE",
+      source: "IMPORT",
+      notes: `Imported from ${sourceUrl}`,
+    });
+
+    // Store initial page snapshot
+    try {
+      const fetchResult = await fetchAndCleanPage(sourceUrl);
+      const contentHash = await sha256Hash(fetchResult.cleanedHtml);
+      await addPageSnapshot(listingId, {
+        url: sourceUrl,
+        contentHash,
+        httpStatus: fetchResult.httpStatus,
+        detectedStatus: data.status ?? null,
+        confidence: null,
+        error: null,
+        checkedAt: new Date(),
+      });
+    } catch {
+      // Non-critical: snapshot storage failure shouldn't block listing creation
+    }
+
+    revalidatePath("/admin/listings");
+    revalidatePath("/listings");
+    revalidatePath("/");
+
+    return { success: true, listingId };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Failed to save listing",
+    };
+  }
+}
