@@ -79,3 +79,40 @@ export function absoluteUrl(path: string): string {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return `${base}${path}`;
 }
+
+const ADDRESS_ABBREVIATIONS: [RegExp, string][] = [
+  [/\bstreet\b/gi, "st"],
+  [/\bavenue\b/gi, "ave"],
+  [/\bboulevard\b/gi, "blvd"],
+  [/\bdrive\b/gi, "dr"],
+  [/\broad\b/gi, "rd"],
+  [/\bplace\b/gi, "pl"],
+  [/\bcourt\b/gi, "ct"],
+  [/\blane\b/gi, "ln"],
+  [/\bwest\b/gi, "w"],
+  [/\beast\b/gi, "e"],
+  [/\bnorth\b/gi, "n"],
+  [/\bsouth\b/gi, "s"],
+];
+
+export function normalizeAddress(address: string): string {
+  let normalized = address.toLowerCase().trim();
+  // Remove extra whitespace
+  normalized = normalized.replace(/\s+/g, " ");
+  // Apply abbreviations
+  for (const [pattern, replacement] of ADDRESS_ABBREVIATIONS) {
+    normalized = normalized.replace(pattern, replacement);
+  }
+  // Remove trailing punctuation
+  normalized = normalized.replace(/[.,]+$/, "");
+  return normalized;
+}
+
+export function normalizeUnit(unit: string): string {
+  let normalized = unit.toLowerCase().trim();
+  // Strip common prefixes
+  normalized = normalized.replace(/^(apt\.?|apartment|unit|#)\s*/i, "");
+  // Remove leading zeros
+  normalized = normalized.replace(/^0+/, "");
+  return normalized;
+}

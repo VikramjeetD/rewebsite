@@ -110,3 +110,29 @@ export interface ExtractionResult {
   photoUrls: string[];
 }
 
+export interface BuildingUnit {
+  unit: string;
+  price: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  sqft: number | null;
+  description: string | null;
+  amenities: string[];
+}
+
+export interface BuildingExtractionResult {
+  address: string;
+  neighborhood: string | null;
+  borough: string | null;
+  type: ListingType | null;
+  buildingAmenities: string[];
+  units: BuildingUnit[];
+}
+
+export interface BuildingSyncComparison {
+  address: string;
+  removed: { listing: Listing; unit: string }[];
+  added: { unit: BuildingUnit; }[];
+  unchanged: { listing: Listing; unit: BuildingUnit }[];
+}
+

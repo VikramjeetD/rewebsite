@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ListingForm } from "@/components/admin/listing-form";
 import { createListingAction } from "@/actions/listings";
 import { UrlExtractor } from "@/components/admin/url-extractor";
+import { NewListingAutosave } from "./autosave-wrapper";
 
 export default function NewListingPage() {
   async function handleCreate(
@@ -45,7 +46,7 @@ export default function NewListingPage() {
           <h2 className="font-semibold">Manual Entry</h2>
         </CardHeader>
         <CardContent>
-          <ListingForm action={handleCreate} />
+          <NewListingAutosave action={handleCreate} />
         </CardContent>
       </Card>
     </div>

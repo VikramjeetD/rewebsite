@@ -70,4 +70,23 @@ export const extractionResultSchema = z.object({
   photoUrls: z.array(z.string()).optional().default([]),
 });
 
+export const buildingUnitSchema = z.object({
+  unit: z.string(),
+  price: z.number().nullable().optional().default(null),
+  bedrooms: z.number().nullable().optional().default(null),
+  bathrooms: z.number().nullable().optional().default(null),
+  sqft: z.number().nullable().optional().default(null),
+  description: z.string().nullable().optional().default(null),
+  amenities: z.array(z.string()).optional().default([]),
+});
+
+export const buildingExtractionResultSchema = z.object({
+  address: z.string(),
+  neighborhood: z.string().nullable().optional().default(null),
+  borough: z.string().nullable().optional().default(null),
+  type: z.enum(["RENTAL", "SALE"]).nullable().optional().default(null),
+  buildingAmenities: z.array(z.string()).optional().default([]),
+  units: z.array(buildingUnitSchema),
+});
+
 export const urlSchema = z.string().url("Please enter a valid URL");

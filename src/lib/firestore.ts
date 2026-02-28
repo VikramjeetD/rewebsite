@@ -306,6 +306,19 @@ export async function updateSiteSettings(
     );
 }
 
+// --- Building queries ---
+
+export async function getListingsByAddress(address: string): Promise<Listing[]> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("listings")
+    .where("address", "==", address)
+    .get();
+  return snapshot.docs.map((doc) =>
+    docToListing(doc.id, doc.data() as Record<string, unknown>)
+  );
+}
+
 // --- Neighborhoods (derived) ---
 
 export async function getNeighborhoods(): Promise<string[]> {

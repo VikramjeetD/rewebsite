@@ -14,6 +14,115 @@ import {
   cleanupListingFull,
 } from "@/lib/cleanup";
 
+export async function autosaveDraftAction(
+  draftId: string | null,
+  data: Record<string, string>
+): Promise<{ success: boolean; draftId?: string; error?: string }> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    // Relaxed parsing — fall back to defaults for missing/invalid fields
+    const title = data.title || "Untitled Draft";
+    const description = data.description || "";
+    const type = data.type === "SALE" ? "SALE" : "RENTAL";
+    const status = (data.status as ListingStatus) || "DRAFT";
+    const priceNum = Number(data.price) || 0;
+    const price = Math.round(priceNum * 100);
+    const priceUnit = data.priceUnit || null;
+    const bedrooms = Number(data.bedrooms) || 0;
+    const bathrooms = Number(data.bathrooms) || 1;
+    const sqft = data.sqft ? Number(data.sqft) || null : null;
+    const address = data.address || "";
+    const unit = data.unit || null;
+    const neighborhood = data.neighborhood || "";
+    const borough = data.borough || "Manhattan";
+    const zipCode = data.zipCode || null;
+    const sourceUrl = data.sourceUrl || null;
+    const featured = data.featured === "on";
+    const amenities = (data.amenities || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const availableDate = data.availableDate
+      ? new Date(data.availableDate)
+      : null;
+
+    const slug = slugify(
+      `${address || "draft"} ${neighborhood || "unknown"}`
+    );
+
+    if (draftId) {
+      // Update existing draft
+      await updateListing(draftId, {
+        slug,
+        title,
+        description,
+        type,
+        status,
+        price,
+        priceUnit,
+        bedrooms,
+        bathrooms,
+        sqft,
+        address,
+        unit,
+        neighborhood,
+        borough,
+        zipCode,
+        sourceUrl,
+        featured,
+        amenities,
+        availableDate,
+      });
+      revalidatePath("/admin/listings");
+      return { success: true, draftId };
+    } else {
+      // Create new draft
+      const id = await createListing({
+        slug,
+        title,
+        description,
+        type,
+        status: "DRAFT",
+        price,
+        priceUnit,
+        bedrooms,
+        bathrooms,
+        sqft,
+        address,
+        unit,
+        neighborhood,
+        borough,
+        zipCode,
+        latitude: null,
+        longitude: null,
+        sourceUrl,
+        featured,
+        amenities,
+        photos: [],
+        availableDate,
+        listedDate: new Date(),
+      });
+
+      await addStatusChange(id, {
+        fromStatus: null,
+        toStatus: "DRAFT",
+        source: "MANUAL",
+        notes: "Draft autosaved",
+      });
+
+      revalidatePath("/admin/listings");
+      return { success: true, draftId: id };
+    }
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Autosave failed",
+    };
+  }
+}
+
 export async function createListingAction(formData: FormData) {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");

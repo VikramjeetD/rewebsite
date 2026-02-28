@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { autosaveDraftAction } from "@/actions/listings";
 import type { Listing } from "@/types";
 
 const boroughs = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
@@ -21,19 +22,89 @@ interface ListingFormProps {
     prevState: string | null,
     formData: FormData
   ) => Promise<string | null>;
+  enableAutosave?: boolean;
+  onDraftCreated?: (id: string) => void;
 }
 
-export function ListingForm({ listing, action }: ListingFormProps) {
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+export function ListingForm({
+  listing,
+  action,
+  enableAutosave = false,
+  onDraftCreated,
+}: ListingFormProps) {
   const [error, formAction, isPending] = useActionState<
     string | null,
     FormData
   >(action, null);
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const draftIdRef = useRef<string | null>(listing?.id ?? null);
+  const lastSavedDataRef = useRef<string>("");
+  const isSubmittingRef = useRef(false);
+
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
+  const collectFormData = useCallback((): Record<string, string> => {
+    if (!formRef.current) return {};
+    const fd = new FormData(formRef.current);
+    const obj: Record<string, string> = {};
+    for (const [key, value] of fd.entries()) {
+      obj[key] = value as string;
+    }
+    return obj;
+  }, []);
+
+  const performAutosave = useCallback(async () => {
+    if (!formRef.current || isSubmittingRef.current) return;
+
+    const data = collectFormData();
+    const json = JSON.stringify(data);
+
+    // Skip if nothing changed
+    if (json === lastSavedDataRef.current) return;
+
+    setSaveStatus("saving");
+    try {
+      const result = await autosaveDraftAction(draftIdRef.current, data);
+      if (result.success && result.draftId) {
+        lastSavedDataRef.current = json;
+        setLastSavedAt(new Date());
+        setSaveStatus("saved");
+
+        if (!draftIdRef.current && result.draftId) {
+          draftIdRef.current = result.draftId;
+          onDraftCreated?.(result.draftId);
+        }
+      } else {
+        setSaveStatus("error");
+      }
+    } catch {
+      setSaveStatus("error");
+    }
+  }, [collectFormData, onDraftCreated]);
+
+  useEffect(() => {
+    if (!enableAutosave) return;
+
+    const interval = setInterval(performAutosave, 3000);
+    return () => clearInterval(interval);
+  }, [enableAutosave, performAutosave]);
+
   // Price in dollars for display
   const priceInDollars = listing ? listing.price / 100 : "";
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form
+      ref={formRef}
+      action={(formData) => {
+        isSubmittingRef.current = true;
+        formAction(formData);
+      }}
+      className="space-y-6"
+    >
       {error && (
         <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
           {String(error)}
@@ -283,7 +354,7 @@ export function ListingForm({ listing, action }: ListingFormProps) {
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
         <Button type="submit" disabled={isPending}>
           {isPending
             ? "Saving..."
@@ -291,6 +362,18 @@ export function ListingForm({ listing, action }: ListingFormProps) {
               ? "Update Listing"
               : "Create Listing"}
         </Button>
+
+        {enableAutosave && (
+          <span className="text-xs text-gray-500">
+            {saveStatus === "saving" && "Saving draft..."}
+            {saveStatus === "saved" &&
+              lastSavedAt &&
+              `Draft saved at ${lastSavedAt.toLocaleTimeString()}`}
+            {saveStatus === "error" && (
+              <span className="text-red-500">Autosave failed</span>
+            )}
+          </span>
+        )}
       </div>
     </form>
   );

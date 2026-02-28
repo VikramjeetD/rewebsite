@@ -68,7 +68,7 @@ export default async function EditListingPage({
           <h2 className="font-semibold">Listing Details</h2>
         </CardHeader>
         <CardContent>
-          <ListingForm listing={listing} action={handleUpdate} />
+          <ListingForm listing={listing} action={handleUpdate} enableAutosave />
         </CardContent>
       </Card>
     </div>

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Building2,
   PlusCircle,
+  RefreshCw,
   Activity,
   LogOut,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/listings", label: "Listings", icon: Building2 },
   { href: "/admin/listings/new", label: "Add Listing", icon: PlusCircle },
+  { href: "/admin/building-sync", label: "Building Sync", icon: RefreshCw },
   { href: "/admin/status-logs", label: "Status Logs", icon: Activity },
 ];
 
