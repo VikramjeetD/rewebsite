@@ -2,7 +2,8 @@ import { getListings } from "@/lib/firestore";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Building2, CheckCircle, Clock, DollarSign } from "lucide-react";
 import Link from "next/link";
-import { formatPrice, getStatusColor, getStatusLabel } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { GeocodeButton } from "./_components/geocode-button";
 
 export default async function AdminDashboard() {
@@ -120,11 +121,7 @@ export default async function AdminDashboard() {
                       </Link>
                     </td>
                     <td className="py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(listing.status)}`}
-                      >
-                        {getStatusLabel(listing.status)}
-                      </span>
+                      <StatusBadge status={listing.status} />
                     </td>
                     <td className="py-3">
                       {formatPrice(listing.price, listing.priceUnit)}

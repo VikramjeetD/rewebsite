@@ -151,7 +151,7 @@ describe("cleanupListingAssets", () => {
     });
   });
 
-  it("does not return snapshotsDeleted (assets-only cleanup)", async () => {
+  it("returns only photosDeleted field", async () => {
     const result = await cleanupListingAssets("test-listing");
     expect(result).toEqual({ photosDeleted: 2 });
   });

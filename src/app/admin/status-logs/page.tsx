@@ -1,6 +1,6 @@
 import { getListings, getStatusChanges } from "@/lib/firestore";
 import { Card, CardContent } from "@/components/ui/card";
-import { getStatusColor, getStatusLabel } from "@/lib/utils";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { format } from "date-fns";
 
 export default async function StatusLogsPage() {
@@ -71,21 +71,13 @@ export default async function StatusLogsPage() {
                     </td>
                     <td className="px-6 py-3">
                       {change.fromStatus ? (
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(change.fromStatus)}`}
-                        >
-                          {getStatusLabel(change.fromStatus)}
-                        </span>
+                        <StatusBadge status={change.fromStatus} />
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
                     <td className="px-6 py-3">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(change.toStatus)}`}
-                      >
-                        {getStatusLabel(change.toStatus)}
-                      </span>
+                      <StatusBadge status={change.toStatus} />
                     </td>
                     <td className="px-6 py-3">
                       <span className="text-xs text-gray-500">

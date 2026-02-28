@@ -18,7 +18,6 @@ export async function geocodeAddress(
 
     if (data.status === "OK" && data.results?.length > 0) {
       const { lat, lng } = data.results[0].geometry.location;
-      console.log(`[geocode] "${fullAddress}" → ${lat}, ${lng}`);
       return { lat, lng };
     }
 

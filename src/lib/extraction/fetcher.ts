@@ -62,22 +62,3 @@ function cleanHtml(html: string): string {
 
   return structuredHtml || text.slice(0, 30000);
 }
-
-export function hashContent(content: string): string {
-  // Simple hash using Web Crypto-compatible approach
-  let hash = 0;
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(36);
-}
-
-export async function sha256Hash(content: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(content);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}

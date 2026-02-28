@@ -2,17 +2,9 @@
 
 import { updateListingStatusAction } from "@/actions/listings";
 import { getStatusColor, getStatusLabel } from "@/lib/utils";
+import { ALL_STATUSES } from "@/lib/constants";
 import type { ListingStatus } from "@/types";
 import { useTransition } from "react";
-
-const statuses: ListingStatus[] = [
-  "ACTIVE",
-  "IN_CONTRACT",
-  "RENTED",
-  "SOLD",
-  "OFF_MARKET",
-  "DRAFT",
-];
 
 interface ListingStatusDropdownProps {
   listingId: string;
@@ -40,7 +32,7 @@ export function ListingStatusDropdown({
       disabled={isPending}
       className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(currentStatus)} border-0 focus:outline-none focus:ring-1 focus:ring-[var(--accent)]`}
     >
-      {statuses.map((s) => (
+      {ALL_STATUSES.map((s) => (
         <option key={s} value={s}>
           {getStatusLabel(s)}
         </option>

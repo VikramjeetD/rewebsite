@@ -15,21 +15,23 @@ export async function submitContactAction(formData: FormData) {
     if (listing) listingTitle = listing.title;
   }
 
-  await createContactSubmission({
-    name: parsed.name,
-    email: parsed.email,
-    phone: parsed.phone ?? null,
-    message: parsed.message,
-    listingId: parsed.listingId ?? null,
-  });
-
-  await sendContactEmail(
-    parsed.name,
-    parsed.email,
-    parsed.phone ?? null,
-    parsed.message,
-    listingTitle
-  );
+  // Run submission creation and email send in parallel
+  await Promise.all([
+    createContactSubmission({
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone ?? null,
+      message: parsed.message,
+      listingId: parsed.listingId ?? null,
+    }),
+    sendContactEmail(
+      parsed.name,
+      parsed.email,
+      parsed.phone ?? null,
+      parsed.message,
+      listingTitle
+    ),
+  ]);
 
   return { success: true };
 }

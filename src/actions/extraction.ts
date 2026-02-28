@@ -6,10 +6,10 @@ import {
   extractListingFromHtml,
   extractListingFromText,
 } from "@/lib/extraction/extractor";
-import { createListing, addStatusChange } from "@/lib/firestore";
+import { createListingWithStatus } from "@/lib/firestore";
 import { slugify } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
-import { revalidatePath } from "next/cache";
+import { revalidateListingPaths } from "@/lib/revalidate";
 import type { ExtractionResult } from "@/types";
 
 export async function extractFromUrl(url: string): Promise<{
@@ -88,44 +88,44 @@ export async function saveExtractedListing(
     const slug = slugify(`${address} ${neighborhood}`);
     const coords = await geocodeAddress(address, neighborhood, borough);
 
-    const listingId = await createListing({
-      slug,
-      title: data.title ?? `Listing at ${address}`,
-      description: data.description ?? "",
-      type: data.type ?? "RENTAL",
-      status: data.status ?? "ACTIVE",
-      price: data.price ?? 0,
-      priceUnit: data.priceUnit ?? null,
-      bedrooms: data.bedrooms ?? 0,
-      bathrooms: data.bathrooms ?? 1,
-      sqft: data.sqft ?? null,
-      address,
-      unit: data.unit ?? null,
-      neighborhood,
-      borough,
-      zipCode: null,
-      latitude: coords?.lat ?? null,
-      longitude: coords?.lng ?? null,
-      sourceUrl: sourceUrl ?? null,
-      featured: false,
-      amenities: data.amenities,
-      photos: [],
-      availableDate: null,
-      listedDate: new Date(),
-    });
+    const status = data.status ?? "ACTIVE";
+    const listingId = await createListingWithStatus(
+      {
+        slug,
+        title: data.title ?? `Listing at ${address}`,
+        description: data.description ?? "",
+        type: data.type ?? "RENTAL",
+        status,
+        price: data.price ?? 0,
+        priceUnit: data.priceUnit ?? null,
+        bedrooms: data.bedrooms ?? 0,
+        bathrooms: data.bathrooms ?? 1,
+        sqft: data.sqft ?? null,
+        address,
+        unit: data.unit ?? null,
+        neighborhood,
+        borough,
+        zipCode: null,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
+        sourceUrl: sourceUrl ?? null,
+        featured: false,
+        amenities: data.amenities,
+        photos: [],
+        availableDate: null,
+        listedDate: new Date(),
+      },
+      {
+        fromStatus: null,
+        toStatus: status,
+        source: "IMPORT",
+        notes: sourceUrl
+          ? `Imported from ${sourceUrl}`
+          : "Imported from pasted content",
+      }
+    );
 
-    await addStatusChange(listingId, {
-      fromStatus: null,
-      toStatus: data.status ?? "ACTIVE",
-      source: "IMPORT",
-      notes: sourceUrl
-        ? `Imported from ${sourceUrl}`
-        : "Imported from pasted content",
-    });
-
-    revalidatePath("/admin/listings");
-    revalidatePath("/listings");
-    revalidatePath("/");
+    revalidateListingPaths();
 
     return { success: true, listingId };
   } catch (e) {

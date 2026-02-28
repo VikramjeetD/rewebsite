@@ -1,14 +1,10 @@
 import { del } from "@vercel/blob";
 import { getDb } from "./firebase";
 import { getListingById } from "./firestore";
+import { TERMINAL_STATUSES } from "@/lib/constants";
 import type { ListingStatus } from "@/types";
 
-/** Statuses that mean a listing is no longer active and assets can be purged. */
-export const TERMINAL_STATUSES: ListingStatus[] = [
-  "RENTED",
-  "SOLD",
-  "OFF_MARKET",
-];
+export { TERMINAL_STATUSES };
 
 export function isTerminalStatus(status: ListingStatus): boolean {
   return TERMINAL_STATUSES.includes(status);

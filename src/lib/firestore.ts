@@ -141,9 +141,57 @@ export async function updateListing(
   await db.collection("listings").doc(id).update(updateData);
 }
 
-export async function deleteListing(id: string): Promise<void> {
+/** Atomically creates a listing and its initial status change in a single batch. */
+export async function createListingWithStatus(
+  data: Omit<Listing, "id" | "createdAt" | "updatedAt">,
+  statusData: Omit<StatusChange, "id" | "listingId" | "createdAt">
+): Promise<string> {
   const db = getDb();
-  await db.collection("listings").doc(id).delete();
+  const batch = db.batch();
+
+  const listingRef = db.collection("listings").doc();
+  batch.set(listingRef, {
+    ...data,
+    availableDate: data.availableDate
+      ? Timestamp.fromDate(data.availableDate)
+      : null,
+    listedDate: Timestamp.fromDate(data.listedDate),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  const statusRef = listingRef.collection("statusChanges").doc();
+  batch.set(statusRef, {
+    ...statusData,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  await batch.commit();
+  return listingRef.id;
+}
+
+/** Atomically updates a listing status and records the status change. */
+export async function updateListingStatus(
+  id: string,
+  newStatus: string,
+  statusData: Omit<StatusChange, "id" | "listingId" | "createdAt">
+): Promise<void> {
+  const db = getDb();
+  const batch = db.batch();
+
+  const listingRef = db.collection("listings").doc(id);
+  batch.update(listingRef, {
+    status: newStatus,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  const statusRef = listingRef.collection("statusChanges").doc();
+  batch.set(statusRef, {
+    ...statusData,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  await batch.commit();
 }
 
 // --- Status Changes ---
@@ -321,10 +369,16 @@ export async function getListingsByAddress(
   );
 }
 
-// --- Neighborhoods (derived) ---
+// --- Neighborhoods (derived, cached) ---
 
-export async function getNeighborhoods(): Promise<string[]> {
-  const listings = await getListings({ status: "ACTIVE" });
-  const neighborhoods = new Set(listings.map((l) => l.neighborhood));
-  return Array.from(neighborhoods).sort();
-}
+import { unstable_cache } from "next/cache";
+
+export const getNeighborhoods = unstable_cache(
+  async (): Promise<string[]> => {
+    const listings = await getListings({ status: "ACTIVE" });
+    const neighborhoods = new Set(listings.map((l) => l.neighborhood));
+    return Array.from(neighborhoods).sort();
+  },
+  ["neighborhoods"],
+  { revalidate: 300 }
+);

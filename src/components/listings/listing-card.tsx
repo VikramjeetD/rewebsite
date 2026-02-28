@@ -1,11 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  formatPrice,
-  formatBedrooms,
-  getStatusColor,
-  getStatusLabel,
-} from "@/lib/utils";
+import { formatPrice, formatBedrooms } from "@/lib/utils";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Listing } from "@/types";
 import { MapPin, Bed, Bath, Maximize2 } from "lucide-react";
 
@@ -37,11 +33,7 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
         )}
         <div className="absolute left-3 top-3 flex gap-2">
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusColor(listing.status)}`}
-          >
-            {getStatusLabel(listing.status)}
-          </span>
+          <StatusBadge status={listing.status} />
           <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-700">
             {listing.type === "RENTAL" ? "For Rent" : "For Sale"}
           </span>

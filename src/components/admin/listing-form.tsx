@@ -8,19 +8,19 @@ import {
   useCallback,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { autosaveDraftAction } from "@/actions/listings";
+import { BOROUGHS, LISTING_STATUSES } from "@/lib/constants";
 import type { Listing } from "@/types";
 
-const boroughs = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
-
-const statuses = [
-  { value: "DRAFT", label: "Draft" },
-  { value: "ACTIVE", label: "Active" },
-  { value: "IN_CONTRACT", label: "In Contract" },
-  { value: "RENTED", label: "Rented" },
-  { value: "SOLD", label: "Sold" },
-  { value: "OFF_MARKET", label: "Off Market" },
+const TYPE_OPTIONS = [
+  { value: "RENTAL", label: "Rental" },
+  { value: "SALE", label: "Sale" },
 ];
+
+const BOROUGH_OPTIONS = BOROUGHS.map((b) => ({ value: b, label: b }));
 
 interface ListingFormProps {
   listing?: Listing;
@@ -119,231 +119,142 @@ export function ListingForm({
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Title
-          </label>
-          <input
+          <Input
             name="title"
+            label="Title"
             defaultValue={listing?.title}
             required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <textarea
+          <Textarea
             name="description"
+            label="Description"
             defaultValue={listing?.description}
             required
             rows={4}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Type
-          </label>
-          <select
-            name="type"
-            defaultValue={listing?.type ?? "RENTAL"}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          >
-            <option value="RENTAL">Rental</option>
-            <option value="SALE">Sale</option>
-          </select>
-        </div>
+        <Select
+          name="type"
+          label="Type"
+          defaultValue={listing?.type ?? "RENTAL"}
+          options={TYPE_OPTIONS}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Status
-          </label>
-          <select
-            name="status"
-            defaultValue={listing?.status ?? "DRAFT"}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          >
-            {statuses.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          name="status"
+          label="Status"
+          defaultValue={listing?.status ?? "DRAFT"}
+          options={LISTING_STATUSES}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Price (dollars)
-          </label>
-          <input
-            name="price"
-            type="number"
-            step="1"
-            min="0"
-            defaultValue={priceInDollars}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="price"
+          label="Price (dollars)"
+          type="number"
+          step="1"
+          min="0"
+          defaultValue={priceInDollars}
+          required
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Price Unit (e.g., &quot;month&quot; for rentals)
-          </label>
-          <input
-            name="priceUnit"
-            defaultValue={listing?.priceUnit ?? ""}
-            placeholder="month"
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="priceUnit"
+          label='Price Unit (e.g., "month" for rentals)'
+          defaultValue={listing?.priceUnit ?? ""}
+          placeholder="month"
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Bedrooms (0 = Studio)
-          </label>
-          <input
-            name="bedrooms"
-            type="number"
-            min="0"
-            max="20"
-            defaultValue={listing?.bedrooms ?? 0}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="bedrooms"
+          label="Bedrooms (0 = Studio)"
+          type="number"
+          min="0"
+          max="20"
+          defaultValue={listing?.bedrooms ?? 0}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Bathrooms
-          </label>
-          <input
-            name="bathrooms"
-            type="number"
-            min="0"
-            max="20"
-            step="0.5"
-            defaultValue={listing?.bathrooms ?? 1}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="bathrooms"
+          label="Bathrooms"
+          type="number"
+          min="0"
+          max="20"
+          step="0.5"
+          defaultValue={listing?.bathrooms ?? 1}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Sqft
-          </label>
-          <input
-            name="sqft"
-            type="number"
-            min="0"
-            defaultValue={listing?.sqft ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="sqft"
+          label="Sqft"
+          type="number"
+          min="0"
+          defaultValue={listing?.sqft ?? ""}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Available Date
-          </label>
-          <input
-            name="availableDate"
-            type="date"
-            defaultValue={
-              listing?.availableDate
-                ? listing.availableDate.toISOString().split("T")[0]
-                : ""
-            }
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="availableDate"
+          label="Available Date"
+          type="date"
+          defaultValue={
+            listing?.availableDate
+              ? listing.availableDate.toISOString().split("T")[0]
+              : ""
+          }
+        />
 
         <div className="md:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Address
-          </label>
-          <input
+          <Input
             name="address"
+            label="Address"
             defaultValue={listing?.address}
             required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Unit
-          </label>
-          <input
-            name="unit"
-            defaultValue={listing?.unit ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="unit"
+          label="Unit"
+          defaultValue={listing?.unit ?? ""}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Neighborhood
-          </label>
-          <input
-            name="neighborhood"
-            defaultValue={listing?.neighborhood}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="neighborhood"
+          label="Neighborhood"
+          defaultValue={listing?.neighborhood}
+          required
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Borough
-          </label>
-          <select
-            name="borough"
-            defaultValue={listing?.borough ?? "Manhattan"}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          >
-            {boroughs.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          name="borough"
+          label="Borough"
+          defaultValue={listing?.borough ?? "Manhattan"}
+          options={BOROUGH_OPTIONS}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Zip Code
-          </label>
-          <input
-            name="zipCode"
-            defaultValue={listing?.zipCode ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="zipCode"
+          label="Zip Code"
+          defaultValue={listing?.zipCode ?? ""}
+        />
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Source URL
-          </label>
-          <input
-            name="sourceUrl"
-            type="url"
-            defaultValue={listing?.sourceUrl ?? ""}
-            placeholder="https://streeteasy.com/..."
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
+        <Input
+          name="sourceUrl"
+          label="Source URL"
+          type="url"
+          defaultValue={listing?.sourceUrl ?? ""}
+          placeholder="https://streeteasy.com/..."
+        />
 
         <div className="md:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Amenities (comma-separated)
-          </label>
-          <input
+          <Input
             name="amenities"
+            label="Amenities (comma-separated)"
             defaultValue={listing?.amenities.join(", ") ?? ""}
             placeholder="Doorman, Gym, Roof Deck, Laundry"
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 

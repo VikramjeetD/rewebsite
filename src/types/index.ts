@@ -1,14 +1,27 @@
-export type ListingType = "RENTAL" | "SALE";
+export const ListingType = {
+  RENTAL: "RENTAL",
+  SALE: "SALE",
+} as const;
+export type ListingType = (typeof ListingType)[keyof typeof ListingType];
 
+export const ListingStatus = {
+  ACTIVE: "ACTIVE",
+  IN_CONTRACT: "IN_CONTRACT",
+  RENTED: "RENTED",
+  SOLD: "SOLD",
+  OFF_MARKET: "OFF_MARKET",
+  DRAFT: "DRAFT",
+} as const;
 export type ListingStatus =
-  | "ACTIVE"
-  | "IN_CONTRACT"
-  | "RENTED"
-  | "SOLD"
-  | "OFF_MARKET"
-  | "DRAFT";
+  (typeof ListingStatus)[keyof typeof ListingStatus];
 
-export type StatusChangeSource = "MANUAL" | "AUTO_DETECTED" | "IMPORT";
+export const StatusChangeSource = {
+  MANUAL: "MANUAL",
+  AUTO_DETECTED: "AUTO_DETECTED",
+  IMPORT: "IMPORT",
+} as const;
+export type StatusChangeSource =
+  (typeof StatusChangeSource)[keyof typeof StatusChangeSource];
 
 export interface ListingPhoto {
   url: string;
