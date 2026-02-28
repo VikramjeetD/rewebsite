@@ -1,8 +1,4 @@
-import {
-  formatPrice,
-  formatBedrooms,
-  formatBathrooms,
-} from "@/lib/utils";
+import { formatPrice, formatBedrooms, formatBathrooms } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   MapPin,
@@ -36,8 +32,8 @@ export function ListingDetails({ listing }: ListingDetailsProps) {
       <div className="mt-2 flex items-center gap-1 text-gray-600">
         <MapPin className="h-4 w-4" />
         {listing.address}
-        {listing.unit ? `, Unit ${listing.unit}` : ""},{" "}
-        {listing.neighborhood}, {listing.borough}
+        {listing.unit ? `, Unit ${listing.unit}` : ""}, {listing.neighborhood},{" "}
+        {listing.borough}
       </div>
 
       <p className="mt-2 text-2xl font-bold text-[var(--primary)]">

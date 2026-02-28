@@ -10,10 +10,7 @@ import {
 import { BuildingSyncInput } from "./building-sync-input";
 import { BuildingSyncReview } from "./building-sync-review";
 import { BuildingSyncDone } from "./building-sync-done";
-import type {
-  BuildingExtractionResult,
-  BuildingSyncComparison,
-} from "@/types";
+import type { BuildingExtractionResult, BuildingSyncComparison } from "@/types";
 
 type Phase = "input" | "review" | "done";
 
@@ -24,10 +21,12 @@ export function BuildingSync() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [extraction, setExtraction] =
-    useState<BuildingExtractionResult | null>(null);
-  const [comparison, setComparison] =
-    useState<BuildingSyncComparison | null>(null);
+  const [extraction, setExtraction] = useState<BuildingExtractionResult | null>(
+    null
+  );
+  const [comparison, setComparison] = useState<BuildingSyncComparison | null>(
+    null
+  );
   const [selectedRemovals, setSelectedRemovals] = useState<Set<string>>(
     new Set()
   );

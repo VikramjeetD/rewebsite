@@ -12,8 +12,7 @@ export const ListingStatus = {
   OFF_MARKET: "OFF_MARKET",
   DRAFT: "DRAFT",
 } as const;
-export type ListingStatus =
-  (typeof ListingStatus)[keyof typeof ListingStatus];
+export type ListingStatus = (typeof ListingStatus)[keyof typeof ListingStatus];
 
 export const StatusChangeSource = {
   MANUAL: "MANUAL",

@@ -43,10 +43,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (
-    process.env.NODE_ENV === "production" &&
-    isPrivateHost(parsed.hostname)
-  ) {
+  if (process.env.NODE_ENV === "production" && isPrivateHost(parsed.hostname)) {
     return NextResponse.json(
       { error: "Internal URLs are not allowed" },
       { status: 400 }

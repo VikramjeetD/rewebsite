@@ -215,11 +215,7 @@ export function ListingForm({
           />
         </div>
 
-        <Input
-          name="unit"
-          label="Unit"
-          defaultValue={listing?.unit ?? ""}
-        />
+        <Input name="unit" label="Unit" defaultValue={listing?.unit ?? ""} />
 
         <Input
           name="neighborhood"

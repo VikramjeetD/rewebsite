@@ -243,13 +243,9 @@ export function BuildingSyncReview({
             )}
           </Button>
           <span className="text-sm text-gray-500">
-            {selectedRemovals.size > 0 &&
-              `${selectedRemovals.size} removed`}
-            {selectedRemovals.size > 0 &&
-              selectedAdditions.size > 0 &&
-              ", "}
-            {selectedAdditions.size > 0 &&
-              `${selectedAdditions.size} created`}
+            {selectedRemovals.size > 0 && `${selectedRemovals.size} removed`}
+            {selectedRemovals.size > 0 && selectedAdditions.size > 0 && ", "}
+            {selectedAdditions.size > 0 && `${selectedAdditions.size} created`}
           </span>
         </div>
       )}

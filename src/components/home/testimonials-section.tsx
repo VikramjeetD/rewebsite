@@ -63,10 +63,7 @@ export function TestimonialsSection({
                   <p className="mt-2 text-xs font-medium text-gray-900">
                     {t.name}
                     {t.role && (
-                      <span className="text-gray-500">
-                        {" "}
-                        &middot; {t.role}
-                      </span>
+                      <span className="text-gray-500"> &middot; {t.role}</span>
                     )}
                   </p>
                 </div>
