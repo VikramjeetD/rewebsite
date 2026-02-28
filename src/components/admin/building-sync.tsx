@@ -33,12 +33,14 @@ export function BuildingSync() {
   const [error, setError] = useState("");
 
   // Extraction result
-  const [extraction, setExtraction] =
-    useState<BuildingExtractionResult | null>(null);
+  const [extraction, setExtraction] = useState<BuildingExtractionResult | null>(
+    null
+  );
 
   // Comparison result
-  const [comparison, setComparison] =
-    useState<BuildingSyncComparison | null>(null);
+  const [comparison, setComparison] = useState<BuildingSyncComparison | null>(
+    null
+  );
 
   // User selections
   const [selectedRemovals, setSelectedRemovals] = useState<Set<string>>(
@@ -233,9 +235,7 @@ export function BuildingSync() {
                   </h2>
                   <p className="text-sm text-gray-500">
                     {extraction.neighborhood}
-                    {extraction.borough
-                      ? `, ${extraction.borough}`
-                      : ""}
+                    {extraction.borough ? `, ${extraction.borough}` : ""}
                     {" — "}
                     {extraction.units.length} unit
                     {extraction.units.length !== 1 ? "s" : ""} found
@@ -395,16 +395,15 @@ export function BuildingSync() {
           )}
 
           {/* No changes */}
-          {comparison.removed.length === 0 &&
-            comparison.added.length === 0 && (
-              <Card>
-                <CardContent>
-                  <p className="py-4 text-center text-gray-500">
-                    Everything is already in sync. No changes needed.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+          {comparison.removed.length === 0 && comparison.added.length === 0 && (
+            <Card>
+              <CardContent>
+                <p className="py-4 text-center text-gray-500">
+                  Everything is already in sync. No changes needed.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Actions */}
           {(comparison.removed.length > 0 || comparison.added.length > 0) && (
@@ -423,8 +422,7 @@ export function BuildingSync() {
                   </>
                 ) : (
                   <>
-                    Sync{" "}
-                    {selectedRemovals.size + selectedAdditions.size} change
+                    Sync {selectedRemovals.size + selectedAdditions.size} change
                     {selectedRemovals.size + selectedAdditions.size !== 1
                       ? "s"
                       : ""}

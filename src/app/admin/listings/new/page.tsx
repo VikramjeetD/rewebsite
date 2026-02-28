@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ListingForm } from "@/components/admin/listing-form";
 import { createListingAction } from "@/actions/listings";
 import { UrlExtractor } from "@/components/admin/url-extractor";
 import { NewListingAutosave } from "./autosave-wrapper";

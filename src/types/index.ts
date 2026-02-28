@@ -132,7 +132,6 @@ export interface BuildingExtractionResult {
 export interface BuildingSyncComparison {
   address: string;
   removed: { listing: Listing; unit: string }[];
-  added: { unit: BuildingUnit; }[];
+  added: { unit: BuildingUnit }[];
   unchanged: { listing: Listing; unit: BuildingUnit }[];
 }
-

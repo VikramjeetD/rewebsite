@@ -3,7 +3,10 @@ import {
   SchemaType,
   type Schema,
 } from "@google/generative-ai";
-import { extractionResultSchema, buildingExtractionResultSchema } from "@/lib/validations";
+import {
+  extractionResultSchema,
+  buildingExtractionResultSchema,
+} from "@/lib/validations";
 import type { ExtractionResult, BuildingExtractionResult } from "@/types";
 
 const EXTRACTION_INSTRUCTIONS = `You are a real estate listing data extractor. Extract structured listing data from the provided content.
@@ -185,7 +188,8 @@ const buildingResponseSchema: Schema = {
     },
     borough: {
       type: SchemaType.STRING,
-      description: "NYC borough: Manhattan, Brooklyn, Queens, Bronx, or Staten Island",
+      description:
+        "NYC borough: Manhattan, Brooklyn, Queens, Bronx, or Staten Island",
       nullable: true,
     },
     type: {

@@ -96,5 +96,4 @@ describe("Type definitions", () => {
     };
     expect(result.title).toBeNull();
   });
-
 });

@@ -6,10 +6,7 @@ import {
   extractListingFromHtml,
   extractListingFromText,
 } from "@/lib/extraction/extractor";
-import {
-  createListing,
-  addStatusChange,
-} from "@/lib/firestore";
+import { createListing, addStatusChange } from "@/lib/firestore";
 import { slugify } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
 import { revalidatePath } from "next/cache";
@@ -62,7 +59,10 @@ export async function extractFromContent(
     const trimmed = content.trim();
     if (!trimmed) return { success: false, error: "No content provided" };
     if (trimmed.length < 50)
-      return { success: false, error: "Content too short — paste the full page text" };
+      return {
+        success: false,
+        error: "Content too short — paste the full page text",
+      };
 
     const extracted = await extractListingFromText(trimmed, sourceUrl);
     return { success: true, data: extracted };
@@ -118,7 +118,9 @@ export async function saveExtractedListing(
       fromStatus: null,
       toStatus: data.status ?? "ACTIVE",
       source: "IMPORT",
-      notes: sourceUrl ? `Imported from ${sourceUrl}` : "Imported from pasted content",
+      notes: sourceUrl
+        ? `Imported from ${sourceUrl}`
+        : "Imported from pasted content",
     });
 
     revalidatePath("/admin/listings");

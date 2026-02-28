@@ -308,7 +308,9 @@ export async function updateSiteSettings(
 
 // --- Building queries ---
 
-export async function getListingsByAddress(address: string): Promise<Listing[]> {
+export async function getListingsByAddress(
+  address: string
+): Promise<Listing[]> {
   const db = getDb();
   const snapshot = await db
     .collection("listings")
@@ -326,4 +328,3 @@ export async function getNeighborhoods(): Promise<string[]> {
   const neighborhoods = new Set(listings.map((l) => l.neighborhood));
   return Array.from(neighborhoods).sort();
 }
-

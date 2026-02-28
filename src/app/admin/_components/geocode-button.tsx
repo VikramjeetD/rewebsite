@@ -4,7 +4,11 @@ import { useState } from "react";
 import { geocodeAllListingsAction } from "@/actions/listings";
 import { MapPin } from "lucide-react";
 
-export function GeocodeButton({ ungeocodedCount }: { ungeocodedCount: number }) {
+export function GeocodeButton({
+  ungeocodedCount,
+}: {
+  ungeocodedCount: number;
+}) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 

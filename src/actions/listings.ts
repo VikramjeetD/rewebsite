@@ -1,7 +1,12 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { createListing, updateListing, addStatusChange, getListings } from "@/lib/firestore";
+import {
+  createListing,
+  updateListing,
+  addStatusChange,
+  getListings,
+} from "@/lib/firestore";
 import { listingFormSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
@@ -48,9 +53,7 @@ export async function autosaveDraftAction(
       ? new Date(data.availableDate)
       : null;
 
-    const slug = slugify(
-      `${address || "draft"} ${neighborhood || "unknown"}`
-    );
+    const slug = slugify(`${address || "draft"} ${neighborhood || "unknown"}`);
 
     if (draftId) {
       // Update existing draft
@@ -140,7 +143,11 @@ export async function createListingAction(formData: FormData) {
   });
 
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
-  const coords = await geocodeAddress(parsed.address, parsed.neighborhood, parsed.borough);
+  const coords = await geocodeAddress(
+    parsed.address,
+    parsed.neighborhood,
+    parsed.borough
+  );
 
   const id = await createListing({
     slug,
@@ -198,7 +205,11 @@ export async function updateListingAction(id: string, formData: FormData) {
   });
 
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
-  const coords = await geocodeAddress(parsed.address, parsed.neighborhood, parsed.borough);
+  const coords = await geocodeAddress(
+    parsed.address,
+    parsed.neighborhood,
+    parsed.borough
+  );
 
   await updateListing(id, {
     slug,
@@ -283,7 +294,10 @@ export async function updateListingPhotosAction(
   revalidatePath("/");
 }
 
-export async function geocodeAllListingsAction(): Promise<{ geocoded: number; total: number }> {
+export async function geocodeAllListingsAction(): Promise<{
+  geocoded: number;
+  total: number;
+}> {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
@@ -292,9 +306,16 @@ export async function geocodeAllListingsAction(): Promise<{ geocoded: number; to
 
   let geocoded = 0;
   for (const listing of needsGeocoding) {
-    const coords = await geocodeAddress(listing.address, listing.neighborhood, listing.borough);
+    const coords = await geocodeAddress(
+      listing.address,
+      listing.neighborhood,
+      listing.borough
+    );
     if (coords) {
-      await updateListing(listing.id, { latitude: coords.lat, longitude: coords.lng });
+      await updateListing(listing.id, {
+        latitude: coords.lat,
+        longitude: coords.lng,
+      });
       geocoded++;
     }
     // Small delay to respect rate limits

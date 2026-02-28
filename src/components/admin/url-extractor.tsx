@@ -8,7 +8,13 @@ import {
   saveExtractedListing,
 } from "@/actions/extraction";
 import { useRouter } from "next/navigation";
-import { Loader2, Check, AlertCircle, Link, ClipboardPaste } from "lucide-react";
+import {
+  Loader2,
+  Check,
+  AlertCircle,
+  Link,
+  ClipboardPaste,
+} from "lucide-react";
 import type { ExtractionResult } from "@/types";
 
 type Mode = "url" | "paste";
@@ -68,7 +74,11 @@ export function UrlExtractor() {
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => { setMode("url"); setExtracted(null); setError(""); }}
+          onClick={() => {
+            setMode("url");
+            setExtracted(null);
+            setError("");
+          }}
           className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             mode === "url"
               ? "bg-[var(--primary)] text-white"
@@ -80,7 +90,11 @@ export function UrlExtractor() {
         </button>
         <button
           type="button"
-          onClick={() => { setMode("paste"); setExtracted(null); setError(""); }}
+          onClick={() => {
+            setMode("paste");
+            setExtracted(null);
+            setError("");
+          }}
           className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             mode === "paste"
               ? "bg-[var(--primary)] text-white"

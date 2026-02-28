@@ -151,9 +151,9 @@ describe("cleanupListingAssets", () => {
     });
   });
 
-  it("deletes page snapshots subcollection", async () => {
+  it("does not return snapshotsDeleted (assets-only cleanup)", async () => {
     const result = await cleanupListingAssets("test-listing");
-    expect(result.snapshotsDeleted).toBe(0); // empty subcollection in mock
+    expect(result).toEqual({ photosDeleted: 2 });
   });
 });
 

@@ -8,7 +8,7 @@ import {
   updateListing,
   addStatusChange,
 } from "@/lib/firestore";
-import { slugify, normalizeAddress, normalizeUnit } from "@/lib/utils";
+import { slugify, normalizeUnit } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
 import { cleanupListingAssets } from "@/lib/cleanup";
 import { revalidatePath } from "next/cache";
@@ -70,8 +70,6 @@ export async function compareBuildingListings(
     const activeListings = existingListings.filter((l) =>
       ACTIVE_STATUSES.includes(l.status)
     );
-
-    const normalizedExtractedAddress = normalizeAddress(extraction.address);
 
     // Build a map of existing listings by normalized unit
     const existingByUnit = new Map<string, Listing>();
@@ -166,13 +164,19 @@ export async function executeBuildingSync(params: {
     // Geocode once for the building
     const neighborhood = extraction.neighborhood ?? "Unknown";
     const borough = extraction.borough ?? "Manhattan";
-    const coords = await geocodeAddress(extraction.address, neighborhood, borough);
+    const coords = await geocodeAddress(
+      extraction.address,
+      neighborhood,
+      borough
+    );
 
     // Create new listings
     let createdCount = 0;
     for (const unit of addUnits) {
       const title = `${extraction.address} #${unit.unit}`;
-      const slug = slugify(`${extraction.address} ${unit.unit} ${neighborhood}`);
+      const slug = slugify(
+        `${extraction.address} ${unit.unit} ${neighborhood}`
+      );
       const amenities = [...extraction.buildingAmenities, ...unit.amenities];
 
       const listingId = await createListing({

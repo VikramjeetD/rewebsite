@@ -22,7 +22,9 @@ export async function geocodeAddress(
       return { lat, lng };
     }
 
-    console.warn(`[geocode] No results for "${fullAddress}" (status: ${data.status})`);
+    console.warn(
+      `[geocode] No results for "${fullAddress}" (status: ${data.status})`
+    );
     return null;
   } catch (error) {
     console.error("[geocode] Error:", error);
