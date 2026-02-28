@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function sendStatusChangeEmail(
   listingTitle: string,
@@ -12,7 +14,7 @@ export async function sendStatusChangeEmail(
   const agentEmail = process.env.ADMIN_EMAIL;
   if (!agentEmail) return;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "RE Website <onboarding@resend.dev>",
     to: agentEmail,
     subject: `Listing Status Change: ${listingTitle} → ${newStatus}`,
@@ -38,7 +40,7 @@ export async function sendContactEmail(
   const agentEmail = process.env.ADMIN_EMAIL;
   if (!agentEmail) return;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "RE Website <onboarding@resend.dev>",
     to: agentEmail,
     subject: `New Contact: ${name}${listingTitle ? ` re: ${listingTitle}` : ""}`,

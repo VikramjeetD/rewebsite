@@ -1,14 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { authConfig } from "./auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  pages: {
-    signIn: "/auth/signin",
-  },
-  session: {
-    strategy: "jwt",
-  },
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -38,12 +34,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    authorized({ auth: session, request: { nextUrl } }) {
-      const isLoggedIn = !!session?.user;
-      const isAdmin = nextUrl.pathname.startsWith("/admin");
-      if (isAdmin) return isLoggedIn;
-      return true;
-    },
-  },
 });
