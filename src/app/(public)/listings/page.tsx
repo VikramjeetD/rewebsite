@@ -5,8 +5,6 @@ import type { Metadata } from "next";
 import type { ListingStatus } from "@/types";
 import { Suspense } from "react";
 
-export const revalidate = 300;
-
 export const metadata: Metadata = {
   title: "Listings",
   description:

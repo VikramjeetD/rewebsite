@@ -4,8 +4,6 @@ import { ListingCard } from "@/components/listings/listing-card";
 import { ArrowRight, Phone, Mail, Star } from "lucide-react";
 import type { Metadata } from "next";
 
-export const revalidate = 300; // ISR: revalidate every 5 minutes
-
 export const metadata: Metadata = {
   title: "NYC Real Estate Agent | Find Your Dream Home",
   description:
