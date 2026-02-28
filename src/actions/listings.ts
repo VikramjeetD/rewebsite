@@ -1,9 +1,10 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { createListing, updateListing, addStatusChange } from "@/lib/firestore";
+import { createListing, updateListing, addStatusChange, getListings } from "@/lib/firestore";
 import { listingFormSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
+import { geocodeAddress } from "@/lib/geocoding";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ListingPhoto, ListingStatus } from "@/types";
@@ -30,6 +31,7 @@ export async function createListingAction(formData: FormData) {
   });
 
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
+  const coords = await geocodeAddress(parsed.address, parsed.neighborhood, parsed.borough);
 
   const id = await createListing({
     slug,
@@ -47,8 +49,8 @@ export async function createListingAction(formData: FormData) {
     neighborhood: parsed.neighborhood,
     borough: parsed.borough,
     zipCode: parsed.zipCode ?? null,
-    latitude: null,
-    longitude: null,
+    latitude: coords?.lat ?? null,
+    longitude: coords?.lng ?? null,
     sourceUrl: parsed.sourceUrl || null,
     featured: parsed.featured,
     amenities: parsed.amenities,
@@ -87,6 +89,7 @@ export async function updateListingAction(id: string, formData: FormData) {
   });
 
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
+  const coords = await geocodeAddress(parsed.address, parsed.neighborhood, parsed.borough);
 
   await updateListing(id, {
     slug,
@@ -104,6 +107,8 @@ export async function updateListingAction(id: string, formData: FormData) {
     neighborhood: parsed.neighborhood,
     borough: parsed.borough,
     zipCode: parsed.zipCode ?? null,
+    latitude: coords?.lat ?? null,
+    longitude: coords?.lng ?? null,
     sourceUrl: parsed.sourceUrl || null,
     featured: parsed.featured,
     amenities: parsed.amenities,
@@ -167,4 +172,29 @@ export async function updateListingPhotosAction(
   revalidatePath("/admin/listings");
   revalidatePath("/listings");
   revalidatePath("/");
+}
+
+export async function geocodeAllListingsAction(): Promise<{ geocoded: number; total: number }> {
+  const session = await auth();
+  if (!session?.user) throw new Error("Unauthorized");
+
+  const allListings = await getListings();
+  const needsGeocoding = allListings.filter((l) => l.latitude == null);
+
+  let geocoded = 0;
+  for (const listing of needsGeocoding) {
+    const coords = await geocodeAddress(listing.address, listing.neighborhood, listing.borough);
+    if (coords) {
+      await updateListing(listing.id, { latitude: coords.lat, longitude: coords.lng });
+      geocoded++;
+    }
+    // Small delay to respect rate limits
+    await new Promise((r) => setTimeout(r, 200));
+  }
+
+  revalidatePath("/admin/listings");
+  revalidatePath("/listings");
+  revalidatePath("/");
+
+  return { geocoded, total: needsGeocoding.length };
 }

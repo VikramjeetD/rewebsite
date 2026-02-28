@@ -27,6 +27,8 @@ export default async function EditListingPage({
       await updateListingAction(id, formData);
       return null;
     } catch (e) {
+      if (e instanceof Error && e.message === "NEXT_REDIRECT") throw e;
+      if (typeof e === "object" && e !== null && "digest" in e) throw e;
       return e instanceof Error ? e.message : "Failed to update listing";
     }
   }

@@ -3,7 +3,6 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type {
   Listing,
   StatusChange,
-  PageSnapshot,
   Testimonial,
   ContactSubmission,
   SiteSettings,
@@ -190,52 +189,6 @@ export async function getStatusChanges(
   });
 }
 
-// --- Page Snapshots ---
-
-export async function addPageSnapshot(
-  listingId: string,
-  data: Omit<PageSnapshot, "id" | "listingId">
-): Promise<string> {
-  const db = getDb();
-  const ref = await db
-    .collection("listings")
-    .doc(listingId)
-    .collection("pageSnapshots")
-    .add({
-      ...data,
-      checkedAt: Timestamp.fromDate(data.checkedAt),
-    });
-  return ref.id;
-}
-
-export async function getLatestSnapshot(
-  listingId: string
-): Promise<PageSnapshot | null> {
-  const db = getDb();
-  const snapshot = await db
-    .collection("listings")
-    .doc(listingId)
-    .collection("pageSnapshots")
-    .orderBy("checkedAt", "desc")
-    .limit(1)
-    .get();
-
-  if (snapshot.empty) return null;
-  const doc = snapshot.docs[0];
-  const data = doc.data();
-  return {
-    id: doc.id,
-    listingId,
-    url: data.url,
-    contentHash: data.contentHash,
-    httpStatus: data.httpStatus,
-    detectedStatus: data.detectedStatus ?? null,
-    confidence: data.confidence ?? null,
-    error: data.error ?? null,
-    checkedAt: toDate(data.checkedAt) ?? new Date(),
-  };
-}
-
 // --- Testimonials ---
 
 export async function getTestimonials(
@@ -305,7 +258,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const doc = await db.collection("siteSettings").doc("default").get();
   if (!doc.exists) {
     return {
-      agentName: "Jane Smith",
+      agentName: "Brandy Culp",
       agentTitle: "Licensed Real Estate Agent",
       agentBio: "",
       agentPhoto: null,
@@ -361,16 +314,3 @@ export async function getNeighborhoods(): Promise<string[]> {
   return Array.from(neighborhoods).sort();
 }
 
-// --- Listings with source URLs for monitoring ---
-
-export async function getMonitorableListings(): Promise<Listing[]> {
-  const db = getDb();
-  const snapshot = await db
-    .collection("listings")
-    .where("status", "in", ["ACTIVE", "IN_CONTRACT"])
-    .get();
-
-  return snapshot.docs
-    .map((doc) => docToListing(doc.id, doc.data() as Record<string, unknown>))
-    .filter((listing) => listing.sourceUrl);
-}

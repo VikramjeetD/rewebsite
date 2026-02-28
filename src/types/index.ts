@@ -56,18 +56,6 @@ export interface StatusChange {
   createdAt: Date;
 }
 
-export interface PageSnapshot {
-  id: string;
-  listingId: string;
-  url: string;
-  contentHash: string;
-  httpStatus: number;
-  detectedStatus: string | null;
-  confidence: number | null;
-  error: string | null;
-  checkedAt: Date;
-}
-
 export interface Testimonial {
   id: string;
   name: string;
@@ -122,14 +110,3 @@ export interface ExtractionResult {
   photoUrls: string[];
 }
 
-export interface MonitoringResult {
-  listingId: string;
-  url: string;
-  changed: boolean;
-  previousHash: string | null;
-  newHash: string;
-  detectedStatus: ListingStatus | null;
-  confidence: number | null;
-  reasoning: string | null;
-  error: string | null;
-}

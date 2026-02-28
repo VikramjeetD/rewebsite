@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Building2, CheckCircle, Clock, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { formatPrice, getStatusColor, getStatusLabel } from "@/lib/utils";
+import { GeocodeButton } from "./_components/geocode-button";
 
 export default async function AdminDashboard() {
   const allListings = await getListings();
@@ -12,6 +13,7 @@ export default async function AdminDashboard() {
   const rented = allListings.filter((l) => l.status === "RENTED");
   const sold = allListings.filter((l) => l.status === "SOLD");
   const drafts = allListings.filter((l) => l.status === "DRAFT");
+  const ungeocoded = allListings.filter((l) => l.latitude == null);
 
   const stats = [
     {
@@ -44,12 +46,15 @@ export default async function AdminDashboard() {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[var(--primary)]">Dashboard</h1>
-        <Link
-          href="/admin/listings/new"
-          className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm text-white hover:opacity-90"
-        >
-          Add Listing
-        </Link>
+        <div className="flex items-center gap-3">
+          <GeocodeButton ungeocodedCount={ungeocoded.length} />
+          <Link
+            href="/admin/listings/new"
+            className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm text-white hover:opacity-90"
+          >
+            Add Listing
+          </Link>
+        </div>
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

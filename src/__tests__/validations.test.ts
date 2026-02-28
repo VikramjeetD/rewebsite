@@ -3,7 +3,6 @@ import {
   listingFormSchema,
   contactFormSchema,
   extractionResultSchema,
-  statusDetectionSchema,
   urlSchema,
 } from "@/lib/validations";
 
@@ -176,48 +175,6 @@ describe("extractionResultSchema", () => {
       photoUrls: [],
     });
     expect(result.title).toBeNull();
-  });
-});
-
-describe("statusDetectionSchema", () => {
-  it("parses valid status detection", () => {
-    const result = statusDetectionSchema.parse({
-      status: "RENTED",
-      confidence: 0.95,
-      reasoning: "Page shows 'This unit has been rented'",
-    });
-    expect(result.status).toBe("RENTED");
-    expect(result.confidence).toBe(0.95);
-  });
-
-  it("rejects confidence > 1", () => {
-    expect(() =>
-      statusDetectionSchema.parse({
-        status: "ACTIVE",
-        confidence: 1.5,
-        reasoning: "test",
-      })
-    ).toThrow();
-  });
-
-  it("rejects confidence < 0", () => {
-    expect(() =>
-      statusDetectionSchema.parse({
-        status: "ACTIVE",
-        confidence: -0.1,
-        reasoning: "test",
-      })
-    ).toThrow();
-  });
-
-  it("rejects DRAFT status", () => {
-    expect(() =>
-      statusDetectionSchema.parse({
-        status: "DRAFT",
-        confidence: 0.9,
-        reasoning: "test",
-      })
-    ).toThrow();
   });
 });
 

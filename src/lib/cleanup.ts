@@ -56,13 +56,11 @@ export async function deleteSubcollection(
  * Full cleanup of a listing's stored assets:
  * 1. Deletes photos from Vercel Blob
  * 2. Deletes statusChanges subcollection
- * 3. Deletes pageSnapshots subcollection
- * 4. Deletes the listing document itself
+ * 3. Deletes the listing document itself
  */
 export async function cleanupListingFull(listingId: string): Promise<{
   photosDeleted: number;
   statusChangesDeleted: number;
-  snapshotsDeleted: number;
 }> {
   const listing = await getListingById(listingId);
 
@@ -76,26 +74,21 @@ export async function cleanupListingFull(listingId: string): Promise<{
     listingId,
     "statusChanges"
   );
-  const snapshotsDeleted = await deleteSubcollection(
-    listingId,
-    "pageSnapshots"
-  );
 
   // Delete the listing document
   const db = getDb();
   await db.collection("listings").doc(listingId).delete();
 
-  return { photosDeleted, statusChangesDeleted, snapshotsDeleted };
+  return { photosDeleted, statusChangesDeleted };
 }
 
 /**
- * Cleans up only the billable assets (photos + snapshots) but keeps
+ * Cleans up only the billable assets (photos) but keeps
  * the listing document so it still appears in admin history.
  * Clears the photos array on the listing.
  */
 export async function cleanupListingAssets(listingId: string): Promise<{
   photosDeleted: number;
-  snapshotsDeleted: number;
 }> {
   const listing = await getListingById(listingId);
 
@@ -105,11 +98,6 @@ export async function cleanupListingAssets(listingId: string): Promise<{
     photosDeleted = await deleteListingPhotos(urls);
   }
 
-  const snapshotsDeleted = await deleteSubcollection(
-    listingId,
-    "pageSnapshots"
-  );
-
   // Clear photos array on the listing so stale URLs aren't referenced
   const db = getDb();
   await db.collection("listings").doc(listingId).update({
@@ -117,5 +105,5 @@ export async function cleanupListingAssets(listingId: string): Promise<{
     featured: false,
   });
 
-  return { photosDeleted, snapshotsDeleted };
+  return { photosDeleted };
 }

@@ -1,14 +1,17 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { fetchAndCleanPage, sha256Hash } from "@/lib/extraction/fetcher";
-import { extractListingFromHtml } from "@/lib/extraction/extractor";
+import { fetchAndCleanPage } from "@/lib/extraction/fetcher";
+import {
+  extractListingFromHtml,
+  extractListingFromText,
+} from "@/lib/extraction/extractor";
 import {
   createListing,
   addStatusChange,
-  addPageSnapshot,
 } from "@/lib/firestore";
 import { slugify } from "@/lib/utils";
+import { geocodeAddress } from "@/lib/geocoding";
 import { revalidatePath } from "next/cache";
 import type { ExtractionResult } from "@/types";
 
@@ -26,7 +29,7 @@ export async function extractFromUrl(url: string): Promise<{
     if (fetchResult.httpStatus !== 200) {
       return {
         success: false,
-        error: `Page returned HTTP ${fetchResult.httpStatus}`,
+        error: `Page returned HTTP ${fetchResult.httpStatus}. If this is StreetEasy or another protected site, use "Paste Content" mode instead.`,
       };
     }
 
@@ -44,9 +47,36 @@ export async function extractFromUrl(url: string): Promise<{
   }
 }
 
+export async function extractFromContent(
+  content: string,
+  sourceUrl?: string
+): Promise<{
+  success: boolean;
+  data?: ExtractionResult;
+  error?: string;
+}> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const trimmed = content.trim();
+    if (!trimmed) return { success: false, error: "No content provided" };
+    if (trimmed.length < 50)
+      return { success: false, error: "Content too short — paste the full page text" };
+
+    const extracted = await extractListingFromText(trimmed, sourceUrl);
+    return { success: true, data: extracted };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Extraction failed",
+    };
+  }
+}
+
 export async function saveExtractedListing(
   data: ExtractionResult,
-  sourceUrl: string
+  sourceUrl: string | undefined
 ): Promise<{ success: boolean; listingId?: string; error?: string }> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "Unauthorized" };
@@ -54,7 +84,9 @@ export async function saveExtractedListing(
   try {
     const address = data.address ?? "Unknown Address";
     const neighborhood = data.neighborhood ?? "Unknown";
+    const borough = data.borough ?? "Manhattan";
     const slug = slugify(`${address} ${neighborhood}`);
+    const coords = await geocodeAddress(address, neighborhood, borough);
 
     const listingId = await createListing({
       slug,
@@ -70,11 +102,11 @@ export async function saveExtractedListing(
       address,
       unit: data.unit ?? null,
       neighborhood,
-      borough: data.borough ?? "Manhattan",
+      borough,
       zipCode: null,
-      latitude: null,
-      longitude: null,
-      sourceUrl,
+      latitude: coords?.lat ?? null,
+      longitude: coords?.lng ?? null,
+      sourceUrl: sourceUrl ?? null,
       featured: false,
       amenities: data.amenities,
       photos: [],
@@ -86,25 +118,8 @@ export async function saveExtractedListing(
       fromStatus: null,
       toStatus: data.status ?? "ACTIVE",
       source: "IMPORT",
-      notes: `Imported from ${sourceUrl}`,
+      notes: sourceUrl ? `Imported from ${sourceUrl}` : "Imported from pasted content",
     });
-
-    // Store initial page snapshot
-    try {
-      const fetchResult = await fetchAndCleanPage(sourceUrl);
-      const contentHash = await sha256Hash(fetchResult.cleanedHtml);
-      await addPageSnapshot(listingId, {
-        url: sourceUrl,
-        contentHash,
-        httpStatus: fetchResult.httpStatus,
-        detectedStatus: data.status ?? null,
-        confidence: null,
-        error: null,
-        checkedAt: new Date(),
-      });
-    } catch {
-      // Non-critical: snapshot storage failure shouldn't block listing creation
-    }
 
     revalidatePath("/admin/listings");
     revalidatePath("/listings");

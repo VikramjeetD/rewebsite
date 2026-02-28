@@ -6,7 +6,6 @@ import type {
   StatusChangeSource,
   ListingPhoto,
   ExtractionResult,
-  MonitoringResult,
 } from "@/types";
 
 describe("Type definitions", () => {
@@ -98,18 +97,4 @@ describe("Type definitions", () => {
     expect(result.title).toBeNull();
   });
 
-  it("MonitoringResult interface", () => {
-    const result: MonitoringResult = {
-      listingId: "abc",
-      url: "https://example.com",
-      changed: true,
-      previousHash: "hash1",
-      newHash: "hash2",
-      detectedStatus: "RENTED",
-      confidence: 0.95,
-      reasoning: "Page says rented",
-      error: null,
-    };
-    expect(result.changed).toBe(true);
-  });
 });

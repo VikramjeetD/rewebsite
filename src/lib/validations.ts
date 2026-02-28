@@ -49,29 +49,25 @@ export const contactFormSchema = z.object({
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export const extractionResultSchema = z.object({
-  title: z.string().nullable(),
-  description: z.string().nullable(),
-  price: z.number().nullable(),
-  priceUnit: z.string().nullable(),
-  bedrooms: z.number().nullable(),
-  bathrooms: z.number().nullable(),
-  sqft: z.number().nullable(),
-  address: z.string().nullable(),
-  unit: z.string().nullable(),
-  neighborhood: z.string().nullable(),
-  borough: z.string().nullable(),
-  type: z.enum(["RENTAL", "SALE"]).nullable(),
+  title: z.string().nullable().optional().default(null),
+  description: z.string().nullable().optional().default(null),
+  price: z.number().nullable().optional().default(null),
+  priceUnit: z.string().nullable().optional().default(null),
+  bedrooms: z.number().nullable().optional().default(null),
+  bathrooms: z.number().nullable().optional().default(null),
+  sqft: z.number().nullable().optional().default(null),
+  address: z.string().nullable().optional().default(null),
+  unit: z.string().nullable().optional().default(null),
+  neighborhood: z.string().nullable().optional().default(null),
+  borough: z.string().nullable().optional().default(null),
+  type: z.enum(["RENTAL", "SALE"]).nullable().optional().default(null),
   status: z
     .enum(["ACTIVE", "IN_CONTRACT", "RENTED", "SOLD", "OFF_MARKET", "DRAFT"])
-    .nullable(),
-  amenities: z.array(z.string()),
-  photoUrls: z.array(z.string()),
-});
-
-export const statusDetectionSchema = z.object({
-  status: z.enum(["ACTIVE", "IN_CONTRACT", "RENTED", "SOLD", "OFF_MARKET"]),
-  confidence: z.number().min(0).max(1),
-  reasoning: z.string(),
+    .nullable()
+    .optional()
+    .default(null),
+  amenities: z.array(z.string()).optional().default([]),
+  photoUrls: z.array(z.string()).optional().default([]),
 });
 
 export const urlSchema = z.string().url("Please enter a valid URL");
