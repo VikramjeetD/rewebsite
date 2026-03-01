@@ -1,6 +1,7 @@
 import type { ListingStatus } from "@/types";
 
 export const BOROUGHS = [
+  "N/A",
   "Manhattan",
   "Brooklyn",
   "Queens",

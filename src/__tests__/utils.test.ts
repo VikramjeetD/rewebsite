@@ -8,6 +8,9 @@ import {
   getStatusColor,
   getStatusLabel,
   absoluteUrl,
+  generateTitle,
+  calculateEffectiveRent,
+  formatEffectiveRent,
 } from "@/lib/utils";
 
 describe("cn", () => {
@@ -29,8 +32,12 @@ describe("formatPrice", () => {
     expect(formatPrice(350000)).toBe("$3,500");
   });
 
-  it("formats with unit", () => {
-    expect(formatPrice(350000, "month")).toBe("$3,500/month");
+  it("formats rental with /month", () => {
+    expect(formatPrice(350000, "RENTAL")).toBe("$3,500/month");
+  });
+
+  it("formats sale without unit", () => {
+    expect(formatPrice(120000000, "SALE")).toBe("$1,200,000");
   });
 
   it("handles large prices", () => {
@@ -41,8 +48,72 @@ describe("formatPrice", () => {
     expect(formatPrice(0)).toBe("$0");
   });
 
+  it("defaults to SALE (no suffix)", () => {
+    expect(formatPrice(100000)).toBe("$1,000");
+  });
+});
+
+describe("generateTitle", () => {
+  it("returns address only when no unit", () => {
+    expect(generateTitle("123 Main St")).toBe("123 Main St");
+  });
+
+  it("includes unit with # prefix", () => {
+    expect(generateTitle("123 Main St", "4A")).toBe("123 Main St #4A");
+  });
+
   it("handles null unit", () => {
-    expect(formatPrice(100000, null)).toBe("$1,000");
+    expect(generateTitle("123 Main St", null)).toBe("123 Main St");
+  });
+
+  it("handles empty unit", () => {
+    expect(generateTitle("123 Main St", "")).toBe("123 Main St");
+  });
+
+  it("returns fallback for empty address", () => {
+    expect(generateTitle("")).toBe("Untitled Listing");
+  });
+});
+
+describe("calculateEffectiveRent", () => {
+  it("calculates effective rent with concession", () => {
+    // $3,500/month, 12-month lease, 1 month free
+    // Total = 3500 * 11 = 38500, effective = 38500 / 12 ≈ 3208.33 → 320833 cents
+    expect(calculateEffectiveRent(350000, 12, 1)).toBe(320833);
+  });
+
+  it("returns null when no lease duration", () => {
+    expect(calculateEffectiveRent(350000, null, 1)).toBeNull();
+  });
+
+  it("returns null when no free months", () => {
+    expect(calculateEffectiveRent(350000, 12, null)).toBeNull();
+  });
+
+  it("returns null when lease duration is 0", () => {
+    expect(calculateEffectiveRent(350000, 0, 1)).toBeNull();
+  });
+
+  it("returns null when paid months would be 0", () => {
+    expect(calculateEffectiveRent(350000, 3, 3)).toBeNull();
+  });
+
+  it("handles 2 months free on 13-month lease", () => {
+    // $4000/month, 13-month lease, 2 months free
+    // Total = 4000 * 11 = 44000, effective = 44000 / 13 ≈ 3384.62 → 338462 cents
+    expect(calculateEffectiveRent(400000, 13, 2)).toBe(338462);
+  });
+});
+
+describe("formatEffectiveRent", () => {
+  it("formats effective rent as rental price", () => {
+    const result = formatEffectiveRent(350000, 12, 1);
+    expect(result).toContain("/month");
+    expect(result).toContain("$");
+  });
+
+  it("returns null when not applicable", () => {
+    expect(formatEffectiveRent(350000, null, null)).toBeNull();
   });
 });
 
@@ -111,7 +182,7 @@ describe("getStatusColor", () => {
   });
 
   it("returns gray for unknown status", () => {
-    expect(getStatusColor("UNKNOWN")).toContain("gray");
+    expect(getStatusColor("UNKNOWN")).toContain("bg-white/10");
   });
 });
 

@@ -21,37 +21,37 @@ export default async function AdminDashboard() {
       label: "Active Listings",
       value: active.length,
       icon: Building2,
-      color: "text-green-600",
+      color: "text-green-400",
     },
     {
       label: "In Contract",
       value: inContract.length,
       icon: Clock,
-      color: "text-yellow-600",
+      color: "text-yellow-400",
     },
     {
       label: "Rented",
       value: rented.length,
       icon: CheckCircle,
-      color: "text-blue-600",
+      color: "text-blue-400",
     },
     {
       label: "Sold",
       value: sold.length,
       icon: DollarSign,
-      color: "text-blue-600",
+      color: "text-blue-400",
     },
   ];
 
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[var(--primary)]">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
         <div className="flex items-center gap-3">
           <GeocodeButton ungeocodedCount={ungeocoded.length} />
           <Link
             href="/admin/listings/new"
-            className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm text-white hover:opacity-90"
+            className="bg-white px-4 py-2 text-sm font-medium uppercase tracking-wider text-black hover:bg-white/90"
           >
             Add Listing
           </Link>
@@ -64,8 +64,8 @@ export default async function AdminDashboard() {
             <CardContent className="flex items-center gap-4 py-6">
               <stat.icon className={`h-8 w-8 ${stat.color}`} />
               <div>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-sm text-gray-500">{stat.label}</p>
+                <p className="text-2xl font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-white/40">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
       {drafts.length > 0 && (
         <Card className="mb-8">
           <CardHeader>
-            <h2 className="font-semibold">Drafts</h2>
+            <h2 className="font-semibold text-white">Drafts</h2>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -83,9 +83,10 @@ export default async function AdminDashboard() {
                 <li key={listing.id}>
                   <Link
                     href={`/admin/listings/${listing.id}/edit`}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-blue-400 hover:underline"
                   >
-                    {listing.title} — {listing.address}
+                    {listing.address}
+                    {listing.unit ? ` #${listing.unit}` : ""}
                   </Link>
                 </li>
               ))}
@@ -96,13 +97,13 @@ export default async function AdminDashboard() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Recent Listings</h2>
+          <h2 className="font-semibold text-white">Recent Listings</h2>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-left text-gray-500">
+                <tr className="border-b border-white/10 text-left text-white/40">
                   <th className="pb-2 font-medium">Title</th>
                   <th className="pb-2 font-medium">Status</th>
                   <th className="pb-2 font-medium">Price</th>
@@ -111,11 +112,14 @@ export default async function AdminDashboard() {
               </thead>
               <tbody>
                 {allListings.slice(0, 10).map((listing) => (
-                  <tr key={listing.id} className="border-b last:border-0">
+                  <tr
+                    key={listing.id}
+                    className="border-b border-white/5 last:border-0"
+                  >
                     <td className="py-3">
                       <Link
                         href={`/admin/listings/${listing.id}/edit`}
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-400 hover:underline"
                       >
                         {listing.title}
                       </Link>
@@ -123,10 +127,12 @@ export default async function AdminDashboard() {
                     <td className="py-3">
                       <StatusBadge status={listing.status} />
                     </td>
-                    <td className="py-3">
-                      {formatPrice(listing.price, listing.priceUnit)}
+                    <td className="py-3 text-white/60">
+                      {formatPrice(listing.price, listing.type)}
                     </td>
-                    <td className="py-3">{listing.neighborhood}</td>
+                    <td className="py-3 text-white/60">
+                      {listing.neighborhood}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -1,4 +1,4 @@
-import { getListingBySlug } from "@/lib/firestore";
+import { getListingBySlug, getBuildingAmenities } from "@/lib/firestore";
 import { notFound } from "next/navigation";
 import {
   formatPrice,
@@ -22,7 +22,7 @@ export async function generateMetadata({
   const listing = await getListingBySlug(slug);
   if (!listing) return { title: "Listing Not Found" };
 
-  const description = `${formatBedrooms(listing.bedrooms)} ${formatBathrooms(listing.bathrooms)} ${listing.type === "RENTAL" ? "rental" : "for sale"} in ${listing.neighborhood}, ${listing.borough}. ${formatPrice(listing.price, listing.priceUnit)}`;
+  const description = `${formatBedrooms(listing.bedrooms)} ${formatBathrooms(listing.bathrooms)} ${listing.type === "RENTAL" ? "rental" : "for sale"} in ${listing.neighborhood}, ${listing.borough}. ${formatPrice(listing.price, listing.type)}`;
 
   return {
     title: listing.title,
@@ -30,7 +30,9 @@ export async function generateMetadata({
     openGraph: {
       title: listing.title,
       description,
-      images: listing.photos[0]?.url ? [listing.photos[0].url] : [],
+      images: listing.photos.find((p) => p.type !== "video")?.url
+        ? [listing.photos.find((p) => p.type !== "video")!.url]
+        : [],
     },
   };
 }
@@ -42,6 +44,7 @@ export default async function ListingDetailPage({
   const listing = await getListingBySlug(slug);
   if (!listing) notFound();
 
+  const buildingInfo = await getBuildingAmenities(listing.address);
   const sortedPhotos = [...listing.photos].sort((a, b) => a.order - b.order);
 
   const jsonLd = {
@@ -50,12 +53,12 @@ export default async function ListingDetailPage({
     name: listing.title,
     description: listing.description,
     url: absoluteUrl(`/listings/${listing.slug}`),
-    image: sortedPhotos[0]?.url,
+    image: sortedPhotos.find((p) => p.type !== "video")?.url,
     address: {
       "@type": "PostalAddress",
       streetAddress: listing.address,
-      addressLocality: listing.neighborhood,
-      addressRegion: "NY",
+      addressLocality: listing.city,
+      addressRegion: listing.state,
       postalCode: listing.zipCode,
     },
     offers: {
@@ -76,7 +79,7 @@ export default async function ListingDetailPage({
         <PhotoGallery photos={sortedPhotos} title={listing.title} />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <ListingDetails listing={listing} />
+          <ListingDetails listing={listing} buildingInfo={buildingInfo} />
           <ContactSidebar listingId={listing.id} />
         </div>
       </div>

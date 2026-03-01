@@ -8,23 +8,25 @@ interface HeroSectionProps {
 
 export function HeroSection({ title, subtitle }: HeroSectionProps) {
   return (
-    <section className="relative bg-[var(--primary)] px-4 py-24 text-white sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+    <section className="relative flex min-h-screen items-center justify-center -mt-16 bg-black px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl text-center">
+        <h1 className="text-5xl font-bold uppercase tracking-tight text-white sm:text-6xl lg:text-7xl">
           {title}
         </h1>
-        <p className="mt-4 max-w-xl text-lg text-gray-300">{subtitle}</p>
-        <div className="mt-8 flex flex-wrap gap-4">
+        <p className="mx-auto mt-6 max-w-xl text-lg text-white/60">
+          {subtitle}
+        </p>
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link
             href="/listings"
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-6 py-3 font-semibold text-[var(--primary)] hover:opacity-90"
+            className="inline-flex items-center gap-2 bg-white px-8 py-3 font-semibold uppercase tracking-widest text-black hover:bg-white/90"
           >
             Browse Listings
             <ArrowRight className="h-5 w-5" />
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10"
+            className="inline-flex items-center gap-2 border border-white/20 bg-white/10 px-8 py-3 font-semibold uppercase tracking-widest text-white backdrop-blur-sm hover:bg-white/20"
           >
             Get in Touch
           </Link>

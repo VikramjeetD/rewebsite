@@ -46,18 +46,16 @@ export default async function ListingsPage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--primary)]">
-          Available Listings
-        </h1>
-        <p className="mt-2 text-gray-600">
+    <div className="py-8">
+      <div className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-white">Available Listings</h1>
+        <p className="mt-2 text-white/60">
           {filtered.length} {filtered.length === 1 ? "property" : "properties"}{" "}
           available
         </p>
       </div>
 
-      <div className="mb-8">
+      <div className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
         <Suspense>
           <ListingFilters neighborhoods={neighborhoods} />
         </Suspense>

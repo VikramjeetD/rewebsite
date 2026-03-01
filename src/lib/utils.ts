@@ -5,17 +5,48 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(cents: number, unit?: string | null): string {
+export function formatPrice(
+  cents: number,
+  type: "RENTAL" | "SALE" = "SALE"
+): string {
   const dollars = cents / 100;
   const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(dollars);
-  if (unit) {
-    return `${formatted}/${unit}`;
+  if (type === "RENTAL") {
+    return `${formatted}/month`;
   }
   return formatted;
+}
+
+export function generateTitle(address: string, unit?: string | null): string {
+  if (!address) return "Untitled Listing";
+  if (unit) return `${address} #${unit}`;
+  return address;
+}
+
+export function calculateEffectiveRent(
+  cents: number,
+  leaseDuration: number | null,
+  freeMonths: number | null
+): number | null {
+  if (!leaseDuration || !freeMonths || leaseDuration <= 0) return null;
+  const paidMonths = leaseDuration - freeMonths;
+  if (paidMonths <= 0) return null;
+  const totalCents = cents * paidMonths;
+  return Math.round(totalCents / leaseDuration);
+}
+
+export function formatEffectiveRent(
+  cents: number,
+  leaseDuration: number | null,
+  freeMonths: number | null
+): string | null {
+  const effective = calculateEffectiveRent(cents, leaseDuration, freeMonths);
+  if (effective === null) return null;
+  return formatPrice(effective, "RENTAL");
 }
 
 export function slugify(text: string): string {
@@ -41,18 +72,18 @@ export function formatBathrooms(bathrooms: number): string {
 export function getStatusColor(status: string): string {
   switch (status) {
     case "ACTIVE":
-      return "bg-green-100 text-green-800";
+      return "bg-green-500/20 text-green-400";
     case "IN_CONTRACT":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-500/20 text-yellow-400";
     case "RENTED":
     case "SOLD":
-      return "bg-blue-100 text-blue-800";
+      return "bg-blue-500/20 text-blue-400";
     case "OFF_MARKET":
-      return "bg-gray-100 text-gray-800";
+      return "bg-white/10 text-white/60";
     case "DRAFT":
-      return "bg-orange-100 text-orange-800";
+      return "bg-orange-500/20 text-orange-400";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-white/10 text-white/60";
   }
 }
 

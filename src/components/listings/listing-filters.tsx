@@ -2,10 +2,23 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { Dropdown } from "@/components/ui/dropdown";
 
 interface ListingFiltersProps {
   neighborhoods: string[];
 }
+
+const TYPE_OPTIONS = [
+  { value: "RENTAL", label: "Rentals" },
+  { value: "SALE", label: "Sales" },
+];
+
+const BEDROOM_OPTIONS = [
+  { value: "0", label: "Studio" },
+  { value: "1", label: "1 Bedroom" },
+  { value: "2", label: "2 Bedrooms" },
+  { value: "3", label: "3+ Bedrooms" },
+];
 
 export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
   const router = useRouter();
@@ -32,42 +45,33 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
   const currentNeighborhood = searchParams.get("neighborhood") ?? "";
   const currentBeds = searchParams.get("beds") ?? "";
 
+  const neighborhoodOptions = neighborhoods.map((n) => ({
+    value: n,
+    label: n,
+  }));
+
   return (
     <div className="flex flex-wrap gap-4">
-      <select
+      <Dropdown
         value={currentType}
-        onChange={(e) => handleFilterChange("type", e.target.value)}
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-      >
-        <option value="">All Types</option>
-        <option value="RENTAL">Rentals</option>
-        <option value="SALE">Sales</option>
-      </select>
+        onValueChange={(v) => handleFilterChange("type", v)}
+        options={TYPE_OPTIONS}
+        placeholder="All Types"
+      />
 
-      <select
+      <Dropdown
         value={currentBeds}
-        onChange={(e) => handleFilterChange("beds", e.target.value)}
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-      >
-        <option value="">All Bedrooms</option>
-        <option value="0">Studio</option>
-        <option value="1">1 Bedroom</option>
-        <option value="2">2 Bedrooms</option>
-        <option value="3">3+ Bedrooms</option>
-      </select>
+        onValueChange={(v) => handleFilterChange("beds", v)}
+        options={BEDROOM_OPTIONS}
+        placeholder="All Bedrooms"
+      />
 
-      <select
+      <Dropdown
         value={currentNeighborhood}
-        onChange={(e) => handleFilterChange("neighborhood", e.target.value)}
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-      >
-        <option value="">All Neighborhoods</option>
-        {neighborhoods.map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
+        onValueChange={(v) => handleFilterChange("neighborhood", v)}
+        options={neighborhoodOptions}
+        placeholder="All Neighborhoods"
+      />
     </div>
   );
 }

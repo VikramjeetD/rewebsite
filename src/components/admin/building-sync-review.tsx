@@ -22,7 +22,7 @@ interface BuildingSyncReviewProps {
 
 function formatUnitPrice(unit: BuildingUnit) {
   if (!unit.price) return "Price TBD";
-  return formatPrice(unit.price, "month");
+  return formatPrice(unit.price, "RENTAL");
 }
 
 function formatUnitDetails(unit: BuildingUnit) {
@@ -98,7 +98,7 @@ export function BuildingSyncReview({
                   <div className="flex-1">
                     <span className="font-medium">Unit {unit}</span>
                     <span className="ml-3 text-sm text-gray-600">
-                      {formatPrice(listing.price, listing.priceUnit)} —{" "}
+                      {formatPrice(listing.price, listing.type)} —{" "}
                       {listing.bedrooms === 0
                         ? "Studio"
                         : `${listing.bedrooms}BR`}
@@ -187,7 +187,7 @@ export function BuildingSyncReview({
                     <div className="flex-1">
                       <span className="font-medium">Unit {listing.unit}</span>
                       <span className="ml-3 text-sm text-gray-600">
-                        {formatPrice(listing.price, listing.priceUnit)}
+                        {formatPrice(listing.price, listing.type)}
                         {priceChanged && (
                           <span className="ml-2 inline-flex items-center text-amber-600">
                             <ArrowRight className="mx-1 h-3 w-3" />

@@ -18,9 +18,12 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
+    <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-black/60 to-transparent">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="text-xl font-bold text-[var(--primary)]">
+        <Link
+          href="/"
+          className="text-xl font-bold uppercase tracking-wider text-white"
+        >
           NYC Real Estate
         </Link>
 
@@ -31,10 +34,10 @@ export function Header() {
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors",
+                "text-sm font-medium uppercase tracking-wider transition-colors",
                 pathname === link.href
-                  ? "text-[var(--primary)]"
-                  : "text-gray-500 hover:text-gray-900"
+                  ? "text-white"
+                  : "text-white/60 hover:text-white"
               )}
             >
               {link.label}
@@ -45,7 +48,7 @@ export function Header() {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden"
+          className="text-white md:hidden"
           aria-label="Toggle menu"
         >
           {mobileOpen ? (
@@ -58,17 +61,15 @@ export function Header() {
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="border-t bg-white px-4 py-4 md:hidden">
+        <nav className="border-t border-white/10 bg-black/90 px-4 py-4 backdrop-blur-sm md:hidden">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "block py-2 text-sm font-medium",
-                pathname === link.href
-                  ? "text-[var(--primary)]"
-                  : "text-gray-500"
+                "block py-2 text-sm font-medium uppercase tracking-wider",
+                pathname === link.href ? "text-white" : "text-white/60"
               )}
             >
               {link.label}

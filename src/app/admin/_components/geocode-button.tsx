@@ -32,12 +32,12 @@ export function GeocodeButton({
       <button
         onClick={handleClick}
         disabled={loading || ungeocodedCount === 0}
-        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+        className="inline-flex items-center gap-2 border border-white/10 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10 disabled:opacity-50"
       >
         <MapPin className="h-4 w-4" />
         {loading ? "Geocoding..." : `Geocode All (${ungeocodedCount})`}
       </button>
-      {result && <span className="text-sm text-gray-600">{result}</span>}
+      {result && <span className="text-sm text-white/60">{result}</span>}
     </div>
   );
 }

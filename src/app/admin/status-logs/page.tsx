@@ -32,16 +32,14 @@ export default async function StatusLogsPage() {
 
   return (
     <div>
-      <h1 className="mb-8 text-2xl font-bold text-[var(--primary)]">
-        Status Change Logs
-      </h1>
+      <h1 className="mb-8 text-2xl font-bold text-white">Status Change Logs</h1>
 
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50 text-left text-gray-500">
+                <tr className="border-b border-white/10 text-left text-white/40">
                   <th className="px-6 py-3 font-medium">Date</th>
                   <th className="px-6 py-3 font-medium">Listing</th>
                   <th className="px-6 py-3 font-medium">From</th>
@@ -55,36 +53,36 @@ export default async function StatusLogsPage() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-6 py-8 text-center text-gray-500"
+                      className="px-6 py-8 text-center text-white/40"
                     >
                       No status changes recorded yet.
                     </td>
                   </tr>
                 )}
                 {allChanges.map((change, i) => (
-                  <tr key={i} className="border-b last:border-0">
-                    <td className="px-6 py-3 text-gray-500">
+                  <tr key={i} className="border-b border-white/5 last:border-0">
+                    <td className="px-6 py-3 text-white/40">
                       {format(change.createdAt, "MMM d, yyyy h:mm a")}
                     </td>
-                    <td className="px-6 py-3 font-medium">
+                    <td className="px-6 py-3 font-medium text-white">
                       {change.listingTitle}
                     </td>
                     <td className="px-6 py-3">
                       {change.fromStatus ? (
                         <StatusBadge status={change.fromStatus} />
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-white/20">—</span>
                       )}
                     </td>
                     <td className="px-6 py-3">
                       <StatusBadge status={change.toStatus} />
                     </td>
                     <td className="px-6 py-3">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-white/40">
                         {change.source}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-gray-500">
+                    <td className="px-6 py-3 text-white/40">
                       {change.notes ?? "—"}
                     </td>
                   </tr>

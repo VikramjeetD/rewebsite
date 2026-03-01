@@ -61,9 +61,14 @@ export async function cleanupListingFull(listingId: string): Promise<{
   const listing = await getListingById(listingId);
 
   let photosDeleted = 0;
-  if (listing && listing.photos.length > 0) {
-    const urls = listing.photos.map((p) => p.url);
-    photosDeleted = await deleteListingPhotos(urls);
+  if (listing) {
+    const urls = [
+      ...listing.photos.map((p) => p.url),
+      ...listing.floorPlans.map((p) => p.url),
+    ];
+    if (urls.length > 0) {
+      photosDeleted = await deleteListingPhotos(urls);
+    }
   }
 
   const statusChangesDeleted = await deleteSubcollection(
@@ -89,15 +94,21 @@ export async function cleanupListingAssets(listingId: string): Promise<{
   const listing = await getListingById(listingId);
 
   let photosDeleted = 0;
-  if (listing && listing.photos.length > 0) {
-    const urls = listing.photos.map((p) => p.url);
-    photosDeleted = await deleteListingPhotos(urls);
+  if (listing) {
+    const urls = [
+      ...listing.photos.map((p) => p.url),
+      ...listing.floorPlans.map((p) => p.url),
+    ];
+    if (urls.length > 0) {
+      photosDeleted = await deleteListingPhotos(urls);
+    }
   }
 
-  // Clear photos array on the listing so stale URLs aren't referenced
+  // Clear photos/floorPlans arrays on the listing so stale URLs aren't referenced
   const db = getDb();
   await db.collection("listings").doc(listingId).update({
     photos: [],
+    floorPlans: [],
     featured: false,
   });
 

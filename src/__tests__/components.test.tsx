@@ -16,7 +16,7 @@ describe("Button", () => {
   it("applies primary variant by default", () => {
     render(<Button>Primary</Button>);
     const btn = screen.getByText("Primary");
-    expect(btn.className).toContain("bg-[var(--primary)]");
+    expect(btn.className).toContain("bg-white");
   });
 
   it("applies outline variant", () => {
@@ -93,7 +93,7 @@ describe("Input", () => {
   it("applies error styling", () => {
     const { container } = render(<Input id="err-test" error="Error" />);
     const input = container.querySelector("#err-test") as HTMLInputElement;
-    expect(input.className).toContain("border-red-300");
+    expect(input.className).toContain("border-red-500/50");
   });
 });
 
@@ -103,15 +103,19 @@ describe("Select", () => {
     { value: "b", label: "Option B" },
   ];
 
-  it("renders options", () => {
-    render(<Select id="test" options={options} />);
+  it("renders with selected value", () => {
+    render(<Select id="test" options={options} value="a" />);
     expect(screen.getByText("Option A")).toBeInTheDocument();
-    expect(screen.getByText("Option B")).toBeInTheDocument();
   });
 
   it("renders with label", () => {
     render(<Select id="test" label="Choose" options={options} />);
-    expect(screen.getByLabelText("Choose")).toBeInTheDocument();
+    expect(screen.getByText("Choose")).toBeInTheDocument();
+  });
+
+  it("renders placeholder when no value", () => {
+    render(<Select id="test" options={options} placeholder="Pick one" />);
+    expect(screen.getByText("Pick one")).toBeInTheDocument();
   });
 });
 

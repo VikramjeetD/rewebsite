@@ -5,11 +5,17 @@ import { getStatusColor, getStatusLabel } from "@/lib/utils";
 import { ALL_STATUSES } from "@/lib/constants";
 import type { ListingStatus } from "@/types";
 import { useTransition } from "react";
+import { Dropdown } from "@/components/ui/dropdown";
 
 interface ListingStatusDropdownProps {
   listingId: string;
   currentStatus: ListingStatus;
 }
+
+const STATUS_OPTIONS = ALL_STATUSES.map((s) => ({
+  value: s,
+  label: getStatusLabel(s),
+}));
 
 export function ListingStatusDropdown({
   listingId,
@@ -17,8 +23,8 @@ export function ListingStatusDropdown({
 }: ListingStatusDropdownProps) {
   const [isPending, startTransition] = useTransition();
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newStatus = e.target.value as ListingStatus;
+  function handleChange(newValue: string) {
+    const newStatus = newValue as ListingStatus;
     if (newStatus === currentStatus) return;
     startTransition(() => {
       updateListingStatusAction(listingId, newStatus, currentStatus);
@@ -26,17 +32,14 @@ export function ListingStatusDropdown({
   }
 
   return (
-    <select
+    <Dropdown
       value={currentStatus}
-      onChange={handleChange}
+      onValueChange={handleChange}
       disabled={isPending}
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(currentStatus)} border-0 focus:outline-none focus:ring-1 focus:ring-[var(--accent)]`}
-    >
-      {ALL_STATUSES.map((s) => (
-        <option key={s} value={s}>
-          {getStatusLabel(s)}
-        </option>
-      ))}
-    </select>
+      options={STATUS_OPTIONS}
+      variant="pill"
+      size="sm"
+      className={getStatusColor(currentStatus)}
+    />
   );
 }

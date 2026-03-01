@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [featured, settings, testimonials] = await Promise.all([
-    getListings({ status: "ACTIVE", featured: true, limit: 6 }),
+    getListings({ status: "ACTIVE", featured: true, limit: 20 }),
     getSiteSettings(),
     getTestimonials(true),
   ]);

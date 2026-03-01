@@ -147,6 +147,7 @@ describe("cleanupListingAssets", () => {
     expect(result.photosDeleted).toBe(2);
     expect(mockUpdate).toHaveBeenCalledWith({
       photos: [],
+      floorPlans: [],
       featured: false,
     });
   });

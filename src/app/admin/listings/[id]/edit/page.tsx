@@ -2,7 +2,6 @@ import { getListingById } from "@/lib/firestore";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ListingForm } from "@/components/admin/listing-form";
-import { PhotoUpload } from "@/components/admin/photo-upload";
 import { updateListingAction, deleteListingAction } from "@/actions/listings";
 import { Button } from "@/components/ui/button";
 import { redirect } from "next/navigation";
@@ -42,9 +41,7 @@ export default async function EditListingPage({
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[var(--primary)]">
-          Edit Listing
-        </h1>
+        <h1 className="text-2xl font-bold text-white">Edit Listing</h1>
         <form action={handleDelete}>
           <Button type="submit" variant="danger" size="sm">
             Delete Listing
@@ -52,20 +49,9 @@ export default async function EditListingPage({
         </form>
       </div>
 
-      <div className="mb-8">
-        <Card>
-          <CardHeader>
-            <h2 className="font-semibold">Photos</h2>
-          </CardHeader>
-          <CardContent>
-            <PhotoUpload listingId={listing.id} photos={listing.photos} />
-          </CardContent>
-        </Card>
-      </div>
-
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Listing Details</h2>
+          <h2 className="font-semibold text-white">Listing Details</h2>
         </CardHeader>
         <CardContent>
           <ListingForm listing={listing} action={handleUpdate} enableAutosave />

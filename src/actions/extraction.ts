@@ -1,48 +1,12 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { fetchAndCleanPage } from "@/lib/extraction/fetcher";
-import {
-  extractListingFromHtml,
-  extractListingFromText,
-} from "@/lib/extraction/extractor";
+import { extractListingFromText } from "@/lib/extraction/extractor";
 import { createListingWithStatus } from "@/lib/firestore";
-import { slugify } from "@/lib/utils";
+import { slugify, generateTitle } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
 import { revalidateListingPaths } from "@/lib/revalidate";
 import type { ExtractionResult } from "@/types";
-
-export async function extractFromUrl(url: string): Promise<{
-  success: boolean;
-  data?: ExtractionResult;
-  error?: string;
-}> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
-
-  try {
-    const fetchResult = await fetchAndCleanPage(url);
-
-    if (fetchResult.httpStatus !== 200) {
-      return {
-        success: false,
-        error: `Page returned HTTP ${fetchResult.httpStatus}. If this is StreetEasy or another protected site, use "Paste Content" mode instead.`,
-      };
-    }
-
-    const extracted = await extractListingFromHtml(
-      fetchResult.cleanedHtml,
-      url
-    );
-
-    return { success: true, data: extracted };
-  } catch (e) {
-    return {
-      success: false,
-      error: e instanceof Error ? e.message : "Extraction failed",
-    };
-  }
-}
 
 export async function extractFromContent(
   content: string,
@@ -83,41 +47,46 @@ export async function saveExtractedListing(
 
   try {
     const address = data.address ?? "Unknown Address";
+    const unit = data.unit ?? null;
     const neighborhood = data.neighborhood ?? "Unknown";
     const borough = data.borough ?? "Manhattan";
     const slug = slugify(`${address} ${neighborhood}`);
     const coords = await geocodeAddress(address, neighborhood, borough);
 
-    const status = data.status ?? "ACTIVE";
     const listingId = await createListingWithStatus(
       {
         slug,
-        title: data.title ?? `Listing at ${address}`,
+        title: generateTitle(address, unit),
         description: data.description ?? "",
         type: data.type ?? "RENTAL",
-        status,
+        status: "ACTIVE",
         price: data.price ?? 0,
-        priceUnit: data.priceUnit ?? null,
+        freeMonths: data.freeMonths ?? null,
+        leaseDuration: data.leaseDuration ?? null,
         bedrooms: data.bedrooms ?? 0,
         bathrooms: data.bathrooms ?? 1,
         sqft: data.sqft ?? null,
         address,
-        unit: data.unit ?? null,
+        unit,
+        city: data.city ?? "New York",
+        state: data.state ?? "NY",
         neighborhood,
         borough,
-        zipCode: null,
+        zipCode: data.zipCode ?? null,
         latitude: coords?.lat ?? null,
         longitude: coords?.lng ?? null,
         sourceUrl: sourceUrl ?? null,
+        op: data.op ?? null,
         featured: false,
         amenities: data.amenities,
         photos: [],
-        availableDate: null,
+        floorPlans: [],
+        availableDate: data.availableDate ? new Date(data.availableDate) : null,
         listedDate: new Date(),
       },
       {
         fromStatus: null,
-        toStatus: status,
+        toStatus: "ACTIVE",
         source: "IMPORT",
         notes: sourceUrl
           ? `Imported from ${sourceUrl}`

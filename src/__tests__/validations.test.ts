@@ -8,21 +8,24 @@ import {
 
 describe("listingFormSchema", () => {
   const validData = {
-    title: "Beautiful Studio",
     description: "A lovely studio apartment",
     type: "RENTAL",
     status: "ACTIVE",
     price: "3500",
-    priceUnit: "month",
+    freeMonths: null,
+    leaseDuration: null,
     bedrooms: "0",
     bathrooms: "1",
     sqft: "500",
     address: "123 Main St",
     unit: "4A",
+    city: "New York",
+    state: "NY",
     neighborhood: "Upper East Side",
     borough: "Manhattan",
     zipCode: "10021",
     sourceUrl: "https://streeteasy.com/test",
+    op: null,
     featured: false,
     amenities: "Doorman, Gym, Laundry",
     availableDate: "2024-03-01",
@@ -30,15 +33,10 @@ describe("listingFormSchema", () => {
 
   it("parses valid listing data", () => {
     const result = listingFormSchema.parse(validData);
-    expect(result.title).toBe("Beautiful Studio");
     expect(result.price).toBe(350000); // converted to cents
     expect(result.amenities).toEqual(["Doorman", "Gym", "Laundry"]);
-  });
-
-  it("rejects empty title", () => {
-    expect(() =>
-      listingFormSchema.parse({ ...validData, title: "" })
-    ).toThrow();
+    expect(result.city).toBe("New York");
+    expect(result.state).toBe("NY");
   });
 
   it("rejects invalid type", () => {
@@ -56,15 +54,56 @@ describe("listingFormSchema", () => {
   it("handles null optional fields", () => {
     const result = listingFormSchema.parse({
       ...validData,
-      sqft: null,
       unit: null,
-      zipCode: null,
       sourceUrl: null,
-      priceUnit: null,
-      availableDate: null,
+      freeMonths: null,
+      leaseDuration: null,
     });
-    expect(result.sqft).toBeNull();
     expect(result.unit).toBeNull();
+    expect(result.freeMonths).toBeNull();
+    expect(result.leaseDuration).toBeNull();
+  });
+
+  it("rejects null for required fields", () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validData, zipCode: null })
+    ).toThrow();
+    expect(() =>
+      listingFormSchema.parse({ ...validData, availableDate: null })
+    ).toThrow();
+  });
+
+  it("validates state format", () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validData, state: "new york" })
+    ).toThrow();
+    expect(() =>
+      listingFormSchema.parse({ ...validData, state: "N" })
+    ).toThrow();
+  });
+
+  it("validates zip code format", () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validData, zipCode: "1234" })
+    ).toThrow();
+    expect(() =>
+      listingFormSchema.parse({ ...validData, zipCode: "abcde" })
+    ).toThrow();
+  });
+
+  it("requires city and borough", () => {
+    expect(() => listingFormSchema.parse({ ...validData, city: "" })).toThrow();
+    expect(() =>
+      listingFormSchema.parse({ ...validData, borough: "" })
+    ).toThrow();
+  });
+
+  it("allows empty neighborhood", () => {
+    const result = listingFormSchema.parse({
+      ...validData,
+      neighborhood: "",
+    });
+    expect(result.neighborhood).toBe("");
   });
 
   it("handles empty string sourceUrl", () => {
@@ -89,6 +128,16 @@ describe("listingFormSchema", () => {
       amenities: "",
     });
     expect(result.amenities).toEqual([]);
+  });
+
+  it("coerces freeMonths and leaseDuration", () => {
+    const result = listingFormSchema.parse({
+      ...validData,
+      freeMonths: "1",
+      leaseDuration: "12",
+    });
+    expect(result.freeMonths).toBe(1);
+    expect(result.leaseDuration).toBe(12);
   });
 });
 
@@ -136,45 +185,59 @@ describe("contactFormSchema", () => {
 describe("extractionResultSchema", () => {
   it("parses valid extraction result", () => {
     const result = extractionResultSchema.parse({
-      title: "Luxury 2BR",
       description: "A beautiful apartment",
+      type: "RENTAL",
+      address: "100 Park Ave",
+      unit: "5B",
+      city: "New York",
+      state: "NY",
+      zipCode: "10016",
+      neighborhood: "Murray Hill",
+      borough: "Manhattan",
       price: 450000,
-      priceUnit: "month",
       bedrooms: 2,
       bathrooms: 1,
       sqft: 900,
-      address: "100 Park Ave",
-      unit: "5B",
-      neighborhood: "Murray Hill",
-      borough: "Manhattan",
-      type: "RENTAL",
-      status: "ACTIVE",
+      availableDate: "2025-04-01",
+      op: 15,
+      freeMonths: 1,
+      leaseDuration: 12,
       amenities: ["Doorman", "Gym"],
-      photoUrls: ["https://example.com/photo.jpg"],
     });
-    expect(result.title).toBe("Luxury 2BR");
     expect(result.amenities).toHaveLength(2);
+    expect(result.freeMonths).toBe(1);
+    expect(result.leaseDuration).toBe(12);
+    expect(result.city).toBe("New York");
+    expect(result.state).toBe("NY");
+    expect(result.zipCode).toBe("10016");
+    expect(result.op).toBe(15);
+    expect(result.availableDate).toBe("2025-04-01");
   });
 
   it("allows all null fields", () => {
     const result = extractionResultSchema.parse({
-      title: null,
       description: null,
+      type: null,
+      address: null,
+      unit: null,
+      city: null,
+      state: null,
+      zipCode: null,
+      neighborhood: null,
+      borough: null,
       price: null,
-      priceUnit: null,
       bedrooms: null,
       bathrooms: null,
       sqft: null,
-      address: null,
-      unit: null,
-      neighborhood: null,
-      borough: null,
-      type: null,
-      status: null,
+      availableDate: null,
+      op: null,
+      freeMonths: null,
+      leaseDuration: null,
       amenities: [],
-      photoUrls: [],
     });
-    expect(result.title).toBeNull();
+    expect(result.freeMonths).toBeNull();
+    expect(result.city).toBeNull();
+    expect(result.op).toBeNull();
   });
 });
 

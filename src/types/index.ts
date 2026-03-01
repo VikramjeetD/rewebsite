@@ -27,6 +27,7 @@ export interface ListingPhoto {
   alt: string | null;
   order: number;
   isPrimary: boolean;
+  type?: "image" | "video";
 }
 
 export interface Listing {
@@ -37,21 +38,26 @@ export interface Listing {
   type: ListingType;
   status: ListingStatus;
   price: number;
-  priceUnit: string | null;
+  freeMonths: number | null;
+  leaseDuration: number | null;
   bedrooms: number;
   bathrooms: number;
   sqft: number | null;
   address: string;
   unit: string | null;
+  city: string;
+  state: string;
   neighborhood: string;
   borough: string;
   zipCode: string | null;
   latitude: number | null;
   longitude: number | null;
   sourceUrl: string | null;
+  op: number | null;
   featured: boolean;
   amenities: string[];
   photos: ListingPhoto[];
+  floorPlans: ListingPhoto[];
   availableDate: Date | null;
   listedDate: Date;
   createdAt: Date;
@@ -105,21 +111,27 @@ export interface SiteSettings {
 }
 
 export interface ExtractionResult {
-  title: string | null;
   description: string | null;
+  type: ListingType | null;
+  address: string | null;
+  unit: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  neighborhood: string | null;
+  borough: string | null;
   price: number | null;
-  priceUnit: string | null;
   bedrooms: number | null;
   bathrooms: number | null;
   sqft: number | null;
-  address: string | null;
-  unit: string | null;
-  neighborhood: string | null;
-  borough: string | null;
-  type: ListingType | null;
-  status: ListingStatus | null;
+  availableDate: string | null;
+  op: number | null;
+  freeMonths: number | null;
+  leaseDuration: number | null;
   amenities: string[];
-  photoUrls: string[];
+  yearBuilt: number | null;
+  numFloors: number | null;
+  totalUnits: number | null;
 }
 
 export interface BuildingUnit {
@@ -134,11 +146,27 @@ export interface BuildingUnit {
 
 export interface BuildingExtractionResult {
   address: string;
+  city: string | null;
+  state: string | null;
   neighborhood: string | null;
   borough: string | null;
   type: ListingType | null;
   buildingAmenities: string[];
   units: BuildingUnit[];
+  yearBuilt: number | null;
+  numFloors: number | null;
+  totalUnits: number | null;
+}
+
+export interface BuildingAmenities {
+  id: string;
+  address: string;
+  amenities: string[];
+  yearBuilt: number | null;
+  numFloors: number | null;
+  totalUnits: number | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface BuildingSyncComparison {

@@ -25,9 +25,9 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-6 py-4">
-        <Link href="/admin" className="text-xl font-bold text-[var(--primary)]">
+    <aside className="flex h-screen w-64 flex-col border-r border-white/10 bg-black">
+      <div className="border-b border-white/10 px-6 py-4">
+        <Link href="/admin" className="text-xl font-bold text-white">
           RE Admin
         </Link>
       </div>
@@ -43,8 +43,8 @@ export function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-gray-100 text-[var(--primary)]"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-white/10 text-white"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -53,16 +53,16 @@ export function AdminSidebar() {
           );
         })}
       </nav>
-      <div className="border-t border-gray-200 p-3">
+      <div className="border-t border-white/10 p-3">
         <Link
           href="/"
-          className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+          className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
         >
           View Site
         </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
         >
           <LogOut className="h-5 w-5" />
           Sign Out

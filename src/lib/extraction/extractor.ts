@@ -14,36 +14,74 @@ const EXTRACTION_INSTRUCTIONS = `You are a real estate listing data extractor. E
 Important:
 - Convert all prices to cents (multiply dollar amounts by 100, e.g., $3,500/month = 350000, $1,200,000 = 120000000)
 - For NYC listings, infer borough from neighborhood if not explicit
-- Set priceUnit to "month" for rentals
 - Set bedrooms to 0 for studios
-- Extract all amenities and photo URLs you can find
+- Extract all amenities you can find
 - Look carefully for square footage (sqft, sq ft, SF, square feet)
-- Look for the full street address including building number
-- Look for unit/apartment numbers in the title or address
+- Look for the full street address including building number (no unit number in address)
+- Look for unit/apartment numbers separately
 - Count bedrooms carefully — "1 bed" or "1 BR" = 1, "studio" = 0
+- Extract city, state, and zip code if available (default city to "New York" and state to "NY" for NYC listings)
+- For rentals, look for lease concessions: free months, lease duration (e.g., "1 month free on 12-month lease")
+  - freeMonths = number of free months offered, leaseDuration = total lease length in months
+- For rentals, look for OP (owner pays) broker fee amount as a decimal (e.g., OP 15 = 15)
+- Look for availability dates (e.g., "available immediately", "available March 1", "move-in date: 04/01/2025") and return as ISO date string (YYYY-MM-DD). "Immediately" or "now" = today's date.
+- Determine if the listing is RENTAL or SALE from context (rent/month = RENTAL, sale price = SALE)
+- Look for building information: year built, number of floors/stories, total number of units in the building
 `;
 
 const responseSchema: Schema = {
   type: SchemaType.OBJECT,
   properties: {
-    title: {
-      type: SchemaType.STRING,
-      description: "The listing title",
-      nullable: true,
-    },
     description: {
       type: SchemaType.STRING,
       description: "The listing description",
       nullable: true,
     },
+    type: {
+      type: SchemaType.STRING,
+      description: "Listing type: RENTAL or SALE",
+      enum: ["RENTAL", "SALE"],
+      nullable: true,
+    },
+    address: {
+      type: SchemaType.STRING,
+      description: "Full street address without unit number",
+      nullable: true,
+    },
+    unit: {
+      type: SchemaType.STRING,
+      description: "Apartment or unit number",
+      nullable: true,
+    },
+    city: {
+      type: SchemaType.STRING,
+      description: "City name (e.g., New York)",
+      nullable: true,
+    },
+    state: {
+      type: SchemaType.STRING,
+      description: "State abbreviation (e.g., NY)",
+      nullable: true,
+    },
+    zipCode: {
+      type: SchemaType.STRING,
+      description: "5-digit zip code",
+      nullable: true,
+    },
+    neighborhood: {
+      type: SchemaType.STRING,
+      description: "NYC neighborhood name",
+      nullable: true,
+    },
+    borough: {
+      type: SchemaType.STRING,
+      description:
+        "NYC borough: Manhattan, Brooklyn, Queens, Bronx, or Staten Island",
+      nullable: true,
+    },
     price: {
       type: SchemaType.NUMBER,
       description: "Price in cents (e.g., $3,500/month = 350000)",
-      nullable: true,
-    },
-    priceUnit: {
-      type: SchemaType.STRING,
-      description: 'Price unit — "month" for rentals, null for sales',
       nullable: true,
     },
     bedrooms: {
@@ -61,51 +99,52 @@ const responseSchema: Schema = {
       description: "Square footage",
       nullable: true,
     },
-    address: {
-      type: SchemaType.STRING,
-      description: "Full street address",
-      nullable: true,
-    },
-    unit: {
-      type: SchemaType.STRING,
-      description: "Apartment or unit number",
-      nullable: true,
-    },
-    neighborhood: {
-      type: SchemaType.STRING,
-      description: "NYC neighborhood name",
-      nullable: true,
-    },
-    borough: {
+    availableDate: {
       type: SchemaType.STRING,
       description:
-        "NYC borough: Manhattan, Brooklyn, Queens, Bronx, or Staten Island",
+        "Availability date as ISO string (YYYY-MM-DD). Use today's date for 'immediately' or 'now'.",
       nullable: true,
     },
-    type: {
-      type: SchemaType.STRING,
-      description: "Listing type: RENTAL or SALE",
-      enum: ["RENTAL", "SALE"],
+    op: {
+      type: SchemaType.NUMBER,
+      description:
+        "Owner pays (OP) broker fee as a number (e.g., OP 15 = 15). Rentals only.",
       nullable: true,
     },
-    status: {
-      type: SchemaType.STRING,
-      description: "Listing status",
-      enum: ["ACTIVE", "IN_CONTRACT", "RENTED", "SOLD", "OFF_MARKET"],
+    freeMonths: {
+      type: SchemaType.NUMBER,
+      description:
+        "Number of free months in a lease concession (e.g., 1 month free = 1). Rentals only.",
+      nullable: true,
+    },
+    leaseDuration: {
+      type: SchemaType.NUMBER,
+      description:
+        "Total lease duration in months (e.g., 12-month lease = 12). Rentals only.",
       nullable: true,
     },
     amenities: {
       type: SchemaType.ARRAY,
-      description: "List of amenities",
+      description: "List of amenities (for rentals) or features (for sales)",
       items: { type: SchemaType.STRING },
     },
-    photoUrls: {
-      type: SchemaType.ARRAY,
-      description: "List of photo/image URLs found on the page",
-      items: { type: SchemaType.STRING },
+    yearBuilt: {
+      type: SchemaType.NUMBER,
+      description: "Year the building was built",
+      nullable: true,
+    },
+    numFloors: {
+      type: SchemaType.NUMBER,
+      description: "Number of floors/stories in the building",
+      nullable: true,
+    },
+    totalUnits: {
+      type: SchemaType.NUMBER,
+      description: "Total number of units in the building",
+      nullable: true,
     },
   },
-  required: ["amenities", "photoUrls"],
+  required: ["amenities"],
 };
 
 function getGeminiClient() {
@@ -123,22 +162,6 @@ function getModel() {
       responseSchema,
     },
   });
-}
-
-export async function extractListingFromHtml(
-  cleanedHtml: string,
-  url: string
-): Promise<ExtractionResult> {
-  const model = getModel();
-  const prompt = `${EXTRACTION_INSTRUCTIONS}\n\nHTML Content:\n${cleanedHtml}\n\nSource URL: ${url}`;
-
-  const result = await model.generateContent(prompt);
-  const rawResponse = result.response.text();
-
-  const parsed = JSON.parse(rawResponse);
-  const validated = extractionResultSchema.parse(parsed);
-
-  return validated;
 }
 
 export async function extractListingFromText(
@@ -172,6 +195,7 @@ Important:
 - For NYC listings, infer borough from neighborhood if not explicit
 - Each row or section describing an available unit should become one entry in the units array
 - Unit numbers might be labeled as "Apt", "#", or just a number — extract just the identifier
+- Look for building information: year built, number of floors/stories, total number of units
 `;
 
 const buildingResponseSchema: Schema = {
@@ -180,6 +204,16 @@ const buildingResponseSchema: Schema = {
     address: {
       type: SchemaType.STRING,
       description: "Building street address (without unit number)",
+    },
+    city: {
+      type: SchemaType.STRING,
+      description: "City name (e.g., New York)",
+      nullable: true,
+    },
+    state: {
+      type: SchemaType.STRING,
+      description: "State abbreviation (e.g., NY)",
+      nullable: true,
     },
     neighborhood: {
       type: SchemaType.STRING,
@@ -196,6 +230,21 @@ const buildingResponseSchema: Schema = {
       type: SchemaType.STRING,
       description: "Listing type: RENTAL or SALE",
       enum: ["RENTAL", "SALE"],
+      nullable: true,
+    },
+    yearBuilt: {
+      type: SchemaType.NUMBER,
+      description: "Year the building was built",
+      nullable: true,
+    },
+    numFloors: {
+      type: SchemaType.NUMBER,
+      description: "Number of floors/stories in the building",
+      nullable: true,
+    },
+    totalUnits: {
+      type: SchemaType.NUMBER,
+      description: "Total number of units in the building",
       nullable: true,
     },
     buildingAmenities: {

@@ -7,6 +7,7 @@ import type {
   ContactSubmission,
   SiteSettings,
   ListingStatus,
+  BuildingAmenities,
 } from "@/types";
 
 // --- Helpers ---
@@ -27,21 +28,26 @@ function docToListing(id: string, data: Record<string, unknown>): Listing {
     type: data.type as Listing["type"],
     status: data.status as Listing["status"],
     price: data.price as number,
-    priceUnit: (data.priceUnit as string) ?? null,
+    freeMonths: (data.freeMonths as number) ?? null,
+    leaseDuration: (data.leaseDuration as number) ?? null,
     bedrooms: data.bedrooms as number,
     bathrooms: data.bathrooms as number,
     sqft: (data.sqft as number) ?? null,
     address: data.address as string,
     unit: (data.unit as string) ?? null,
+    city: (data.city as string) ?? "New York",
+    state: (data.state as string) ?? "NY",
     neighborhood: data.neighborhood as string,
     borough: data.borough as string,
     zipCode: (data.zipCode as string) ?? null,
     latitude: (data.latitude as number) ?? null,
     longitude: (data.longitude as number) ?? null,
     sourceUrl: (data.sourceUrl as string) ?? null,
+    op: (data.op as number) ?? null,
     featured: (data.featured as boolean) ?? false,
     amenities: (data.amenities as string[]) ?? [],
     photos: (data.photos as Listing["photos"]) ?? [],
+    floorPlans: (data.floorPlans as Listing["photos"]) ?? [],
     availableDate: toDate(data.availableDate as Timestamp),
     listedDate: toDate(data.listedDate as Timestamp) ?? new Date(),
     createdAt: toDate(data.createdAt as Timestamp) ?? new Date(),
@@ -367,6 +373,76 @@ export async function getListingsByAddress(
   return snapshot.docs.map((doc) =>
     docToListing(doc.id, doc.data() as Record<string, unknown>)
   );
+}
+
+// --- Building Amenities ---
+
+export async function getBuildingAmenities(
+  address: string
+): Promise<BuildingAmenities | null> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("buildingAmenities")
+    .where("address", "==", address)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return null;
+  const doc = snapshot.docs[0];
+  const data = doc.data();
+  return {
+    id: doc.id,
+    address: data.address,
+    amenities: data.amenities ?? [],
+    yearBuilt: (data.yearBuilt as number) ?? null,
+    numFloors: (data.numFloors as number) ?? null,
+    totalUnits: (data.totalUnits as number) ?? null,
+    createdAt: toDate(data.createdAt) ?? new Date(),
+    updatedAt: toDate(data.updatedAt) ?? new Date(),
+  };
+}
+
+export async function saveBuildingAmenities(
+  address: string,
+  amenities: string[],
+  buildingInfo?: {
+    yearBuilt: number | null;
+    numFloors: number | null;
+    totalUnits: number | null;
+  }
+): Promise<void> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("buildingAmenities")
+    .where("address", "==", address)
+    .limit(1)
+    .get();
+
+  const infoFields = buildingInfo
+    ? {
+        yearBuilt: buildingInfo.yearBuilt,
+        numFloors: buildingInfo.numFloors,
+        totalUnits: buildingInfo.totalUnits,
+      }
+    : {};
+
+  if (!snapshot.empty) {
+    await snapshot.docs[0].ref.update({
+      amenities,
+      ...infoFields,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  } else {
+    await db.collection("buildingAmenities").add({
+      address,
+      amenities,
+      yearBuilt: null,
+      numFloors: null,
+      totalUnits: null,
+      ...infoFields,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  }
 }
 
 // --- Neighborhoods (derived, cached) ---

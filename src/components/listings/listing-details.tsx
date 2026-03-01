@@ -1,4 +1,9 @@
-import { formatPrice, formatBedrooms, formatBathrooms } from "@/lib/utils";
+import {
+  formatPrice,
+  formatBedrooms,
+  formatBathrooms,
+  formatEffectiveRent,
+} from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   MapPin,
@@ -7,15 +12,19 @@ import {
   Maximize2,
   Calendar,
   ExternalLink,
+  Building2,
+  Layers,
+  Hash,
 } from "lucide-react";
 import { format } from "date-fns";
-import type { Listing } from "@/types";
+import type { Listing, BuildingAmenities } from "@/types";
 
 interface ListingDetailsProps {
   listing: Listing;
+  buildingInfo?: BuildingAmenities | null;
 }
 
-export function ListingDetails({ listing }: ListingDetailsProps) {
+export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
   return (
     <div className="lg:col-span-2">
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -37,8 +46,23 @@ export function ListingDetails({ listing }: ListingDetailsProps) {
       </div>
 
       <p className="mt-2 text-2xl font-bold text-[var(--primary)]">
-        {formatPrice(listing.price, listing.priceUnit)}
+        {formatPrice(listing.price, listing.type)}
       </p>
+      {listing.type === "RENTAL" &&
+        (() => {
+          const effective = formatEffectiveRent(
+            listing.price,
+            listing.leaseDuration,
+            listing.freeMonths
+          );
+          return effective ? (
+            <p className="mt-1 text-sm text-gray-500">
+              Effective rent: {effective} ({listing.freeMonths} month
+              {listing.freeMonths !== 1 ? "s" : ""} free on{" "}
+              {listing.leaseDuration}-month lease)
+            </p>
+          ) : null;
+        })()}
 
       <div className="mt-4 flex flex-wrap gap-6 text-gray-600">
         <span className="flex items-center gap-2">
@@ -58,7 +82,9 @@ export function ListingDetails({ listing }: ListingDetailsProps) {
         {listing.availableDate && (
           <span className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Available {format(listing.availableDate, "MMM d, yyyy")}
+            {listing.availableDate <= new Date()
+              ? "Available Now"
+              : `Available ${format(listing.availableDate, "MMM d, yyyy")}`}
           </span>
         )}
       </div>
@@ -83,6 +109,52 @@ export function ListingDetails({ listing }: ListingDetailsProps) {
               >
                 {amenity}
               </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {buildingInfo &&
+        (buildingInfo.yearBuilt ||
+          buildingInfo.numFloors ||
+          buildingInfo.totalUnits) && (
+          <div className="mt-8">
+            <h2 className="mb-3 text-lg font-semibold">Building Details</h2>
+            <div className="flex flex-wrap gap-6 text-gray-600">
+              {buildingInfo.yearBuilt && (
+                <span className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Built in {buildingInfo.yearBuilt}
+                </span>
+              )}
+              {buildingInfo.numFloors && (
+                <span className="flex items-center gap-2">
+                  <Layers className="h-5 w-5" />
+                  {buildingInfo.numFloors} Floors
+                </span>
+              )}
+              {buildingInfo.totalUnits && (
+                <span className="flex items-center gap-2">
+                  <Hash className="h-5 w-5" />
+                  {buildingInfo.totalUnits} Units
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+      {listing.floorPlans.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold">Floor Plans</h2>
+          <div className="space-y-4">
+            {listing.floorPlans.map((fp) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={fp.url}
+                src={fp.url}
+                alt={fp.alt ?? "Floor plan"}
+                className="w-full rounded-lg border border-gray-200"
+              />
             ))}
           </div>
         </div>

@@ -6,9 +6,10 @@ import {
   getListingsByAddress,
   updateListing,
   addStatusChange,
+  saveBuildingAmenities,
 } from "@/lib/firestore";
 import { getDb } from "@/lib/firebase";
-import { slugify, normalizeUnit } from "@/lib/utils";
+import { slugify, normalizeUnit, generateTitle } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
 import { cleanupListingAssets } from "@/lib/cleanup";
 import { revalidateListingPaths } from "@/lib/revalidate";
@@ -162,7 +163,7 @@ export async function executeBuildingSync(params: {
     const now = new Date();
 
     for (const unit of addUnits) {
-      const title = `${extraction.address} #${unit.unit}`;
+      const title = generateTitle(extraction.address, unit.unit);
       const slug = slugify(
         `${extraction.address} ${unit.unit} ${neighborhood}`
       );
@@ -176,12 +177,15 @@ export async function executeBuildingSync(params: {
         type: extraction.type ?? "RENTAL",
         status: "DRAFT",
         price: unit.price ?? 0,
-        priceUnit: extraction.type === "SALE" ? null : "month",
+        freeMonths: null,
+        leaseDuration: null,
         bedrooms: unit.bedrooms ?? 0,
         bathrooms: unit.bathrooms ?? 1,
         sqft: unit.sqft ?? null,
         address: extraction.address,
         unit: unit.unit,
+        city: extraction.city ?? "New York",
+        state: extraction.state ?? "NY",
         neighborhood,
         borough,
         zipCode: null,
@@ -191,6 +195,7 @@ export async function executeBuildingSync(params: {
         featured: false,
         amenities,
         photos: [],
+        floorPlans: [],
         availableDate: null,
         listedDate: Timestamp.fromDate(now),
         createdAt: FieldValue.serverTimestamp(),
@@ -210,6 +215,19 @@ export async function executeBuildingSync(params: {
     }
 
     await batch.commit();
+
+    // Save building amenities + building info
+    if (extraction.buildingAmenities.length > 0) {
+      await saveBuildingAmenities(
+        extraction.address,
+        extraction.buildingAmenities,
+        {
+          yearBuilt: extraction.yearBuilt ?? null,
+          numFloors: extraction.numFloors ?? null,
+          totalUnits: extraction.totalUnits ?? null,
+        }
+      );
+    }
 
     revalidateListingPaths();
 
