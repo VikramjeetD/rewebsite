@@ -30,6 +30,14 @@ const TYPE_OPTIONS = [
   { value: "SALE", label: "Sale" },
 ];
 
+const PET_POLICY_OPTIONS = [
+  { value: "", label: "— Select —" },
+  { value: "NO_PETS", label: "No Pets" },
+  { value: "CATS_ONLY", label: "Cats Only" },
+  { value: "DOGS_ONLY", label: "Dogs Only" },
+  { value: "CATS_AND_DOGS", label: "Cats & Dogs" },
+];
+
 const BOROUGH_OPTIONS = BOROUGHS.map((b) => ({ value: b, label: b }));
 
 interface ListingFormProps {
@@ -487,6 +495,41 @@ export function ListingForm({
             </div>
           </div>
         )}
+        <div>
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+            <input
+              name="noFee"
+              type="checkbox"
+              defaultChecked={listing?.noFee ?? false}
+              className="rounded"
+            />
+            No Fee
+          </label>
+        </div>
+        <Input
+          name="estimatedUtilities"
+          label="Estimated Utilities"
+          defaultValue={listing?.estimatedUtilities ?? ""}
+          placeholder="$150/month"
+        />
+        <Select
+          name="petPolicy"
+          label="Pet Policy"
+          defaultValue={listing?.petPolicy ?? ""}
+          options={PET_POLICY_OPTIONS}
+        />
+        <Input
+          name="petPolicyDetails"
+          label="Pet Fees / Details"
+          defaultValue={listing?.petPolicyDetails ?? ""}
+          placeholder="$500 deposit, 25lb limit"
+        />
+        <Input
+          name="parking"
+          label="Parking"
+          defaultValue={listing?.parking ?? ""}
+          placeholder="Street parking, garage $200/mo, no parking"
+        />
         <div className="md:col-span-2">
           <Input
             ref={amenitiesRef}

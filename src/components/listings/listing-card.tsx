@@ -41,11 +41,16 @@ export function ListingCard({ listing }: ListingCardProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
       {/* Top badges */}
-      {listing.status !== "ACTIVE" && (
-        <div className="absolute left-3 top-3">
+      <div className="absolute left-3 top-3 flex items-center gap-2">
+        {listing.status !== "ACTIVE" && (
           <StatusBadge status={listing.status} />
-        </div>
-      )}
+        )}
+        {listing.noFee && listing.type === "RENTAL" && (
+          <span className="bg-emerald-500/90 text-white text-xs font-medium px-2 py-0.5 rounded">
+            No Fee
+          </span>
+        )}
+      </div>
 
       {/* Bottom content */}
       <div className="absolute inset-x-0 bottom-0 p-5">

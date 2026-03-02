@@ -54,6 +54,11 @@ export interface Listing {
   longitude: number | null;
   sourceUrl: string | null;
   op: number | null;
+  noFee: boolean;
+  estimatedUtilities: string | null;
+  petPolicy: string | null;
+  petPolicyDetails: string | null;
+  parking: string | null;
   featured: boolean;
   amenities: string[];
   photos: ListingPhoto[];

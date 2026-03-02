@@ -1,4 +1,5 @@
 import { getListingBySlug, getBuildingAmenities } from "@/lib/firestore";
+import { getNearbyStations } from "@/lib/transit";
 import { notFound } from "next/navigation";
 import {
   formatPrice,
@@ -10,6 +11,7 @@ import type { Metadata } from "next";
 import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { ListingDetails } from "@/components/listings/listing-details";
 import { ContactSidebar } from "@/components/listings/contact-sidebar";
+import { NearbyTransit } from "@/components/listings/nearby-transit";
 
 interface ListingDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -45,6 +47,10 @@ export default async function ListingDetailPage({
   if (!listing) notFound();
 
   const buildingInfo = await getBuildingAmenities(listing.address);
+  const nearbyStations =
+    listing.latitude != null && listing.longitude != null
+      ? await getNearbyStations(listing.latitude, listing.longitude, 0.5)
+      : [];
   const sortedPhotos = [...listing.photos].sort((a, b) => a.order - b.order);
 
   const jsonLd = {
@@ -81,6 +87,16 @@ export default async function ListingDetailPage({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <ListingDetails listing={listing} buildingInfo={buildingInfo} />
           <ContactSidebar listingId={listing.id} />
+
+          {listing.latitude != null && listing.longitude != null && (
+            <div className="col-span-full">
+              <NearbyTransit
+                stations={nearbyStations}
+                listingLat={listing.latitude}
+                listingLng={listing.longitude}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

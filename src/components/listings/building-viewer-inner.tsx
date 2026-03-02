@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Ion,
   Viewer as CesiumViewer,
   Cartesian3,
-  Color,
   Math as CesiumMath,
   Cesium3DTileset,
   VerticalOrigin,
   HorizontalOrigin,
   HeadingPitchRange,
-  Matrix4,
 } from "cesium";
+import { RotateCw } from "lucide-react";
 
 import "cesium/Build/Cesium/Widgets/widgets.css";
 
@@ -70,6 +69,9 @@ function createPinImage(): string {
 export function BuildingViewerInner({ latitude, longitude, address }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CesiumViewer | null>(null);
+  const interactingRef = useRef(false);
+  const autoRotateRef = useRef(true);
+  const [autoRotate, setAutoRotate] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -115,44 +117,39 @@ export function BuildingViewerInner({ latitude, longitude, address }: Props) {
       },
     });
 
-    // Auto-orbit: camera orbits around the building location.
-    // Use pitch and range to determine the lookAt target altitude
-    // so the ground-level pin projects to the center of the viewport
-    // regardless of screen size.
-    const pitchRad = CesiumMath.toRadians(-35);
-    const range = 200;
-    // The camera sits at: targetAlt + range * sin(-pitch) above ground
-    // and range * cos(-pitch) horizontally away.
-    // For the ground point (alt=0) to appear at screen center,
-    // the lookAt target should be at ground level (alt=0).
+    // Initial view: orbit target at ground level
     const target = Cartesian3.fromDegrees(longitude, latitude, 0);
-    let heading = 0;
-    let orbitStopped = false;
-
-    viewer.camera.lookAt(target, new HeadingPitchRange(heading, pitchRad, range));
+    viewer.camera.lookAt(
+      target,
+      new HeadingPitchRange(0, CesiumMath.toRadians(-35), 200)
+    );
 
     const canvas = viewer.canvas;
 
-    const stopOrbit = () => {
-      if (orbitStopped) return;
-      orbitStopped = true;
-      // Permanently unlock camera for free navigation
-      viewer.camera.lookAtTransform(Matrix4.IDENTITY);
+    // Pause auto-orbit during pointer drag so the user has full control
+    const onPointerDown = () => {
+      interactingRef.current = true;
+    };
+    const onPointerUp = () => {
+      if (!interactingRef.current) return;
+      interactingRef.current = false;
     };
 
-    canvas.addEventListener("pointerdown", stopOrbit);
-    canvas.addEventListener("wheel", stopOrbit);
+    canvas.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerup", onPointerUp);
 
+    // Auto-orbit: rotateRight works within the lookAt constraint,
+    // naturally preserving the user's zoom and tilt.
     const onTick = () => {
-      if (orbitStopped || viewer.isDestroyed()) return;
-      heading += CesiumMath.toRadians(0.1);
-      viewer.camera.lookAt(target, new HeadingPitchRange(heading, pitchRad, range));
+      if (viewer.isDestroyed()) return;
+      if (!autoRotateRef.current || interactingRef.current) return;
+      viewer.camera.rotateRight(CesiumMath.toRadians(0.1));
     };
     viewer.clock.onTick.addEventListener(onTick);
 
     return () => {
-      canvas.removeEventListener("pointerdown", stopOrbit);
-      canvas.removeEventListener("wheel", stopOrbit);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
       viewer.clock.onTick.removeEventListener(onTick);
       if (!viewer.isDestroyed()) {
         viewer.destroy();
@@ -160,6 +157,14 @@ export function BuildingViewerInner({ latitude, longitude, address }: Props) {
       viewerRef.current = null;
     };
   }, [latitude, longitude, address]);
+
+  const toggleAutoRotate = useCallback(() => {
+    setAutoRotate((prev) => {
+      const next = !prev;
+      autoRotateRef.current = next;
+      return next;
+    });
+  }, []);
 
   if (error) {
     return (
@@ -169,5 +174,22 @@ export function BuildingViewerInner({ latitude, longitude, address }: Props) {
     );
   }
 
-  return <div ref={containerRef} className="h-full w-full" />;
+  return (
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full" />
+      <button
+        type="button"
+        onClick={toggleAutoRotate}
+        className={`absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs backdrop-blur-sm transition-colors cursor-pointer ${
+          autoRotate
+            ? "bg-white/20 text-white hover:bg-white/30"
+            : "bg-black/60 text-white/50 hover:bg-black/80 hover:text-white/80"
+        }`}
+        title={autoRotate ? "Stop auto-rotate" : "Start auto-rotate"}
+      >
+        <RotateCw className="h-3.5 w-3.5" />
+        Auto-rotate
+      </button>
+    </div>
+  );
 }

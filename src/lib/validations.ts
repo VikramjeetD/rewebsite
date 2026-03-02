@@ -43,6 +43,11 @@ export const listingFormSchema = z.object({
   zipCode: z.string().regex(/^\d{5}$/, "Zip code must be 5 digits"),
   sourceUrl: z.string().url().nullable().or(z.literal("")),
   op: z.coerce.number().min(0, "OP must be non-negative").nullable(),
+  noFee: z.boolean(),
+  estimatedUtilities: z.string().max(500).nullable(),
+  petPolicy: z.enum(["NO_PETS", "CATS_ONLY", "DOGS_ONLY", "CATS_AND_DOGS"]).nullable(),
+  petPolicyDetails: z.string().max(500).nullable(),
+  parking: z.string().max(500).nullable(),
   featured: z.boolean(),
   amenities: z.string().transform((v) =>
     v

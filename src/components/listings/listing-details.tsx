@@ -28,7 +28,6 @@ import { format } from "date-fns";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import Image from "next/image";
 import type { Listing, BuildingAmenities } from "@/types";
-
 /** Google Routes API response types */
 interface TransitLine {
   name?: string;
@@ -169,9 +168,9 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
   const [activeModal, setActiveModal] = useState<"floorplan" | "map" | "3d" | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.Marker | null>(null);
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const routePolylinesRef = useRef<google.maps.Polyline[]>([]);
-  const routeMarkersRef = useRef<google.maps.Marker[]>([]);
+  const routeMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
   const placesLoadedRef = useRef(false);
   const sessionTokenRef = useRef<object | null>(null);
@@ -208,15 +207,21 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
 
     setOptions({ key: apiKey, v: "weekly" });
 
-    importLibrary("maps").then(() => {
+    Promise.all([
+      importLibrary("maps"),
+      importLibrary("marker"),
+    ]).then(([, markerLib]) => {
       if (!mapRef.current) return;
+      const { AdvancedMarkerElement } = markerLib as typeof google.maps.marker;
       const position = { lat: listing.latitude!, lng: listing.longitude! };
+      const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
       const map = new google.maps.Map(mapRef.current, {
         center: position,
         zoom: 15,
+        ...(mapId ? { mapId } : {}),
         colorScheme: google.maps.ColorScheme.DARK,
       });
-      const marker = new google.maps.Marker({ position, map });
+      const marker = new AdvancedMarkerElement({ position, map });
       const transitLayer = new google.maps.TransitLayer();
       transitLayer.setMap(map);
       transitLayerRef.current = transitLayer;
@@ -242,10 +247,10 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
   const clearDirections = useCallback(() => {
     routePolylinesRef.current.forEach((p) => p.setMap(null));
     routePolylinesRef.current = [];
-    routeMarkersRef.current.forEach((m) => m.setMap(null));
+    routeMarkersRef.current.forEach((m) => { m.map = null; });
     routeMarkersRef.current = [];
     if (markerRef.current && mapInstanceRef.current) {
-      markerRef.current.setMap(mapInstanceRef.current);
+      markerRef.current.map = mapInstanceRef.current;
     }
     if (transitLayerRef.current && mapInstanceRef.current) {
       transitLayerRef.current.setMap(mapInstanceRef.current);
@@ -261,10 +266,10 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       if (!mapInstanceRef.current) return;
       routePolylinesRef.current.forEach((p) => p.setMap(null));
       routePolylinesRef.current = [];
-      routeMarkersRef.current.forEach((m) => m.setMap(null));
+      routeMarkersRef.current.forEach((m) => { m.map = null; });
       routeMarkersRef.current = [];
 
-      if (markerRef.current) markerRef.current.setMap(null);
+      if (markerRef.current) markerRef.current.map = null;
       if (transitLayerRef.current) transitLayerRef.current.setMap(null);
 
       const bounds = new google.maps.LatLngBounds();
@@ -327,15 +332,22 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
         ? decodePolyline(route.polyline.encodedPolyline)
         : [];
       if (overallPath.length > 0) {
-        const startMarker = new google.maps.Marker({
+        const { AdvancedMarkerElement } = google.maps.marker;
+        const startLabel = document.createElement("div");
+        startLabel.textContent = "A";
+        startLabel.style.cssText = "background:#4285F4;color:#fff;font-weight:bold;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;";
+        const endLabel = document.createElement("div");
+        endLabel.textContent = "B";
+        endLabel.style.cssText = "background:#EA4335;color:#fff;font-weight:bold;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;";
+        const startMarker = new AdvancedMarkerElement({
           position: overallPath[0],
           map: mapInstanceRef.current,
-          label: "A",
+          content: startLabel,
         });
-        const endMarker = new google.maps.Marker({
+        const endMarker = new AdvancedMarkerElement({
           position: overallPath[overallPath.length - 1],
           map: mapInstanceRef.current,
-          label: "B",
+          content: endLabel,
         });
         routeMarkersRef.current = [startMarker, endMarker];
         if (bounds.isEmpty()) {
@@ -582,6 +594,14 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
               <span>{listing.sqft.toLocaleString()} sqft</span>
             </>
           )}
+          {listing.noFee && (
+            <>
+              <span className="text-white/30">|</span>
+              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">
+                No Fee
+              </span>
+            </>
+          )}
           {listing.availableDate && (
             <>
               <span className="text-white/30">|</span>
@@ -632,6 +652,47 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       <p className="whitespace-pre-line text-gray-300 leading-relaxed">
         {listing.description}
       </p>
+
+      {(listing.estimatedUtilities || listing.petPolicy || listing.parking) && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold">Details</h2>
+          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
+            {listing.estimatedUtilities && (
+              <div>
+                <dt className="text-gray-500">Estimated Utilities</dt>
+                <dd className="text-gray-300">{listing.estimatedUtilities}</dd>
+              </div>
+            )}
+            {listing.petPolicy && (
+              <div>
+                <dt className="text-gray-500">Pet Policy</dt>
+                <dd className="text-gray-300">
+                  {listing.petPolicy === "NO_PETS"
+                    ? "No Pets"
+                    : listing.petPolicy === "CATS_ONLY"
+                      ? "Cats Only"
+                      : listing.petPolicy === "DOGS_ONLY"
+                        ? "Dogs Only"
+                        : listing.petPolicy === "CATS_AND_DOGS"
+                          ? "Cats & Dogs Allowed"
+                          : listing.petPolicy}
+                  {listing.petPolicyDetails && (
+                    <span className="ml-1 text-gray-500">
+                      — {listing.petPolicyDetails}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            )}
+            {listing.parking && (
+              <div>
+                <dt className="text-gray-500">Parking</dt>
+                <dd className="text-gray-300">{listing.parking}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
 
       {listing.amenities.length > 0 && (
         <div className="mt-8">

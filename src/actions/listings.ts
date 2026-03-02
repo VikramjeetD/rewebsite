@@ -41,6 +41,11 @@ function parseFormDataToRaw(raw: Record<string, FormDataEntryValue>) {
   return {
     ...raw,
     featured: raw.featured === "on",
+    noFee: raw.noFee === "on",
+    estimatedUtilities: raw.estimatedUtilities || null,
+    petPolicy: raw.petPolicy || null,
+    petPolicyDetails: raw.petPolicyDetails || null,
+    parking: raw.parking || null,
     sqft: raw.sqft || null,
     unit: raw.unit || null,
     city: raw.city || "New York",
@@ -81,6 +86,11 @@ export async function autosaveDraftAction(
     const zipCode = data.zipCode || null;
     const sourceUrl = data.sourceUrl || null;
     const featured = data.featured === "on";
+    const noFee = data.noFee === "on";
+    const estimatedUtilities = data.estimatedUtilities || null;
+    const petPolicy = data.petPolicy || null;
+    const petPolicyDetails = data.petPolicyDetails || null;
+    const parking = data.parking || null;
     const op = data.op ? Number(data.op) || null : null;
     const freeMonths = data.freeMonths ? Number(data.freeMonths) || null : null;
     const leaseDuration = data.leaseDuration
@@ -118,6 +128,11 @@ export async function autosaveDraftAction(
         zipCode,
         sourceUrl,
         op,
+        noFee,
+        estimatedUtilities,
+        petPolicy,
+        petPolicyDetails,
+        parking,
         featured,
         amenities,
         availableDate,
@@ -150,6 +165,11 @@ export async function autosaveDraftAction(
         longitude: null,
         sourceUrl,
         op,
+        noFee,
+        estimatedUtilities,
+        petPolicy,
+        petPolicyDetails,
+        parking,
         featured,
         amenities,
         photos: photos ?? [],
@@ -217,6 +237,11 @@ export async function createListingAction(formData: FormData) {
       longitude: coords?.lng ?? null,
       sourceUrl: parsed.sourceUrl || null,
       op: parsed.op ?? null,
+      noFee: parsed.noFee,
+      estimatedUtilities: parsed.estimatedUtilities ?? null,
+      petPolicy: parsed.petPolicy ?? null,
+      petPolicyDetails: parsed.petPolicyDetails ?? null,
+      parking: parsed.parking ?? null,
       featured: parsed.featured,
       amenities: parsed.amenities,
       photos: [],
@@ -293,6 +318,11 @@ export async function updateListingAction(id: string, formData: FormData) {
     longitude: lng,
     sourceUrl: parsed.sourceUrl || null,
     op: parsed.op ?? null,
+    noFee: parsed.noFee,
+    estimatedUtilities: parsed.estimatedUtilities ?? null,
+    petPolicy: parsed.petPolicy ?? null,
+    petPolicyDetails: parsed.petPolicyDetails ?? null,
+    parking: parsed.parking ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
     availableDate: parsed.availableDate ? new Date(parsed.availableDate) : null,
@@ -364,6 +394,11 @@ export async function activateDraftAction(id: string, formData: FormData) {
     longitude: lng,
     sourceUrl: parsed.sourceUrl || null,
     op: parsed.op ?? null,
+    noFee: parsed.noFee,
+    estimatedUtilities: parsed.estimatedUtilities ?? null,
+    petPolicy: parsed.petPolicy ?? null,
+    petPolicyDetails: parsed.petPolicyDetails ?? null,
+    parking: parsed.parking ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
     availableDate: parsed.availableDate ? new Date(parsed.availableDate) : null,
