@@ -4,7 +4,6 @@ import { Building2, CheckCircle, Clock, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { GeocodeButton } from "./_components/geocode-button";
 
 export default async function AdminDashboard() {
   const allListings = await getListings();
@@ -14,8 +13,6 @@ export default async function AdminDashboard() {
   const rented = allListings.filter((l) => l.status === "RENTED");
   const sold = allListings.filter((l) => l.status === "SOLD");
   const drafts = allListings.filter((l) => l.status === "DRAFT");
-  const ungeocoded = allListings.filter((l) => l.latitude == null);
-
   const stats = [
     {
       label: "Active Listings",
@@ -48,7 +45,6 @@ export default async function AdminDashboard() {
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Dashboard</h1>
         <div className="flex items-center gap-3">
-          <GeocodeButton ungeocodedCount={ungeocoded.length} />
           <Link
             href="/admin/listings/new"
             className="bg-white px-4 py-2 text-sm font-medium uppercase tracking-wider text-black hover:bg-white/90"

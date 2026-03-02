@@ -59,6 +59,14 @@ interface Suggestion {
   };
 }
 
+interface AutocompleteSuggestionApi {
+  fetchAutocompleteSuggestions(opts: {
+    input: string;
+    includedRegionCodes?: string[];
+    includedPrimaryTypes?: string[];
+  }): Promise<{ suggestions: Suggestion[] }>;
+}
+
 function getComponent(components: AddressComponent[], type: string): string {
   return components.find((c) => c.types.includes(type))?.longText ?? "";
 }
@@ -168,9 +176,9 @@ export function AddressAutocomplete({
       }
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const AutocompleteSuggestion = (google.maps.places as any)
-          .AutocompleteSuggestion;
+        const AutocompleteSuggestion = (
+          google.maps.places as unknown as { AutocompleteSuggestion: AutocompleteSuggestionApi }
+        ).AutocompleteSuggestion;
 
         const { suggestions } =
           (await AutocompleteSuggestion.fetchAutocompleteSuggestions({

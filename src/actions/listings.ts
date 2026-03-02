@@ -261,7 +261,7 @@ export async function updateListingAction(id: string, formData: FormData) {
     existing.neighborhood !== parsed.neighborhood ||
     existing.borough !== parsed.borough;
 
-  if (addressChanged) {
+  if (addressChanged || lat == null) {
     const coords = await geocodeAddress(
       parsed.address,
       parsed.neighborhood,
@@ -324,7 +324,7 @@ export async function activateDraftAction(id: string, formData: FormData) {
     existing.neighborhood !== parsed.neighborhood ||
     existing.borough !== parsed.borough;
 
-  if (addressChanged) {
+  if (addressChanged || lat == null) {
     const coords = await geocodeAddress(
       parsed.address,
       parsed.neighborhood,
@@ -518,49 +518,3 @@ export async function lookupPlutoAction(
   }
 }
 
-export async function geocodeAllListingsAction(): Promise<{
-  geocoded: number;
-  total: number;
-}> {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
-
-  const allListings = await getListings();
-  const needsGeocoding = allListings.filter((l) => l.latitude == null);
-
-  let geocoded = 0;
-
-  // Process in batches of 5 for ~5x speedup
-  for (let i = 0; i < needsGeocoding.length; i += 5) {
-    const batch = needsGeocoding.slice(i, i + 5);
-    const results = await Promise.all(
-      batch.map(async (listing) => {
-        const coords = await geocodeAddress(
-          listing.address,
-          listing.neighborhood,
-          listing.borough
-        );
-        return { listing, coords };
-      })
-    );
-
-    for (const { listing, coords } of results) {
-      if (coords) {
-        await updateListing(listing.id, {
-          latitude: coords.lat,
-          longitude: coords.lng,
-        });
-        geocoded++;
-      }
-    }
-
-    // Delay between batches to respect rate limits
-    if (i + 5 < needsGeocoding.length) {
-      await new Promise((r) => setTimeout(r, 200));
-    }
-  }
-
-  revalidateListingPaths();
-
-  return { geocoded, total: needsGeocoding.length };
-}

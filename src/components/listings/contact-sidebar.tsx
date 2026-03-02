@@ -6,8 +6,8 @@ interface ContactSidebarProps {
 
 export function ContactSidebar({ listingId }: ContactSidebarProps) {
   return (
-    <div>
-      <div className="sticky top-24 border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+    <div className="self-start">
+      <div className="sticky top-24 border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
         <h3 className="text-lg font-semibold text-white">
           Interested in this property?
         </h3>

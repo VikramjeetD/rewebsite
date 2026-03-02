@@ -3,7 +3,7 @@ import Link from "next/link";
 import { formatPrice, formatBedrooms } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Listing } from "@/types";
-import { MapPin, Bed, Bath, Maximize2 } from "lucide-react";
+import { formatBathrooms } from "@/lib/utils";
 
 interface ListingCardProps {
   listing: Listing;
@@ -41,42 +41,37 @@ export function ListingCard({ listing }: ListingCardProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
       {/* Top badges */}
-      <div className="absolute left-3 top-3 flex gap-2">
-        <StatusBadge status={listing.status} />
-        <span className="rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-          {listing.type === "RENTAL" ? "For Rent" : "For Sale"}
-        </span>
-      </div>
+      {listing.status !== "ACTIVE" && (
+        <div className="absolute left-3 top-3">
+          <StatusBadge status={listing.status} />
+        </div>
+      )}
 
       {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <p className="text-lg font-bold text-white">
-          {formatPrice(listing.price, listing.type)}
-        </p>
-        <h3 className="mt-1 text-sm font-medium text-white/90 line-clamp-1">
-          {listing.title}
-        </h3>
-        <div className="mt-2 flex items-center gap-1 text-xs text-white/60">
-          <MapPin className="h-3 w-3" />
-          <span className="line-clamp-1">
-            {listing.address}, {listing.neighborhood}
+      <div className="absolute inset-x-0 bottom-0 p-5">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="text-lg font-semibold text-white truncate">
+            {listing.address}
+          </h3>
+          <span className="shrink-0 text-sm text-white/60">
+            {listing.neighborhood}
           </span>
         </div>
-        <div className="mt-3 flex items-center gap-4 text-xs text-white/60">
-          <span className="flex items-center gap-1">
-            <Bed className="h-3.5 w-3.5" />
-            {formatBedrooms(listing.bedrooms)}
-          </span>
-          <span className="flex items-center gap-1">
-            <Bath className="h-3.5 w-3.5" />
-            {listing.bathrooms} Bath
-          </span>
-          {listing.sqft && (
-            <span className="flex items-center gap-1">
-              <Maximize2 className="h-3.5 w-3.5" />
-              {listing.sqft.toLocaleString()} sqft
-            </span>
-          )}
+        <div className="mt-0.5 flex items-end justify-between">
+          <p className="text-xl font-bold text-white">
+            {formatPrice(listing.price, listing.type)}
+          </p>
+          <div className="flex shrink-0 items-center gap-3 text-sm text-white/70">
+            <span>{formatBedrooms(listing.bedrooms)}</span>
+            <span className="text-white/30">|</span>
+            <span>{formatBathrooms(listing.bathrooms)}</span>
+            {listing.sqft && (
+              <>
+                <span className="text-white/30">|</span>
+                <span>{listing.sqft.toLocaleString()} sqft</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </Link>

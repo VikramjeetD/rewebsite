@@ -5,6 +5,7 @@ import { ListingForm } from "@/components/admin/listing-form";
 import { updateListingAction, deleteListingAction } from "@/actions/listings";
 import { Button } from "@/components/ui/button";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 interface EditListingPageProps {
   params: Promise<{ id: string }>;
@@ -42,11 +43,19 @@ export default async function EditListingPage({
     <div>
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Edit Listing</h1>
-        <form action={handleDelete}>
-          <Button type="submit" variant="danger" size="sm">
-            Delete Listing
-          </Button>
-        </form>
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/preview/${id}`}
+            className="bg-white px-4 py-2 text-sm font-medium uppercase tracking-wider text-black hover:bg-white/90"
+          >
+            Preview
+          </Link>
+          <form action={handleDelete}>
+            <Button type="submit" variant="danger" size="sm">
+              Delete Listing
+            </Button>
+          </form>
+        </div>
       </div>
 
       <Card>
