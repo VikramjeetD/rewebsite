@@ -52,7 +52,7 @@ export default async function AboutPage() {
             <div className="mt-8 space-y-4 text-white/60 leading-relaxed">
               <p>
                 {settings.agentBio ||
-                  "With extensive experience in the New York real estate market, I provide personalized service to help clients find their perfect home. Whether you're buying, selling, or renting, I'm here to guide you through every step of the process."}
+                  "I provide personalized service to help clients find their perfect home. Whether you're buying, selling, or renting, I'm here to guide you through every step of the process."}
               </p>
             </div>
 

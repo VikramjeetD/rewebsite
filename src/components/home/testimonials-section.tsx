@@ -22,7 +22,7 @@ export function TestimonialsSection({
             <p className="mt-1 text-white/60">{settings.agentTitle}</p>
             <p className="mt-4 text-white/60 leading-relaxed">
               {settings.agentBio ||
-                "With years of experience in the NYC real estate market, I help clients find their perfect home. Whether you're buying, selling, or renting, I provide personalized guidance every step of the way."}
+                "I help clients find their perfect home. Whether you're buying, selling, or renting, I provide personalized guidance every step of the way."}
             </p>
             <div className="mt-6 space-y-2">
               <div className="flex items-center gap-2 text-sm text-white/60">
