@@ -1,10 +1,25 @@
 import Link from "next/link";
+import { ShareButtons } from "./share-buttons";
 
 interface ContactSidebarProps {
   listingId: string;
+  slug: string;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  neighborhood: string;
+  price: string;
 }
 
-export function ContactSidebar({ listingId }: ContactSidebarProps) {
+export function ContactSidebar({
+  listingId,
+  slug,
+  address,
+  bedrooms,
+  bathrooms,
+  neighborhood,
+  price,
+}: ContactSidebarProps) {
   return (
     <div className="self-start">
       <div className="sticky top-24 border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
@@ -26,6 +41,17 @@ export function ContactSidebar({ listingId }: ContactSidebarProps) {
         <p className="mt-3 text-center text-sm text-white/40">
           for a showing or more information
         </p>
+
+        <div className="mt-5 border-t border-white/10 pt-4">
+          <ShareButtons
+            slug={slug}
+            address={address}
+            bedrooms={bedrooms}
+            bathrooms={bathrooms}
+            neighborhood={neighborhood}
+            price={price}
+          />
+        </div>
       </div>
     </div>
   );

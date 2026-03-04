@@ -12,6 +12,7 @@ import { PhotoGallery } from "@/components/listings/photo-gallery";
 import { ListingDetails } from "@/components/listings/listing-details";
 import { ContactSidebar } from "@/components/listings/contact-sidebar";
 import { NearbyTransit } from "@/components/listings/nearby-transit";
+import { SimilarListings } from "@/components/listings/similar-listings";
 
 interface ListingDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -86,7 +87,15 @@ export default async function ListingDetailPage({
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <ListingDetails listing={listing} buildingInfo={buildingInfo} />
-          <ContactSidebar listingId={listing.id} />
+          <ContactSidebar
+            listingId={listing.id}
+            slug={listing.slug}
+            address={listing.address}
+            bedrooms={listing.bedrooms}
+            bathrooms={listing.bathrooms}
+            neighborhood={listing.neighborhood}
+            price={formatPrice(listing.price, listing.type)}
+          />
 
           {listing.latitude != null && listing.longitude != null && (
             <div className="col-span-full">
@@ -97,6 +106,10 @@ export default async function ListingDetailPage({
               />
             </div>
           )}
+
+          <div className="col-span-full">
+            <SimilarListings listing={listing} />
+          </div>
         </div>
       </div>
     </>

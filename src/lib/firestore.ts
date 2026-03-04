@@ -450,6 +450,51 @@ export async function saveBuildingAmenities(
   }
 }
 
+// --- Similar Listings ---
+
+export async function getSimilarListings(
+  listing: Listing,
+  limit = 4
+): Promise<Listing[]> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("listings")
+    .where("status", "==", "ACTIVE")
+    .where("type", "==", listing.type)
+    .orderBy("createdAt", "desc")
+    .get();
+
+  const candidates = snapshot.docs
+    .filter((doc) => doc.id !== listing.id)
+    .map((doc) => docToListing(doc.id, doc.data() as Record<string, unknown>));
+
+  // Score by similarity
+  const scored = candidates.map((c) => {
+    let score = 0;
+    if (c.neighborhood === listing.neighborhood) score += 3;
+    if (Math.abs(c.bedrooms - listing.bedrooms) <= 1) score += 2;
+    if (c.bedrooms === listing.bedrooms) score += 1;
+    if (
+      listing.price > 0 &&
+      c.price > 0 &&
+      Math.abs(c.price - listing.price) / listing.price <= 0.25
+    ) {
+      score += 2;
+    }
+    return { listing: c, score };
+  });
+
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return (
+      (b.listing.createdAt?.getTime() ?? 0) -
+      (a.listing.createdAt?.getTime() ?? 0)
+    );
+  });
+
+  return scored.slice(0, limit).map((s) => s.listing);
+}
+
 // --- Neighborhoods (derived, cached) ---
 
 import { unstable_cache } from "next/cache";

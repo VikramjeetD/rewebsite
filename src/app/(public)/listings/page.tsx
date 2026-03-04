@@ -16,6 +16,12 @@ interface ListingsPageProps {
     type?: string;
     neighborhood?: string;
     beds?: string;
+    baths?: string;
+    priceMin?: string;
+    priceMax?: string;
+    noFee?: string;
+    amenities?: string;
+    sort?: string;
   }>;
 }
 
@@ -43,6 +49,59 @@ export default async function ListingsPage({
     } else {
       filtered = filtered.filter((l) => l.bedrooms === beds);
     }
+  }
+  if (params.baths) {
+    const baths = parseInt(params.baths);
+    if (baths === 3) {
+      filtered = filtered.filter((l) => l.bathrooms >= 3);
+    } else {
+      filtered = filtered.filter(
+        (l) => l.bathrooms >= baths && l.bathrooms < baths + 1
+      );
+    }
+  }
+  if (params.priceMin) {
+    const min = parseInt(params.priceMin) * 100;
+    if (!isNaN(min)) {
+      filtered = filtered.filter((l) => l.price >= min);
+    }
+  }
+  if (params.priceMax) {
+    const max = parseInt(params.priceMax) * 100;
+    if (!isNaN(max)) {
+      filtered = filtered.filter((l) => l.price <= max);
+    }
+  }
+  if (params.noFee === "true") {
+    filtered = filtered.filter((l) => l.noFee === true);
+  }
+  if (params.amenities) {
+    const keys = params.amenities.split(",").filter(Boolean);
+    if (keys.length > 0) {
+      filtered = filtered.filter((l) =>
+        keys.every((k) => l.amenities?.includes(k))
+      );
+    }
+  }
+
+  // Sorting
+  const sort = params.sort ?? "newest";
+  switch (sort) {
+    case "price-low":
+      filtered.sort((a, b) => a.price - b.price);
+      break;
+    case "price-high":
+      filtered.sort((a, b) => b.price - a.price);
+      break;
+    case "sqft":
+      filtered.sort((a, b) => (b.sqft ?? 0) - (a.sqft ?? 0));
+      break;
+    case "newest":
+    default:
+      filtered.sort(
+        (a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()
+      );
+      break;
   }
 
   return (
