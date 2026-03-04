@@ -418,6 +418,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       console.error("Places autocomplete error:", err);
       setSuggestions([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = useCallback(
@@ -774,7 +775,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with tabs and close */}
-            <div className="relative flex h-12 shrink-0 items-center justify-center border-b border-white/10 px-4">
+            <div className="relative flex h-12 shrink-0 items-center justify-center border-b border-white/10 px-12">
               <div className="flex gap-1">
                 {listing.floorPlans.length > 0 && (
                   <button

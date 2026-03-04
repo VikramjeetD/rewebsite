@@ -7,7 +7,7 @@ vi.stubGlobal("fetch", mockFetch);
 
 // Mock unstable_cache to be a passthrough
 vi.mock("next/cache", () => ({
-  unstable_cache: (fn: Function) => fn,
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
 }));
 
 // Mock places module
@@ -51,7 +51,7 @@ beforeEach(() => {
 
 describe("api-routes stress tests", () => {
   it("handles 50 concurrent nearby-places requests", async () => {
-    const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
+    const { fulfilled, rejected } = await runConcurrent(50, async () => {
       const req = makeRequest(
         `http://localhost/api/nearby-places?lat=40.7128&lng=-74.006&category=groceries`
       );
@@ -68,7 +68,7 @@ describe("api-routes stress tests", () => {
   });
 
   it("handles 50 concurrent nearby-buses requests", async () => {
-    const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
+    const { fulfilled, rejected } = await runConcurrent(50, async () => {
       const req = makeRequest(
         `http://localhost/api/nearby-buses?lat=40.7128&lng=-74.006`
       );
@@ -92,7 +92,7 @@ describe("api-routes stress tests", () => {
         ]),
     }));
 
-    const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
+    const { fulfilled, rejected } = await runConcurrent(50, async () => {
       const req = makeRequest(
         `http://localhost/api/pluto?address=${encodeURIComponent(`${100 + i} E 10th St`)}`
       );
@@ -116,7 +116,7 @@ describe("api-routes stress tests", () => {
         }),
     }));
 
-    const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
+    const { fulfilled, rejected } = await runConcurrent(50, async () => {
       const req = makeRequest(
         "http://localhost/api/directions",
         "POST",
@@ -126,7 +126,7 @@ describe("api-routes stress tests", () => {
           travelMode: "TRANSIT",
         }
       );
-      const res = await directionsPost(req as any);
+      const res = await directionsPost(req as unknown as Request);
       return res.json();
     });
 
@@ -157,7 +157,7 @@ describe("api-routes stress tests", () => {
       "http://localhost/api/pluto",
     ];
 
-    const { fulfilled, rejected } = await runConcurrent(100, async (i) => {
+    const { fulfilled, rejected } = await runConcurrent(100, async () => {
       const url = badRequests[i % badRequests.length];
       let res;
       if (url.includes("pluto")) {
@@ -185,7 +185,7 @@ describe("api-routes stress tests", () => {
       json: () => Promise.resolve({ error: "Bad Gateway" }),
     }));
 
-    const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
+    const { fulfilled, rejected } = await runConcurrent(50, async () => {
       const req = makeRequest(
         `http://localhost/api/pluto?address=${encodeURIComponent("123 Broadway")}`
       );
@@ -307,7 +307,7 @@ describe("api-routes stress tests", () => {
         origin: { location: { latLng: { latitude: 40.7, longitude: -74.0 } } },
         destination: { location: { latLng: { latitude: 40.72, longitude: -73.99 } } },
       });
-      const res = await directionsPost(req as any);
+      const res = await directionsPost(req as unknown as Request);
       return { status: res.status, body: await res.json() };
     });
 

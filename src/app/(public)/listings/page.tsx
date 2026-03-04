@@ -19,7 +19,6 @@ interface ListingsPageProps {
     baths?: string;
     priceMin?: string;
     priceMax?: string;
-    noFee?: string;
     amenities?: string;
     sort?: string;
   }>;
@@ -71,9 +70,6 @@ export default async function ListingsPage({
     if (!isNaN(max)) {
       filtered = filtered.filter((l) => l.price <= max);
     }
-  }
-  if (params.noFee === "true") {
-    filtered = filtered.filter((l) => l.noFee === true);
   }
   if (params.amenities) {
     const keys = params.amenities.split(",").filter(Boolean);

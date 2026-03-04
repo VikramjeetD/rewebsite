@@ -70,7 +70,6 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
   const currentBeds = searchParams.get("beds") ?? "";
   const currentBaths = searchParams.get("baths") ?? "";
   const currentSort = searchParams.get("sort") ?? "";
-  const currentNoFee = searchParams.get("noFee") === "true";
   const currentAmenities = searchParams.get("amenities")
     ? searchParams.get("amenities")!.split(",")
     : [];
@@ -152,28 +151,12 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
         </div>
       </div>
 
-      {/* No Fee toggle */}
-      <button
-        type="button"
-        onClick={() => handleFilterChange("noFee", currentNoFee ? "" : "true")}
-        className={`border px-4 py-2 text-sm transition-colors ${
-          currentNoFee
-            ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-400"
-            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-        }`}
-      >
-        No Fee
-      </button>
-
-      {/* Sort — push to the right */}
-      <div className="ml-auto">
-        <Dropdown
-          value={currentSort}
-          onValueChange={(v) => handleFilterChange("sort", v)}
-          options={SORT_OPTIONS}
-          placeholder="Sort: Newest"
-        />
-      </div>
+      <Dropdown
+        value={currentSort}
+        onValueChange={(v) => handleFilterChange("sort", v)}
+        options={SORT_OPTIONS}
+        placeholder="Sort: Newest"
+      />
     </div>
   );
 }

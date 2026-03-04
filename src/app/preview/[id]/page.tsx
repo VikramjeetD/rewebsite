@@ -42,7 +42,15 @@ export default async function ListingPreviewPage({ params }: PreviewPageProps) {
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <ListingDetails listing={listing} buildingInfo={buildingInfo} />
-            <ContactSidebar listingId={listing.id} />
+            <ContactSidebar
+              listingId={listing.id}
+              slug={listing.slug}
+              address={listing.address}
+              bedrooms={listing.bedrooms}
+              bathrooms={listing.bathrooms}
+              neighborhood={listing.neighborhood}
+              price={`$${(listing.price / 100).toLocaleString()}`}
+            />
           </div>
         </div>
       </main>

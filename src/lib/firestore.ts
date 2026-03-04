@@ -465,7 +465,7 @@ export async function getSimilarListings(
     .get();
 
   const candidates = snapshot.docs
-    .filter((doc) => doc.id !== listing.id)
+    .filter((doc) => doc.id !== listing.id && (doc.data() as Record<string, unknown>).slug !== listing.slug)
     .map((doc) => docToListing(doc.id, doc.data() as Record<string, unknown>));
 
   // Score by similarity

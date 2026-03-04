@@ -90,7 +90,6 @@ import {
   cleanupListingAssets,
   cleanupListingFull,
 } from "@/lib/cleanup";
-import { getListingById } from "@/lib/firestore";
 
 beforeEach(() => {
   vi.clearAllMocks();

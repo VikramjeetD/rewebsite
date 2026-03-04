@@ -628,9 +628,9 @@ export function NearbyTransit({
             )}
           </div>
 
-          {/* Category selector */}
+          {/* Category selector — horizontal top on mobile, vertical right on lg */}
           {mapLoaded && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1.5 pointer-events-auto">
+            <div className="absolute left-0 right-0 top-3 z-10 flex flex-row gap-1.5 overflow-x-auto px-3 pointer-events-auto lg:left-auto lg:right-3 lg:top-1/2 lg:-translate-y-1/2 lg:flex-col lg:overflow-x-visible lg:px-0">
               <CategoryButton
                 category="transit"
                 active={activeCategory === "transit"}
@@ -767,7 +767,7 @@ function CategoryButton({
   return (
     <button
       onClick={onClick}
-      className={`group relative flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+      className={`group relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all ${
         active
           ? "ring-1 ring-white/30 shadow-lg"
           : "bg-black/60 text-white/60 hover:bg-black/80 hover:text-white/90"
@@ -780,7 +780,7 @@ function CategoryButton({
     >
       <Icon className="h-4 w-4" />
       {/* Instant tooltip — appears left of button on hover */}
-      <span className="pointer-events-none absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center whitespace-nowrap rounded-md bg-gray-900/95 px-2.5 py-1 text-xs font-medium text-white shadow-lg ring-1 ring-white/10">
+      <span className="pointer-events-none absolute top-full mt-2 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center whitespace-nowrap rounded-md bg-gray-900/95 px-2.5 py-1 text-xs font-medium text-white shadow-lg ring-1 ring-white/10 lg:top-1/2 lg:mt-0 lg:left-auto lg:translate-x-0 lg:right-full lg:mr-2 lg:-translate-y-1/2">
         {label}
       </span>
     </button>
