@@ -24,6 +24,7 @@ import {
   Box,
 } from "lucide-react";
 import { BuildingViewer } from "./building-viewer";
+import { groupAmenitiesByCategory } from "@/lib/amenities";
 import { format } from "date-fns";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import Image from "next/image";
@@ -697,14 +698,24 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       {listing.amenities.length > 0 && (
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">Amenities</h2>
-          <div className="flex flex-wrap gap-2">
-            {listing.amenities.map((amenity) => (
-              <span
-                key={amenity}
-                className="rounded-full bg-white/10 px-3 py-1 text-sm text-gray-300"
-              >
-                {amenity}
-              </span>
+          <div className="space-y-4">
+            {groupAmenitiesByCategory(listing.amenities).map((group) => (
+              <div key={group.category}>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  {group.category}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {group.items.map(({ raw, label, icon: Icon }) => (
+                    <span
+                      key={raw}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm text-gray-300"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-gray-400" />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>

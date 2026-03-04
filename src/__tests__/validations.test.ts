@@ -146,7 +146,7 @@ describe("contactFormSchema", () => {
     const result = contactFormSchema.parse({
       name: "John Doe",
       email: "john@example.com",
-      phone: "212-555-0100",
+      phone: "830-658-3246",
       message: "I'm interested in this listing.",
     });
     expect(result.name).toBe("John Doe");

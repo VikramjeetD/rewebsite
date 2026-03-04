@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { updateListingPhotosAction } from "@/actions/listings";
 import { Upload, X, GripVertical, Play } from "lucide-react";
 import type { ListingPhoto } from "@/types";
@@ -132,6 +132,7 @@ export function PhotoUpload({
   showPrimary = true,
   acceptVideo = true,
 }: PhotoUploadProps) {
+  const dndId = useId();
   const [photos, setPhotos] = useState<ListingPhoto[]>(initialPhotos);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
@@ -277,6 +278,7 @@ export function PhotoUpload({
 
       {photos.length > 0 && (
         <DndContext
+          id={dndId}
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}

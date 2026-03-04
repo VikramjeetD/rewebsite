@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn more about your trusted NYC real estate agent.",
+  description: "Learn more about Brandy Culp, licensed real estate agent associated with SPiRALNY.",
 };
 
 export default async function AboutPage() {
@@ -52,9 +52,21 @@ export default async function AboutPage() {
             <div className="mt-8 space-y-4 text-white/60 leading-relaxed">
               <p>
                 {settings.agentBio ||
-                  "With extensive experience in the NYC real estate market, I provide personalized service to help clients find their perfect home. Whether you're buying, selling, or renting, I'm here to guide you through every step of the process."}
+                  "With extensive experience in the New York real estate market, I provide personalized service to help clients find their perfect home. Whether you're buying, selling, or renting, I'm here to guide you through every step of the process."}
               </p>
             </div>
+
+            <p className="mt-6 text-sm text-white/40">
+              Associated with{" "}
+              <a
+                href="https://www.spiralny.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 underline underline-offset-2 hover:text-white"
+              >
+                SPiRALNY
+              </a>
+            </p>
 
             <div className="mt-10 space-y-3">
               <div className="flex items-center gap-3 text-white/60">

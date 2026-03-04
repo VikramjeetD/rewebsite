@@ -39,7 +39,7 @@ export function Header() {
           href="/"
           className="text-xl font-bold uppercase tracking-wider text-white"
         >
-          NYC Real Estate
+          Brandy Culp Realty
         </Link>
 
         {/* Desktop nav */}

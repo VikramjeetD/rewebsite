@@ -6,9 +6,9 @@ import { CtaSection } from "@/components/home/cta-section";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "NYC Real Estate Agent | Find Your Dream Home",
+  title: "Brandy Culp Realty | Find Your Dream Home",
   description:
-    "Expert guidance for buying, selling, and renting in New York City. Browse our curated listings.",
+    "Expert guidance for buying, selling, and renting in New York. Browse our curated listings.",
 };
 
 export default async function HomePage() {

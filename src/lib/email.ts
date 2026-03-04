@@ -30,8 +30,9 @@ export async function sendContactEmail(
   const safeListingTitle = listingTitle ? escapeHtml(listingTitle) : undefined;
 
   await getResend().emails.send({
-    from: "RE Website <onboarding@resend.dev>",
+    from: "Brandy Culp Realty <onboarding@resend.dev>",
     to: agentEmail,
+    replyTo: email,
     subject: `New Contact: ${safeName}${safeListingTitle ? ` re: ${safeListingTitle}` : ""}`,
     html: `
       <h2>New Contact Inquiry</h2>

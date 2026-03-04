@@ -14,6 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { PhotoUpload } from "@/components/admin/photo-upload";
 import { AddressAutocomplete } from "@/components/admin/address-autocomplete";
 import {
+  AmenitiesPicker,
+  type AmenitiesPickerHandle,
+} from "@/components/admin/amenities-picker";
+import {
   autosaveDraftAction,
   activateDraftAction,
   loadBuildingAmenitiesAction,
@@ -95,7 +99,7 @@ export function ListingForm({
   const stateRef = useRef<HTMLInputElement>(null);
   const zipCodeRef = useRef<HTMLInputElement>(null);
   const neighborhoodRef = useRef<HTMLInputElement>(null);
-  const amenitiesRef = useRef<HTMLInputElement>(null);
+  const amenitiesRef = useRef<AmenitiesPickerHandle>(null);
 
   const [selectedAddress, setSelectedAddress] = useState<string>(
     listing?.address ?? ""
@@ -531,16 +535,12 @@ export function ListingForm({
           placeholder="Street parking, garage $200/mo, no parking"
         />
         <div className="md:col-span-2">
-          <Input
+          <AmenitiesPicker
             ref={amenitiesRef}
-            name="amenities"
+            defaultValue={listing?.amenities ?? []}
             label={
-              listingType === "SALE"
-                ? "Features (comma-separated)"
-                : "Amenities (comma-separated)"
+              listingType === "SALE" ? "Features" : "Amenities"
             }
-            defaultValue={listing?.amenities.join(", ") ?? ""}
-            placeholder="Doorman, Gym, Roof Deck, Laundry"
           />
           {selectedAddress && (
             <div className="mt-2 flex items-center gap-2">
@@ -550,12 +550,7 @@ export function ListingForm({
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    if (amenitiesRef.current) {
-                      amenitiesRef.current.value = buildingAmenities.join(", ");
-                      amenitiesRef.current.dispatchEvent(
-                        new Event("input", { bubbles: true })
-                      );
-                    }
+                    amenitiesRef.current?.loadAmenities(buildingAmenities);
                   }}
                 >
                   <Building2 className="mr-1.5 h-3.5 w-3.5" />
@@ -568,11 +563,8 @@ export function ListingForm({
                 size="sm"
                 disabled={amenitySaveStatus === "saving"}
                 onClick={async () => {
-                  const value = amenitiesRef.current?.value ?? "";
-                  const amenities = value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean);
+                  const amenities =
+                    amenitiesRef.current?.getAmenities() ?? [];
                   if (amenities.length === 0) return;
 
                   if (

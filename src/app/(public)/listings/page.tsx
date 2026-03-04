@@ -8,7 +8,7 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "Listings",
   description:
-    "Browse available apartments and homes for rent and sale in New York City.",
+    "Browse available apartments and homes for rent and sale in New York.",
 };
 
 interface ListingsPageProps {

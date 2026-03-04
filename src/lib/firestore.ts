@@ -321,12 +321,12 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       agentTitle: "Licensed Real Estate Agent",
       agentBio: "",
       agentPhoto: null,
-      phone: "(212) 555-0100",
-      email: "agent@example.com",
+      phone: "(830) 658-3246",
+      email: "brandyculp@spiralny.com",
       license: null,
       heroTitle: "Find Your Dream Home in NYC",
       heroSubtitle:
-        "Expert guidance for buying, selling, and renting in New York City",
+        "Expert guidance for buying, selling, and renting in New York",
       heroImage: null,
       updatedAt: new Date(),
     };
@@ -343,7 +343,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     heroTitle: data.heroTitle ?? "Find Your Dream Home in NYC",
     heroSubtitle:
       data.heroSubtitle ??
-      "Expert guidance for buying, selling, and renting in New York City",
+      "Expert guidance for buying, selling, and renting in New York",
     heroImage: data.heroImage ?? null,
     updatedAt: toDate(data.updatedAt) ?? new Date(),
   };

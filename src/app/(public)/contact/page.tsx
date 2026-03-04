@@ -1,12 +1,12 @@
 import { ContactForm } from "@/components/home/contact-form";
 import { getSiteSettings } from "@/lib/firestore";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch for a consultation about buying, selling, or renting in NYC.",
+    "Get in touch for a consultation about buying, selling, or renting in New York.",
 };
 
 interface ContactPageProps {
@@ -35,10 +35,6 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             <div className="flex items-center gap-3 text-white/60">
               <Mail className="h-5 w-5 text-white/40" />
               <span>{settings.email}</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/60">
-              <MapPin className="h-5 w-5 text-white/40" />
-              <span>New York, NY</span>
             </div>
           </div>
         </div>
