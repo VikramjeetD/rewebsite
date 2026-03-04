@@ -141,7 +141,7 @@ export function AmenityFilterDropdown({
           setOpen(!open);
         }}
         className={cn(
-          "inline-flex items-center justify-between gap-2 border px-4 py-2 text-sm text-white transition-colors focus:outline-none focus:ring-1",
+          "inline-flex shrink-0 items-center justify-between gap-2 border px-2 py-0.5 text-xs text-white transition-colors focus:outline-none focus:ring-1",
           "border-white/10 bg-white/5 hover:bg-white/10 focus:border-white/30 focus:ring-white/20",
           value.length === 0 && "text-white/40"
         )}

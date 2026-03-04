@@ -614,10 +614,10 @@ export function NearbyTransit({
         {sectionTitle}
       </h2>
 
-      {/* Map + scrollable list — full-width grid matching page columns */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3" style={{ height: "clamp(520px, 55vh, 700px)" }}>
-        {/* Map with category overlay — spans 2 columns, overflow visible for InfoWindow */}
-        <div className="relative lg:col-span-2 min-w-0" style={{ overflow: "visible" }}>
+      {/* Map + scrollable list — stacked on mobile, side-by-side on lg */}
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:h-[clamp(520px,55vh,700px)]">
+        {/* Map with category overlay — spans 2 columns on lg */}
+        <div className="relative h-[300px] lg:col-span-2 lg:h-auto min-w-0" style={{ overflow: "visible" }}>
           {/* Map container — overflow hidden only here so the map tiles are clipped but InfoWindow is not */}
           <div className="absolute inset-0 rounded-xl bg-white/5" style={{ overflow: "visible" }}>
             <div ref={mapContainerRef} className="absolute inset-0 rounded-xl" style={{ overflow: "hidden", clipPath: "inset(0 round 0.75rem)" }} />
@@ -662,8 +662,8 @@ export function NearbyTransit({
           )}
         </div>
 
-        {/* Scrollable list — fills right column */}
-        <div className="overflow-y-auto rounded-xl bg-white/5 p-2 space-y-2">
+        {/* Scrollable list — natural height on mobile, scrollable on lg */}
+        <div className="rounded-xl bg-white/5 p-2 space-y-2 lg:overflow-y-auto">
           {activeCategory === "transit" ? (
             <div className="space-y-4">
               {SYSTEM_ORDER.filter((sys) => grouped.has(sys)).map((sys) => (

@@ -82,33 +82,41 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
   }));
 
   return (
-    <div className="flex flex-wrap items-end gap-4">
+    <div className="flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:gap-3 sm:overflow-x-visible sm:pb-0">
       <Dropdown
         value={currentType}
         onValueChange={(v) => handleFilterChange("type", v)}
         options={TYPE_OPTIONS}
-        placeholder="All Types"
+        placeholder="Type"
+        size="sm"
+        className="shrink-0"
       />
 
       <Dropdown
         value={currentBeds}
         onValueChange={(v) => handleFilterChange("beds", v)}
         options={BEDROOM_OPTIONS}
-        placeholder="All Bedrooms"
+        placeholder="Beds"
+        size="sm"
+        className="shrink-0"
       />
 
       <Dropdown
         value={currentBaths}
         onValueChange={(v) => handleFilterChange("baths", v)}
         options={BATHROOM_OPTIONS}
-        placeholder="All Bathrooms"
+        placeholder="Baths"
+        size="sm"
+        className="shrink-0"
       />
 
       <Dropdown
         value={currentNeighborhood}
         onValueChange={(v) => handleFilterChange("neighborhood", v)}
         options={neighborhoodOptions}
-        placeholder="All Neighborhoods"
+        placeholder="Area"
+        size="sm"
+        className="shrink-0"
       />
 
       <AmenityFilterDropdown
@@ -119,9 +127,9 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
       />
 
       {/* Price range */}
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         <div className="relative">
-          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-white/40">
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/40">
             $
           </span>
           <input
@@ -131,12 +139,12 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
             onChange={(e) =>
               handleDebouncedFilterChange("priceMin", e.target.value)
             }
-            className="w-28 border border-white/10 bg-white/5 py-2 pl-6 pr-2 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
+            className="w-20 border border-white/10 bg-white/5 py-1 pl-5 pr-1 text-xs text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
           />
         </div>
-        <span className="text-white/40">–</span>
+        <span className="text-xs text-white/40">–</span>
         <div className="relative">
-          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-white/40">
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/40">
             $
           </span>
           <input
@@ -146,7 +154,7 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
             onChange={(e) =>
               handleDebouncedFilterChange("priceMax", e.target.value)
             }
-            className="w-28 border border-white/10 bg-white/5 py-2 pl-6 pr-2 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
+            className="w-20 border border-white/10 bg-white/5 py-1 pl-5 pr-1 text-xs text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
           />
         </div>
       </div>
@@ -155,7 +163,9 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
         value={currentSort}
         onValueChange={(v) => handleFilterChange("sort", v)}
         options={SORT_OPTIONS}
-        placeholder="Sort: Newest"
+        placeholder="Sort"
+        size="sm"
+        className="shrink-0"
       />
     </div>
   );
