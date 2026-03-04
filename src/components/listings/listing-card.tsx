@@ -53,8 +53,9 @@ export function ListingCard({ listing }: ListingCardProps) {
       </div>
 
       {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 p-5">
-        <div className="flex items-baseline justify-between gap-2">
+      <div className="absolute inset-x-0 bottom-0 p-4">
+        {/* Mobile: address + neighborhood side by side */}
+        <div className="flex items-baseline justify-between gap-2 sm:block">
           <h3 className="text-lg font-semibold text-white truncate">
             {listing.address}
           </h3>
@@ -62,11 +63,11 @@ export function ListingCard({ listing }: ListingCardProps) {
             {listing.neighborhood}
           </span>
         </div>
-        <div className="mt-0.5 flex items-end justify-between">
-          <p className="text-xl font-bold text-white">
+        <div className="mt-1 flex items-baseline justify-between gap-3">
+          <p className="shrink-0 text-xl font-bold text-white">
             {formatPrice(listing.price, listing.type)}
           </p>
-          <div className="flex shrink-0 items-center gap-3 text-sm text-white/70">
+          <div className="flex shrink-0 items-center gap-2 text-sm text-white/70">
             <span>{formatBedrooms(listing.bedrooms)}</span>
             <span className="text-white/30">|</span>
             <span>{formatBathrooms(listing.bathrooms)}</span>

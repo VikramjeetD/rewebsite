@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
   env: {
     CESIUM_BASE_URL: "/cesium/",
   },
+  turbopack: {
+    resolveAlias: {
+      fs: { browser: "./empty-module.js" },
+      path: { browser: "./empty-module.js" },
+      url: { browser: "./empty-module.js" },
+    },
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
