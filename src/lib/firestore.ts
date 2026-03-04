@@ -324,7 +324,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       phone: "(830) 658-3246",
       email: "brandyculp@spiralny.com",
       license: null,
-      heroTitle: "Find Your Dream Home in NYC",
+      heroTitle: "Find Your Dream Home in New York",
       heroSubtitle:
         "Expert guidance for buying, selling, and renting in New York",
       heroImage: null,
@@ -340,7 +340,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     phone: data.phone,
     email: data.email,
     license: data.license ?? null,
-    heroTitle: data.heroTitle ?? "Find Your Dream Home in NYC",
+    heroTitle: data.heroTitle ?? "Find Your Dream Home in New York",
     heroSubtitle:
       data.heroSubtitle ??
       "Expert guidance for buying, selling, and renting in New York",
