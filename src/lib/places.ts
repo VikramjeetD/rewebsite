@@ -66,7 +66,7 @@ export const PLACE_CATEGORIES: Record<PlaceCategory, CategoryConfig> = {
     label: "Schools",
     icon: "GraduationCap",
     color: "#3b82f6",
-    includedTypes: ["school", "primary_school", "secondary_school"],
+    includedTypes: ["primary_school", "secondary_school", "university"],
   },
   healthcare: {
     label: "Healthcare",
