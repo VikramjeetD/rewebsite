@@ -10,9 +10,13 @@ export async function submitContactAction(formData: FormData) {
   const parsed = contactFormSchema.parse(raw);
 
   let listingTitle: string | undefined;
+  let listingAddress: string | undefined;
   if (parsed.listingId) {
     const listing = await getListingById(parsed.listingId);
-    if (listing) listingTitle = listing.title;
+    if (listing) {
+      listingTitle = listing.title;
+      listingAddress = listing.address;
+    }
   }
 
   // Run submission creation and email send in parallel
@@ -29,7 +33,8 @@ export async function submitContactAction(formData: FormData) {
       parsed.email,
       parsed.phone ?? null,
       parsed.message,
-      listingTitle
+      listingTitle,
+      listingAddress
     ),
   ]);
 

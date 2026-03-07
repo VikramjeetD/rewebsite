@@ -6,7 +6,7 @@ import { absoluteUrl } from "@/lib/utils";
 
 interface ShareButtonsProps {
   slug: string;
-  address: string;
+  title: string;
   bedrooms: number;
   bathrooms: number;
   neighborhood: string;
@@ -15,7 +15,7 @@ interface ShareButtonsProps {
 
 export function ShareButtons({
   slug,
-  address,
+  title,
   bedrooms,
   bathrooms,
   neighborhood,
@@ -26,7 +26,7 @@ export function ShareButtons({
   const url = absoluteUrl(`/listings/${slug}`);
   const beds = bedrooms === 0 ? "Studio" : `${bedrooms} bed`;
   const baths = `${bathrooms} bath`;
-  const text = `Check out this listing: ${address} – ${beds}, ${baths} in ${neighborhood}. ${price}`;
+  const text = `Check out this listing: ${title} – ${beds}, ${baths} in ${neighborhood}. ${price}`;
 
   async function handleCopy() {
     try {
@@ -52,7 +52,7 @@ export function ShareButtons({
     {
       label: "Email",
       icon: Mail,
-      href: `mailto:?subject=${encodeURIComponent(address)}&body=${encodeURIComponent(text + "\n" + url)}`,
+      href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text + "\n" + url)}`,
     },
     {
       label: "SMS",

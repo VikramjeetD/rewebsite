@@ -39,6 +39,7 @@ async function ensureBuildingAmenities(
 function parseFormDataToRaw(raw: Record<string, FormDataEntryValue>) {
   return {
     ...raw,
+    title: raw.title || "",
     featured: raw.featured === "on",
     noFee: raw.noFee === "on",
     estimatedUtilities: raw.estimatedUtilities || null,
@@ -102,7 +103,7 @@ export async function autosaveDraftAction(
     const availableDate = data.availableDate
       ? new Date(data.availableDate)
       : null;
-    const title = generateTitle(address, unit);
+    const title = (data.title || "").trim() || generateTitle(address, unit); // drafts: fallback for autosave
 
     const slug = slugify(`${address || "draft"} ${neighborhood || "unknown"}`);
 
@@ -204,7 +205,7 @@ export async function createListingAction(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = listingFormSchema.parse(parseFormDataToRaw(raw));
 
-  const title = generateTitle(parsed.address, parsed.unit);
+  const title = parsed.title;
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
   const coords = await geocodeAddress(
     parsed.address,
@@ -271,7 +272,7 @@ export async function updateListingAction(id: string, formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = listingFormSchema.parse(parseFormDataToRaw(raw));
 
-  const title = generateTitle(parsed.address, parsed.unit);
+  const title = parsed.title;
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
 
   // Skip geocoding if address fields haven't changed
@@ -340,7 +341,7 @@ export async function activateDraftAction(id: string, formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = listingFormSchema.parse(parseFormDataToRaw(raw));
 
-  const title = generateTitle(parsed.address, parsed.unit);
+  const title = parsed.title;
   const slug = slugify(`${parsed.address} ${parsed.neighborhood}`);
 
   const existing = await getListingById(id);

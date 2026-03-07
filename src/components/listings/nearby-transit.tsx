@@ -33,6 +33,10 @@ import {
   type PlaceCategory,
   type NearbyPlace,
 } from "@/lib/places";
+import {
+  getApproximateLocation,
+  APPROXIMATE_CIRCLE_RADIUS_METERS,
+} from "@/lib/location-privacy";
 
 // ── System display order ─────────────────────────────────────────────────────
 
@@ -131,12 +135,14 @@ interface NearbyTransitProps {
   stations: NearbyStation[];
   listingLat: number;
   listingLng: number;
+  listingId: string;
 }
 
 export function NearbyTransit({
   stations,
   listingLat,
   listingLng,
+  listingId,
 }: NearbyTransitProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -201,8 +207,10 @@ export function NearbyTransit({
 
     const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
+    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
+
     const map = new google.maps.Map(mapContainerRef.current!, {
-      center: { lat: listingLat, lng: listingLng },
+      center: approxLocation,
       zoom: 1,
       ...(mapId ? { mapId } : {}),
       colorScheme: google.maps.ColorScheme.DARK,
@@ -258,17 +266,20 @@ export function NearbyTransit({
       }
     });
 
-    // Listing marker (center) — blue dot
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend({ lat: listingLat, lng: listingLng });
-
-    new AdvancedMarkerElement({
+    // Approximate-area circle instead of exact listing pin
+    new google.maps.Circle({
       map,
-      position: { lat: listingLat, lng: listingLng },
-      content: createDot("#3b82f6", 16, 2),
-      title: "Listing",
-      zIndex: 10,
+      center: approxLocation,
+      radius: APPROXIMATE_CIRCLE_RADIUS_METERS,
+      fillColor: "#3b82f6",
+      fillOpacity: 0.15,
+      strokeColor: "#3b82f6",
+      strokeOpacity: 0.5,
+      strokeWeight: 2,
     });
+
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(approxLocation);
 
     // Station entrance markers — small colored dots by system
     const markerMap = new Map<string, { dots: HTMLDivElement[]; markers: google.maps.marker.AdvancedMarkerElement[] }>();
@@ -305,7 +316,7 @@ export function NearbyTransit({
 
     stationMarkersRef.current = markerMap;
     setMapLoaded(true);
-  }, [listingLat, listingLng, stations]);
+  }, [listingLat, listingLng, listingId, stations]);
 
   useEffect(() => {
     if (mapVisible) initMap();
@@ -375,8 +386,9 @@ export function NearbyTransit({
 
     clearBusMarkers();
 
+    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
     const bounds = new google.maps.LatLngBounds();
-    bounds.extend({ lat: listingLat, lng: listingLng });
+    bounds.extend(approxLocation);
 
     const newMarkers = new Map<string, { dot: HTMLDivElement; marker: google.maps.marker.AdvancedMarkerElement }>();
     for (const stop of stopsData) {
@@ -397,7 +409,7 @@ export function NearbyTransit({
     if (stopsData.length > 0) {
       map.fitBounds(bounds, 30);
     }
-  }, [clearBusMarkers, listingLat, listingLng]);
+  }, [clearBusMarkers, listingLat, listingLng, listingId]);
 
   const showStationMarkers = useCallback((visible: boolean) => {
     const map = visible ? mapRef.current : null;
@@ -416,8 +428,9 @@ export function NearbyTransit({
 
     clearPlaceMarkers();
 
+    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
     const bounds = new google.maps.LatLngBounds();
-    bounds.extend({ lat: listingLat, lng: listingLng });
+    bounds.extend(approxLocation);
 
     const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
     for (const place of placesData) {
@@ -473,20 +486,21 @@ export function NearbyTransit({
     if (placesData.length > 0) {
       map.fitBounds(bounds, 30);
     }
-  }, [clearPlaceMarkers, listingLat, listingLng]);
+  }, [clearPlaceMarkers, listingLat, listingLng, listingId]);
 
   const fitBoundsToStations = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
+    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
     const bounds = new google.maps.LatLngBounds();
-    bounds.extend({ lat: listingLat, lng: listingLng });
+    bounds.extend(approxLocation);
     for (const station of stations) {
       bounds.extend({ lat: station.lat, lng: station.lng });
     }
     if (stations.length > 0) {
       map.fitBounds(bounds, 30);
     }
-  }, [listingLat, listingLng, stations]);
+  }, [listingLat, listingLng, listingId, stations]);
 
   const handleCategoryChange = useCallback(
     async (category: ActiveCategory) => {

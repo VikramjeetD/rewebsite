@@ -63,7 +63,6 @@ export default async function ListingDetailPage({
     image: sortedPhotos.find((p) => p.type !== "video")?.url,
     address: {
       "@type": "PostalAddress",
-      streetAddress: listing.address,
       addressLocality: listing.city,
       addressRegion: listing.state,
       postalCode: listing.zipCode,
@@ -90,7 +89,7 @@ export default async function ListingDetailPage({
           <ContactSidebar
             listingId={listing.id}
             slug={listing.slug}
-            address={listing.address}
+            title={listing.title}
             bedrooms={listing.bedrooms}
             bathrooms={listing.bathrooms}
             neighborhood={listing.neighborhood}
@@ -103,6 +102,7 @@ export default async function ListingDetailPage({
                 stations={nearbyStations}
                 listingLat={listing.latitude}
                 listingLng={listing.longitude}
+                listingId={listing.id}
               />
             </div>
           )}

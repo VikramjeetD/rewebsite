@@ -4,7 +4,7 @@ import { ShareButtons } from "./share-buttons";
 interface ContactSidebarProps {
   listingId: string;
   slug: string;
-  address: string;
+  title: string;
   bedrooms: number;
   bathrooms: number;
   neighborhood: string;
@@ -14,7 +14,7 @@ interface ContactSidebarProps {
 export function ContactSidebar({
   listingId,
   slug,
-  address,
+  title,
   bedrooms,
   bathrooms,
   neighborhood,
@@ -45,7 +45,7 @@ export function ContactSidebar({
         <div className="mt-5 border-t border-white/10 pt-4">
           <ShareButtons
             slug={slug}
-            address={address}
+            title={title}
             bedrooms={bedrooms}
             bathrooms={bathrooms}
             neighborhood={neighborhood}

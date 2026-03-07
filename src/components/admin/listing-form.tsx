@@ -216,6 +216,7 @@ export function ListingForm({
 
     // Skip if no meaningful content yet
     const hasContent =
+      !!data.title?.trim() ||
       !!data.description?.trim() ||
       !!data.address?.trim() ||
       (!!data.price && Number(data.price) > 0) ||
@@ -314,6 +315,15 @@ export function ListingForm({
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <Input
+            name="title"
+            label="Title"
+            defaultValue={listing?.title ?? ""}
+            required
+            placeholder="e.g. Sunny 2BR in Williamsburg"
+          />
+        </div>
         <Select
           name="type"
           label="Type"

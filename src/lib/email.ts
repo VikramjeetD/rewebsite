@@ -18,7 +18,8 @@ export async function sendContactEmail(
   email: string,
   phone: string | null,
   message: string,
-  listingTitle?: string
+  listingTitle?: string,
+  listingAddress?: string
 ) {
   const agentEmail = process.env.ADMIN_EMAIL;
   if (!agentEmail) return;
@@ -28,6 +29,7 @@ export async function sendContactEmail(
   const safePhone = phone ? escapeHtml(phone) : null;
   const safeMessage = escapeHtml(message);
   const safeListingTitle = listingTitle ? escapeHtml(listingTitle) : undefined;
+  const safeAddress = listingAddress ? escapeHtml(listingAddress) : undefined;
 
   await getResend().emails.send({
     from: "Brandy Culp Realty <onboarding@resend.dev>",
@@ -40,6 +42,7 @@ export async function sendContactEmail(
       <p><strong>Email:</strong> ${safeEmail}</p>
       ${safePhone ? `<p><strong>Phone:</strong> ${safePhone}</p>` : ""}
       ${safeListingTitle ? `<p><strong>Regarding:</strong> ${safeListingTitle}</p>` : ""}
+      ${safeAddress ? `<p><strong>Address:</strong> ${safeAddress}</p>` : ""}
       <p><strong>Message:</strong></p>
       <p>${safeMessage}</p>
     `,

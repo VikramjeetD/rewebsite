@@ -58,7 +58,7 @@ export function ListingCard({ listing }: ListingCardProps) {
         {/* Mobile: address + neighborhood side by side */}
         <div className="flex items-baseline justify-between gap-2 sm:block">
           <h3 className="text-lg font-semibold text-white truncate">
-            {listing.address}
+            {listing.title}
           </h3>
           <span className="shrink-0 text-sm text-white/60">
             {listing.neighborhood}

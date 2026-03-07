@@ -45,7 +45,7 @@ export default async function ListingPreviewPage({ params }: PreviewPageProps) {
             <ContactSidebar
               listingId={listing.id}
               slug={listing.slug}
-              address={listing.address}
+              title={listing.title}
               bedrooms={listing.bedrooms}
               bathrooms={listing.bathrooms}
               neighborhood={listing.neighborhood}

@@ -29,6 +29,13 @@ import { format } from "date-fns";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import Image from "next/image";
 import type { Listing, BuildingAmenities } from "@/types";
+import {
+  getApproximateLocation,
+  APPROXIMATE_CIRCLE_RADIUS_METERS,
+} from "@/lib/location-privacy";
+
+const SHOW_3D_VIEW = false;
+
 /** Google Routes API response types */
 interface TransitLine {
   name?: string;
@@ -169,7 +176,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
   const [activeModal, setActiveModal] = useState<"floorplan" | "map" | "3d" | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+
   const routePolylinesRef = useRef<google.maps.Polyline[]>([]);
   const routeMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
@@ -208,26 +215,39 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
 
     setOptions({ key: apiKey, v: "weekly" });
 
+    const approxLocation = getApproximateLocation(
+      listing.latitude!,
+      listing.longitude!,
+      listing.id
+    );
+
     Promise.all([
       importLibrary("maps"),
       importLibrary("marker"),
-    ]).then(([, markerLib]) => {
+    ]).then(([]) => {
       if (!mapRef.current) return;
-      const { AdvancedMarkerElement } = markerLib as typeof google.maps.marker;
-      const position = { lat: listing.latitude!, lng: listing.longitude! };
       const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
       const map = new google.maps.Map(mapRef.current, {
-        center: position,
+        center: approxLocation,
         zoom: 15,
         ...(mapId ? { mapId } : {}),
         colorScheme: google.maps.ColorScheme.DARK,
       });
-      const marker = new AdvancedMarkerElement({ position, map });
+      // Approximate-area circle instead of exact pin
+      new google.maps.Circle({
+        map,
+        center: approxLocation,
+        radius: APPROXIMATE_CIRCLE_RADIUS_METERS,
+        fillColor: "#3b82f6",
+        fillOpacity: 0.15,
+        strokeColor: "#3b82f6",
+        strokeOpacity: 0.5,
+        strokeWeight: 2,
+      });
       const transitLayer = new google.maps.TransitLayer();
       transitLayer.setMap(map);
       transitLayerRef.current = transitLayer;
       mapInstanceRef.current = map;
-      markerRef.current = marker;
 
       // Load places library for autocomplete (non-blocking)
       importLibrary("places")
@@ -250,9 +270,6 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
     routePolylinesRef.current = [];
     routeMarkersRef.current.forEach((m) => { m.map = null; });
     routeMarkersRef.current = [];
-    if (markerRef.current && mapInstanceRef.current) {
-      markerRef.current.map = mapInstanceRef.current;
-    }
     if (transitLayerRef.current && mapInstanceRef.current) {
       transitLayerRef.current.setMap(mapInstanceRef.current);
     }
@@ -270,7 +287,6 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       routeMarkersRef.current.forEach((m) => { m.map = null; });
       routeMarkersRef.current = [];
 
-      if (markerRef.current) markerRef.current.map = null;
       if (transitLayerRef.current) transitLayerRef.current.setMap(null);
 
       const bounds = new google.maps.LatLngBounds();
@@ -459,19 +475,27 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       setSelectedRouteIndex(0);
       clearDirections();
 
-      const listingAddress = `${listing.address}, ${listing.city}, ${listing.state}`;
-      const origin =
-        directionType === "to" ? directionsInput.trim() : listingAddress;
-      const destination =
-        directionType === "to" ? listingAddress : directionsInput.trim();
+      const approxWaypoint = listing.latitude != null && listing.longitude != null
+        ? {
+            location: {
+              latLng: {
+                latitude: getApproximateLocation(listing.latitude, listing.longitude, listing.id).lat,
+                longitude: getApproximateLocation(listing.latitude, listing.longitude, listing.id).lng,
+              },
+            },
+          }
+        : { address: `${listing.address}, ${listing.city}, ${listing.state}` };
+      const userWaypoint = { address: directionsInput.trim() };
+      const origin = directionType === "to" ? userWaypoint : approxWaypoint;
+      const destination = directionType === "to" ? approxWaypoint : userWaypoint;
 
       try {
         const response = await fetch("/api/directions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            origin: { address: origin },
-            destination: { address: destination },
+            origin,
+            destination,
             travelMode: mode,
             ...(mode === "DRIVE"
               ? { routingPreference: "TRAFFIC_AWARE" }
@@ -516,6 +540,9 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       directionsInput,
       travelMode,
       directionType,
+      listing.latitude,
+      listing.longitude,
+      listing.id,
       listing.address,
       listing.city,
       listing.state,
@@ -636,7 +663,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
               Map
             </button>
           )}
-          {buildingInfo && listing.latitude != null && listing.longitude != null && (
+          {SHOW_3D_VIEW && buildingInfo && listing.latitude != null && listing.longitude != null && (
             <button
               type="button"
               onClick={() => setActiveModal("3d")}
@@ -805,7 +832,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                     Map
                   </button>
                 )}
-                {buildingInfo && listing.latitude != null && listing.longitude != null && (
+                {SHOW_3D_VIEW && buildingInfo && listing.latitude != null && listing.longitude != null && (
                   <button
                     type="button"
                     onClick={() => setActiveModal("3d")}
@@ -1221,7 +1248,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
               )}
 
               {/* 3D View */}
-              {activeModal === "3d" && listing.latitude != null && listing.longitude != null && (
+              {SHOW_3D_VIEW && activeModal === "3d" && listing.latitude != null && listing.longitude != null && (
                 <div className="h-full">
                   <BuildingViewer
                     latitude={listing.latitude}
