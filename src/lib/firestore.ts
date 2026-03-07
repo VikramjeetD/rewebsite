@@ -53,6 +53,16 @@ function docToListing(id: string, data: Record<string, unknown>): Listing {
     amenities: (data.amenities as string[]) ?? [],
     photos: (data.photos as Listing["photos"]) ?? [],
     floorPlans: (data.floorPlans as Listing["photos"]) ?? [],
+    generationBatch: data.generationBatch
+      ? {
+          jobName: (data.generationBatch as Record<string, unknown>).jobName as string,
+          roomCount: (data.generationBatch as Record<string, unknown>).roomCount as number,
+          submittedAt:
+            toDate(
+              (data.generationBatch as Record<string, unknown>).submittedAt as Timestamp
+            ) ?? new Date(),
+        }
+      : null,
     availableDate: toDate(data.availableDate as Timestamp),
     listedDate: toDate(data.listedDate as Timestamp) ?? new Date(),
     createdAt: toDate(data.createdAt as Timestamp) ?? new Date(),

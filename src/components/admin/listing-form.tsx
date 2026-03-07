@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PhotoUpload } from "@/components/admin/photo-upload";
+import {
+  PhotoUpload,
+  type PhotoUploadHandle,
+} from "@/components/admin/photo-upload";
+import { GenerateViewsButton } from "@/components/admin/generate-views-button";
 import { AddressAutocomplete } from "@/components/admin/address-autocomplete";
 import {
   AmenitiesPicker,
@@ -87,11 +91,18 @@ export function ListingForm({
   const isSubmittingRef = useRef(false);
   const photosRef = useRef<ListingPhoto[]>(listing?.photos ?? []);
   const floorPlansRef = useRef<ListingPhoto[]>(listing?.floorPlans ?? []);
+  const photoUploadRef = useRef<PhotoUploadHandle>(null);
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [listingType, setListingType] = useState<string>(
     listing?.type ?? "RENTAL"
+  );
+  const [currentBeds, setCurrentBeds] = useState<number>(
+    listing?.bedrooms ?? 0
+  );
+  const [currentBaths, setCurrentBaths] = useState<number>(
+    listing?.bathrooms ?? 0
   );
   const [borough, setBorough] = useState<string>(listing?.borough ?? "N/A");
 
@@ -426,6 +437,7 @@ export function ListingForm({
           step="1"
           defaultValue={listing?.bedrooms ?? 0}
           required
+          onChange={(e) => setCurrentBeds(Number(e.target.value) || 0)}
         />
         <Input
           name="bathrooms"
@@ -436,6 +448,7 @@ export function ListingForm({
           step="0.5"
           defaultValue={listing?.bathrooms ?? ""}
           required
+          onChange={(e) => setCurrentBaths(Number(e.target.value) || 0)}
         />
         <Input
           name="sqft"
@@ -651,6 +664,7 @@ export function ListingForm({
       <div className="rounded-lg border border-white/10 p-4">
         <h3 className="mb-3 text-sm font-semibold text-white">Photos</h3>
         <PhotoUpload
+          ref={photoUploadRef}
           listingId={currentListingId ?? undefined}
           photos={listing?.photos ?? []}
           onChange={(p) => {
@@ -658,6 +672,19 @@ export function ListingForm({
           }}
           ensureListingId={enableAutosave ? ensureDraft : undefined}
         />
+        <div className="mt-3">
+          <GenerateViewsButton
+            listingId={currentListingId ?? undefined}
+            bedrooms={currentBeds}
+            bathrooms={currentBaths}
+            photos={photosRef.current}
+            listingType={listingType}
+            ensureListingId={enableAutosave ? ensureDraft : undefined}
+            onPhotosGenerated={(newPhotos) => {
+              photoUploadRef.current?.addPhotos(newPhotos);
+            }}
+          />
+        </div>
       </div>
 
       {/* Floor plans upload */}

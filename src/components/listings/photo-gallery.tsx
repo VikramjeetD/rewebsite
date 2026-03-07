@@ -198,7 +198,8 @@ function AllPhotosModal({
   );
 }
 
-export function PhotoGallery({ photos, title }: PhotoGalleryProps) {
+export function PhotoGallery({ photos: rawPhotos, title }: PhotoGalleryProps) {
+  const photos = rawPhotos.filter((p) => !p.hidden);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
 

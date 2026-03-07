@@ -10,10 +10,11 @@ interface ListingCardProps {
 }
 
 export function ListingCard({ listing }: ListingCardProps) {
+  const visiblePhotos = listing.photos.filter((p) => !p.hidden);
   const primaryPhoto =
-    listing.photos.find((p) => p.isPrimary && p.type !== "video") ??
-    listing.photos.find((p) => p.type !== "video") ??
-    listing.photos[0];
+    visiblePhotos.find((p) => p.isPrimary && p.type !== "video") ??
+    visiblePhotos.find((p) => p.type !== "video") ??
+    visiblePhotos[0];
 
   return (
     <Link

@@ -28,6 +28,7 @@ export interface ListingPhoto {
   order: number;
   isPrimary: boolean;
   type?: "image" | "video";
+  hidden?: boolean;
 }
 
 export interface Listing {
@@ -65,6 +66,11 @@ export interface Listing {
   floorPlans: ListingPhoto[];
   availableDate: Date | null;
   listedDate: Date;
+  generationBatch?: {
+    jobName: string;
+    roomCount: number;
+    submittedAt: Date;
+  } | null;
   createdAt: Date;
   updatedAt: Date;
 }
