@@ -460,7 +460,7 @@ export async function duplicateListingAction(id: string) {
   const newId = await createListingWithStatus(
     {
       slug,
-      title: `${source.title} (Copy)`,
+      title: source.title,
       description: source.description,
       type: source.type,
       status: "DRAFT",
@@ -489,8 +489,8 @@ export async function duplicateListingAction(id: string) {
       adminNotes: source.adminNotes,
       featured: false,
       amenities: source.amenities,
-      photos: [],
-      floorPlans: [],
+      photos: source.photos,
+      floorPlans: source.floorPlans,
       availableDate: source.availableDate,
       listedDate: new Date(),
     },

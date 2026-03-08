@@ -11,6 +11,34 @@ export function isTerminalStatus(status: ListingStatus): boolean {
 }
 
 /**
+ * Finds which URLs from the given set are referenced by other listings
+ * (excluding the specified listing). Returns only the URLs safe to delete.
+ */
+async function getOrphanedUrls(
+  urls: string[],
+  excludeListingId: string
+): Promise<string[]> {
+  if (urls.length === 0) return [];
+
+  const db = getDb();
+  const snapshot = await db
+    .collection("listings")
+    .where("__name__", "!=", excludeListingId)
+    .get();
+
+  const referencedUrls = new Set<string>();
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const photos = (data.photos as { url: string }[]) ?? [];
+    const floorPlans = (data.floorPlans as { url: string }[]) ?? [];
+    for (const p of photos) referencedUrls.add(p.url);
+    for (const p of floorPlans) referencedUrls.add(p.url);
+  }
+
+  return urls.filter((url) => !referencedUrls.has(url));
+}
+
+/**
  * Deletes all photos from Vercel Blob for a listing.
  * Returns the number of photos deleted.
  */
@@ -50,7 +78,7 @@ export async function deleteSubcollection(
 
 /**
  * Full cleanup of a listing's stored assets:
- * 1. Deletes photos from Vercel Blob
+ * 1. Deletes photos from Vercel Blob (only if no other listing uses them)
  * 2. Deletes statusChanges subcollection
  * 3. Deletes the listing document itself
  */
@@ -62,12 +90,13 @@ export async function cleanupListingFull(listingId: string): Promise<{
 
   let photosDeleted = 0;
   if (listing) {
-    const urls = [
+    const allUrls = [
       ...listing.photos.map((p) => p.url),
       ...listing.floorPlans.map((p) => p.url),
     ];
-    if (urls.length > 0) {
-      photosDeleted = await deleteListingPhotos(urls);
+    const safeToDelete = await getOrphanedUrls(allUrls, listingId);
+    if (safeToDelete.length > 0) {
+      photosDeleted = await deleteListingPhotos(safeToDelete);
     }
   }
 
@@ -86,6 +115,7 @@ export async function cleanupListingFull(listingId: string): Promise<{
 /**
  * Cleans up only the billable assets (photos) but keeps
  * the listing document so it still appears in admin history.
+ * Only deletes blobs not referenced by any other listing.
  * Clears the photos array on the listing.
  */
 export async function cleanupListingAssets(listingId: string): Promise<{
@@ -95,12 +125,13 @@ export async function cleanupListingAssets(listingId: string): Promise<{
 
   let photosDeleted = 0;
   if (listing) {
-    const urls = [
+    const allUrls = [
       ...listing.photos.map((p) => p.url),
       ...listing.floorPlans.map((p) => p.url),
     ];
-    if (urls.length > 0) {
-      photosDeleted = await deleteListingPhotos(urls);
+    const safeToDelete = await getOrphanedUrls(allUrls, listingId);
+    if (safeToDelete.length > 0) {
+      photosDeleted = await deleteListingPhotos(safeToDelete);
     }
   }
 
