@@ -49,6 +49,7 @@ export const listingFormSchema = z.object({
   petPolicy: z.enum(["NO_PETS", "CATS_ONLY", "DOGS_ONLY", "CATS_AND_DOGS"]).nullable(),
   petPolicyDetails: z.string().max(500).nullable(),
   parking: z.string().max(500).nullable(),
+  adminNotes: z.string().max(5000).nullable(),
   featured: z.boolean(),
   amenities: z.string().transform((v) =>
     v

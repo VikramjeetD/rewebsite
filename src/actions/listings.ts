@@ -10,6 +10,8 @@ import {
   getListingById,
   getBuildingAmenities,
   saveBuildingAmenities,
+  getBuildingNotes,
+  saveBuildingNotes,
 } from "@/lib/firestore";
 import { listingFormSchema } from "@/lib/validations";
 import { slugify, generateTitle } from "@/lib/utils";
@@ -46,6 +48,7 @@ function parseFormDataToRaw(raw: Record<string, FormDataEntryValue>) {
     petPolicy: raw.petPolicy || null,
     petPolicyDetails: raw.petPolicyDetails || null,
     parking: raw.parking || null,
+    adminNotes: raw.adminNotes || null,
     sqft: raw.sqft || null,
     unit: raw.unit || null,
     city: raw.city || "New York",
@@ -91,6 +94,7 @@ export async function autosaveDraftAction(
     const petPolicy = data.petPolicy || null;
     const petPolicyDetails = data.petPolicyDetails || null;
     const parking = data.parking || null;
+    const adminNotes = data.adminNotes || null;
     const op = data.op ? Number(data.op) || null : null;
     const freeMonths = data.freeMonths ? Number(data.freeMonths) || null : null;
     const leaseDuration = data.leaseDuration
@@ -133,6 +137,7 @@ export async function autosaveDraftAction(
         petPolicy,
         petPolicyDetails,
         parking,
+        adminNotes,
         featured,
         amenities,
         availableDate,
@@ -170,6 +175,7 @@ export async function autosaveDraftAction(
         petPolicy,
         petPolicyDetails,
         parking,
+        adminNotes,
         featured,
         amenities,
         photos: photos ?? [],
@@ -242,6 +248,7 @@ export async function createListingAction(formData: FormData) {
       petPolicy: parsed.petPolicy ?? null,
       petPolicyDetails: parsed.petPolicyDetails ?? null,
       parking: parsed.parking ?? null,
+      adminNotes: parsed.adminNotes ?? null,
       featured: parsed.featured,
       amenities: parsed.amenities,
       photos: [],
@@ -323,6 +330,7 @@ export async function updateListingAction(id: string, formData: FormData) {
     petPolicy: parsed.petPolicy ?? null,
     petPolicyDetails: parsed.petPolicyDetails ?? null,
     parking: parsed.parking ?? null,
+    adminNotes: parsed.adminNotes ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
     availableDate: parsed.availableDate ? new Date(parsed.availableDate) : null,
@@ -399,6 +407,7 @@ export async function activateDraftAction(id: string, formData: FormData) {
     petPolicy: parsed.petPolicy ?? null,
     petPolicyDetails: parsed.petPolicyDetails ?? null,
     parking: parsed.parking ?? null,
+    adminNotes: parsed.adminNotes ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
     availableDate: parsed.availableDate ? new Date(parsed.availableDate) : null,
@@ -529,6 +538,45 @@ export async function saveBuildingAmenitiesAction(
     return {
       success: false,
       error: e instanceof Error ? e.message : "Failed to save amenities",
+    };
+  }
+}
+
+export async function loadBuildingNotesAction(
+  address: string
+): Promise<{ success: boolean; notes?: string | null; error?: string }> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const notes = await getBuildingNotes(address);
+    return { success: true, notes };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Failed to load building notes",
+    };
+  }
+}
+
+export async function saveBuildingNotesAction(
+  address: string,
+  notes: string
+): Promise<{ success: boolean; error?: string }> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  if (!address.trim()) {
+    return { success: false, error: "Address is required" };
+  }
+
+  try {
+    await saveBuildingNotes(address, notes);
+    return { success: true };
+  } catch (e) {
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : "Failed to save building notes",
     };
   }
 }

@@ -60,6 +60,7 @@ export interface Listing {
   petPolicy: string | null;
   petPolicyDetails: string | null;
   parking: string | null;
+  adminNotes: string | null;
   featured: boolean;
   amenities: string[];
   photos: ListingPhoto[];
@@ -176,6 +177,14 @@ export interface BuildingAmenities {
   yearBuilt: number | null;
   numFloors: number | null;
   totalUnits: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface BuildingNotes {
+  id: string;
+  address: string;
+  notes: string;
   createdAt: Date;
   updatedAt: Date;
 }

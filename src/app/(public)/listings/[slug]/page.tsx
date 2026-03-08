@@ -54,11 +54,13 @@ export default async function ListingDetailPage({
       : [];
   const sortedPhotos = [...listing.photos].sort((a, b) => a.order - b.order);
 
+  const plainDescription = listing.description.replace(/<[^>]*>/g, "");
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: listing.title,
-    description: listing.description,
+    description: plainDescription,
     url: absoluteUrl(`/listings/${listing.slug}`),
     image: sortedPhotos.find((p) => p.type !== "video")?.url,
     address: {

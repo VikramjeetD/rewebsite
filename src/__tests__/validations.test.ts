@@ -8,6 +8,7 @@ import {
 
 describe("listingFormSchema", () => {
   const validData = {
+    title: "Lovely Studio in UES",
     description: "A lovely studio apartment",
     type: "RENTAL",
     status: "ACTIVE",
@@ -26,6 +27,12 @@ describe("listingFormSchema", () => {
     zipCode: "10021",
     sourceUrl: "https://streeteasy.com/test",
     op: null,
+    noFee: false,
+    estimatedUtilities: null,
+    petPolicy: null,
+    petPolicyDetails: null,
+    parking: null,
+    adminNotes: null,
     featured: false,
     amenities: "Doorman, Gym, Laundry",
     availableDate: "2024-03-01",

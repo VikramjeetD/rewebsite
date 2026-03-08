@@ -33,6 +33,7 @@ import {
   getApproximateLocation,
   APPROXIMATE_CIRCLE_RADIUS_METERS,
 } from "@/lib/location-privacy";
+import DOMPurify from "dompurify";
 
 const SHOW_3D_VIEW = false;
 
@@ -678,9 +679,17 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
 
       <hr className="my-6 border-white/10" />
 
-      <p className="whitespace-pre-line text-gray-300 leading-relaxed">
-        {listing.description}
-      </p>
+      <div
+        className="text-gray-300 leading-relaxed [&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline"
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(
+            /<[a-z][\s\S]*?>/i.test(listing.description)
+              ? listing.description
+              : listing.description.replace(/\n/g, "<br>"),
+            { ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br", "span", "p", "div"], ALLOWED_ATTR: ["style"] }
+          ),
+        }}
+      />
 
       {(listing.estimatedUtilities || listing.petPolicy || listing.parking) && (
         <div className="mt-8">

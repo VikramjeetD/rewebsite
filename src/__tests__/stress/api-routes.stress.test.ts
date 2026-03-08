@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 import { runConcurrent } from "./helpers";
 
 // Mock global fetch
@@ -34,13 +35,13 @@ import { GET as nearbyBusesGET } from "@/app/api/nearby-buses/route";
 import { GET as plutoGET } from "@/app/api/pluto/route";
 import { POST as directionsPost } from "@/app/api/directions/route";
 
-function makeRequest(url: string, method = "GET", body?: unknown): Request {
+function makeRequest(url: string, method = "GET", body?: unknown): NextRequest {
   const init: RequestInit = { method };
   if (body) {
     init.body = JSON.stringify(body);
     init.headers = { "Content-Type": "application/json" };
   }
-  return new Request(url, init);
+  return new NextRequest(url, init);
 }
 
 beforeEach(() => {
@@ -92,7 +93,7 @@ describe("api-routes stress tests", () => {
         ]),
     }));
 
-    const { fulfilled, rejected } = await runConcurrent(50, async () => {
+    const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
       const req = makeRequest(
         `http://localhost/api/pluto?address=${encodeURIComponent(`${100 + i} E 10th St`)}`
       );
@@ -126,7 +127,7 @@ describe("api-routes stress tests", () => {
           travelMode: "TRANSIT",
         }
       );
-      const res = await directionsPost(req as unknown as Request);
+      const res = await directionsPost(req);
       return res.json();
     });
 
@@ -157,7 +158,7 @@ describe("api-routes stress tests", () => {
       "http://localhost/api/pluto",
     ];
 
-    const { fulfilled, rejected } = await runConcurrent(100, async () => {
+    const { fulfilled, rejected } = await runConcurrent(100, async (i) => {
       const url = badRequests[i % badRequests.length];
       let res;
       if (url.includes("pluto")) {
@@ -307,7 +308,7 @@ describe("api-routes stress tests", () => {
         origin: { location: { latLng: { latitude: 40.7, longitude: -74.0 } } },
         destination: { location: { latLng: { latitude: 40.72, longitude: -73.99 } } },
       });
-      const res = await directionsPost(req as unknown as Request);
+      const res = await directionsPost(req);
       return { status: res.status, body: await res.json() };
     });
 

@@ -49,6 +49,7 @@ function docToListing(id: string, data: Record<string, unknown>): Listing {
     petPolicy: (data.petPolicy as string) ?? null,
     petPolicyDetails: (data.petPolicyDetails as string) ?? null,
     parking: (data.parking as string) ?? null,
+    adminNotes: (data.adminNotes as string) ?? null,
     featured: (data.featured as boolean) ?? false,
     amenities: (data.amenities as string[]) ?? [],
     photos: (data.photos as Listing["photos"]) ?? [],
@@ -454,6 +455,45 @@ export async function saveBuildingAmenities(
       numFloors: null,
       totalUnits: null,
       ...infoFields,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  }
+}
+
+export async function getBuildingNotes(
+  address: string
+): Promise<string | null> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("buildingNotes")
+    .where("address", "==", address)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return null;
+  return (snapshot.docs[0].data().notes as string) ?? null;
+}
+
+export async function saveBuildingNotes(
+  address: string,
+  notes: string
+): Promise<void> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("buildingNotes")
+    .where("address", "==", address)
+    .limit(1)
+    .get();
+
+  if (!snapshot.empty) {
+    await snapshot.docs[0].ref.update({
+      notes,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  } else {
+    await db.collection("buildingNotes").add({
+      address,
+      notes,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });

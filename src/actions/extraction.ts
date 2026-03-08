@@ -82,6 +82,7 @@ export async function saveExtractedListing(
         petPolicy: null,
         petPolicyDetails: null,
         parking: null,
+        adminNotes: null,
         featured: false,
         amenities: data.amenities,
         photos: [],

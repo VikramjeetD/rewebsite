@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Building2,
   PlusCircle,
+  Map,
   RefreshCw,
   Activity,
   LogOut,
@@ -17,6 +18,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/listings", label: "Listings", icon: Building2 },
   { href: "/admin/listings/new", label: "Add Listing", icon: PlusCircle },
+  { href: "/admin/map", label: "Map", icon: Map },
   { href: "/admin/building-sync", label: "Building Sync", icon: RefreshCw },
   { href: "/admin/status-logs", label: "Status Logs", icon: Activity },
 ];

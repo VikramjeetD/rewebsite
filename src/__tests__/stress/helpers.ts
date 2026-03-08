@@ -37,6 +37,7 @@ export async function runConcurrent<T>(
  */
 export function makeListingFormData(i: number) {
   return {
+    title: `Test Listing #${i}`,
     description: `Test listing description #${i} — a lovely apartment with great views.`,
     type: i % 2 === 0 ? "RENTAL" : "SALE",
     status: "ACTIVE" as const,
@@ -60,6 +61,7 @@ export function makeListingFormData(i: number) {
     petPolicy: null,
     petPolicyDetails: null,
     parking: null,
+    adminNotes: null,
     featured: false,
     amenities: "Doorman, Gym, Laundry",
     availableDate: "2025-06-01",

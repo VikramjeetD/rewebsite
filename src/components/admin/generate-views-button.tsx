@@ -1,18 +1,14 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Sparkles, Loader2, Check, X } from "lucide-react";
+import { Sun, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { getRoomList } from "@/lib/image-generation/room-list";
 import type { ListingPhoto } from "@/types";
 
 interface GenerateViewsButtonProps {
   listingId: string | undefined;
-  bedrooms: number;
-  bathrooms: number;
   photos: ListingPhoto[];
-  listingType: string;
   ensureListingId?: () => Promise<string>;
   onPhotosGenerated: (photos: ListingPhoto[]) => void;
 }
@@ -21,26 +17,22 @@ type Status = "idle" | "selecting" | "generating" | "complete" | "failed";
 
 export function GenerateViewsButton({
   listingId,
-  bedrooms,
-  bathrooms,
   photos,
-  listingType,
   ensureListingId,
   onPhotosGenerated,
 }: GenerateViewsButtonProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
-  const [progress, setProgress] = useState({ current: 0, total: 0, label: "" });
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [successCount, setSuccessCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const imagePhotos = photos.filter((p) => p.type !== "video");
-  const canGenerate =
-    listingType === "RENTAL" && bathrooms > 0 && imagePhotos.length > 0;
+
+  if (imagePhotos.length === 0) return null;
 
   function openSelector() {
-    const preselected = new Set(imagePhotos.slice(0, 6).map((p) => p.url));
-    setSelectedUrls(preselected);
+    setSelectedUrls(new Set(imagePhotos.map((p) => p.url)));
     setError(null);
     setStatus("selecting");
   }
@@ -50,7 +42,7 @@ export function GenerateViewsButton({
       const next = new Set(prev);
       if (next.has(url)) {
         next.delete(url);
-      } else if (next.size < 6) {
+      } else {
         next.add(url);
       }
       return next;
@@ -78,34 +70,32 @@ export function GenerateViewsButton({
       return;
     }
 
-    const rooms = getRoomList(bedrooms, bathrooms);
     const photoUrls = Array.from(selectedUrls);
     let completed = 0;
     const generated: ListingPhoto[] = [];
 
-    setProgress({ current: 0, total: rooms.length, label: rooms[0]?.label ?? "" });
+    setProgress({ current: 0, total: photoUrls.length });
 
-    for (const room of rooms) {
-      setProgress({ current: completed, total: rooms.length, label: room.label });
+    for (const photoUrl of photoUrls) {
+      setProgress({ current: completed, total: photoUrls.length });
 
       try {
         const res = await fetch("/api/generate-views", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ listingId: id, photoUrls, room }),
+          body: JSON.stringify({ listingId: id, photoUrl }),
         });
 
         const data = await res.json();
 
         if (res.ok && data.photo) {
           generated.push(data.photo);
-          // Add photo to grid immediately
           onPhotosGenerated([data.photo]);
         } else {
-          console.warn(`Failed to generate ${room.label}:`, data.error);
+          console.warn(`Failed to relight photo:`, data.error);
         }
       } catch (err) {
-        console.warn(`Error generating ${room.label}:`, err);
+        console.warn(`Error relighting photo:`, err);
       }
 
       completed++;
@@ -116,16 +106,14 @@ export function GenerateViewsButton({
     if (generated.length === 0) {
       setError("No images could be generated. Check the server logs.");
     }
-  }, [selectedUrls, listingId, ensureListingId, bedrooms, bathrooms, onPhotosGenerated]);
-
-  if (!canGenerate) return null;
+  }, [selectedUrls, listingId, ensureListingId, onPhotosGenerated]);
 
   if (status === "generating") {
     return (
       <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
         <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
         <span className="text-sm text-white/70">
-          Generating: {progress.label} ({progress.current + 1}/{progress.total})
+          Relighting photo {progress.current + 1} of {progress.total}
         </span>
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
           <div
@@ -140,9 +128,9 @@ export function GenerateViewsButton({
   if (status === "complete") {
     return (
       <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-        <Sparkles className="h-4 w-4 text-emerald-400" />
+        <Sun className="h-4 w-4 text-emerald-400" />
         <span className="text-sm text-emerald-300">
-          {successCount} AI-generated view{successCount !== 1 ? "s" : ""} added
+          {successCount} relighted photo{successCount !== 1 ? "s" : ""} added
         </span>
         <Button
           type="button"
@@ -153,7 +141,7 @@ export function GenerateViewsButton({
             setSuccessCount(0);
           }}
         >
-          Generate more
+          Relight more
         </Button>
       </div>
     );
@@ -164,7 +152,7 @@ export function GenerateViewsButton({
       <div className="space-y-3 rounded-lg border border-white/10 bg-white/5 p-4">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-white">
-            Select reference photos for AI ({selectedUrls.size}/6)
+            Select photos to relight ({selectedUrls.size} selected)
           </p>
           <button
             type="button"
@@ -185,9 +173,7 @@ export function GenerateViewsButton({
                 className={`relative aspect-square overflow-hidden border-2 transition-all ${
                   isSelected
                     ? "border-blue-500"
-                    : selectedUrls.size >= 6
-                      ? "border-transparent opacity-40"
-                      : "border-transparent hover:border-white/30"
+                    : "border-transparent hover:border-white/30"
                 }`}
               >
                 <Image
@@ -213,11 +199,11 @@ export function GenerateViewsButton({
             onClick={handleGenerate}
             disabled={selectedUrls.size === 0}
           >
-            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-            Generate with {selectedUrls.size} photo{selectedUrls.size !== 1 ? "s" : ""}
+            <Sun className="mr-1.5 h-3.5 w-3.5" />
+            Relight {selectedUrls.size} photo{selectedUrls.size !== 1 ? "s" : ""}
           </Button>
           <span className="text-xs text-white/40">
-            Select the best photos showing different rooms
+            Each photo gets a brighter, naturally-lit version
           </span>
         </div>
       </div>
@@ -227,8 +213,8 @@ export function GenerateViewsButton({
   return (
     <div className="space-y-2">
       <Button type="button" variant="outline" size="sm" onClick={openSelector}>
-        <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-        Generate Additional Views
+        <Sun className="mr-1.5 h-3.5 w-3.5" />
+        AI Relight Photos
       </Button>
       {error && <p className="text-xs text-red-400">{error}</p>}
     </div>

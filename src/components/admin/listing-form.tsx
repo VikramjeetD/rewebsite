@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import {
   PhotoUpload,
   type PhotoUploadHandle,
@@ -26,6 +27,8 @@ import {
   activateDraftAction,
   loadBuildingAmenitiesAction,
   saveBuildingAmenitiesAction,
+  loadBuildingNotesAction,
+  saveBuildingNotesAction,
   lookupPlutoAction,
   updateListingFloorPlansAction,
 } from "@/actions/listings";
@@ -121,6 +124,11 @@ export function ListingForm({
   const [amenitySaveStatus, setAmenitySaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
+  const [buildingNotes, setBuildingNotes] = useState<string | null>(null);
+  const [notesSaveStatus, setNotesSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const adminNotesRef = useRef<HTMLTextAreaElement>(null);
 
   const [buildingInfo, setBuildingInfo] = useState<{
     yearBuilt: number | null;
@@ -161,6 +169,13 @@ export function ListingForm({
     async (address: string) => {
       if (!address.trim()) return;
       setSelectedAddress(address);
+
+      // Load building notes in parallel
+      loadBuildingNotesAction(address).then((notesResult) => {
+        if (notesResult.success) {
+          setBuildingNotes(notesResult.notes ?? null);
+        }
+      });
 
       // 1. Load stored building data
       const result = await loadBuildingAmenitiesAction(address);
@@ -421,12 +436,11 @@ export function ListingForm({
           options={BOROUGH_OPTIONS}
         />
         <div className="md:col-span-2">
-          <Textarea
+          <RichTextEditor
             name="description"
             label="Description"
             defaultValue={listing?.description}
             required
-            rows={4}
           />
         </div>
         <Input
@@ -685,10 +699,7 @@ export function ListingForm({
         <div className="mt-3">
           <GenerateViewsButton
             listingId={currentListingId ?? undefined}
-            bedrooms={currentBeds}
-            bathrooms={currentBaths}
             photos={photosRef.current}
-            listingType={listingType}
             ensureListingId={enableAutosave ? ensureDraft : undefined}
             onPhotosGenerated={(newPhotos) => {
               photoUploadRef.current?.addPhotos(newPhotos);
@@ -713,6 +724,86 @@ export function ListingForm({
           }}
           ensureListingId={enableAutosave ? ensureDraft : undefined}
         />
+      </div>
+
+      {/* Admin Notes — not visible to public */}
+      <div className="rounded-lg border border-white/10 p-4">
+        <Textarea
+          ref={adminNotesRef}
+          name="adminNotes"
+          label="Admin Notes (internal only)"
+          defaultValue={listing?.adminNotes ?? ""}
+          rows={3}
+          placeholder="Leasing notes, showing instructions, key details..."
+          className="resize"
+        />
+        {selectedAddress && (
+          <div className="mt-2 flex items-center gap-2">
+            {buildingNotes && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (adminNotesRef.current) {
+                    if (
+                      adminNotesRef.current.value.trim() &&
+                      !window.confirm(
+                        "This will replace the current admin notes with building notes. Continue?"
+                      )
+                    )
+                      return;
+                    adminNotesRef.current.value = buildingNotes;
+                    adminNotesRef.current.dispatchEvent(
+                      new Event("input", { bubbles: true })
+                    );
+                  }
+                }}
+              >
+                <Building2 className="mr-1.5 h-3.5 w-3.5" />
+                Load building notes
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={notesSaveStatus === "saving"}
+              onClick={async () => {
+                const notes = adminNotesRef.current?.value?.trim() ?? "";
+                if (!notes) return;
+
+                if (
+                  buildingNotes &&
+                  !window.confirm(
+                    `This will overwrite the existing building notes for "${selectedAddress}". Continue?`
+                  )
+                )
+                  return;
+
+                setNotesSaveStatus("saving");
+                const result = await saveBuildingNotesAction(
+                  selectedAddress,
+                  notes
+                );
+                if (result.success) {
+                  setBuildingNotes(notes);
+                  setNotesSaveStatus("saved");
+                  setTimeout(() => setNotesSaveStatus("idle"), 2000);
+                } else {
+                  setNotesSaveStatus("error");
+                }
+              }}
+            >
+              <Building2 className="mr-1.5 h-3.5 w-3.5" />
+              {notesSaveStatus === "saving"
+                ? "Saving..."
+                : notesSaveStatus === "saved"
+                  ? "Saved!"
+                  : "Save as building notes"}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div>
