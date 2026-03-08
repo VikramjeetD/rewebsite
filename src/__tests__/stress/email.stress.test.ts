@@ -56,14 +56,14 @@ describe("email stress tests", () => {
     const xssPayloads = [
       '<script>alert("xss")</script>',
       '"><img src=x onerror=alert(1)>',
-      '<svg/onload=alert(1)>',
+      "<svg/onload=alert(1)>",
       "javascript:alert(document.cookie)",
       '<iframe src="data:text/html,<script>alert(1)</script>">',
       "';alert(String.fromCharCode(88,83,83))//",
       '<img """><script>alert("XSS")</script>">',
       '<body onload=alert("XSS")>',
       '<input onfocus="alert(1)" autofocus>',
-      '<marquee onstart=alert(1)>',
+      "<marquee onstart=alert(1)>",
     ];
 
     for (let i = 0; i < 1000; i++) {
@@ -111,12 +111,7 @@ describe("email stress tests", () => {
     const longName = "A".repeat(10000);
     const longMessage = "B".repeat(50000);
 
-    await sendContactEmail(
-      longName,
-      "test@example.com",
-      null,
-      longMessage
-    );
+    await sendContactEmail(longName, "test@example.com", null, longMessage);
 
     expect(mockSend).toHaveBeenCalledOnce();
     const html = mockSend.mock.calls[0][0].html;
@@ -156,7 +151,7 @@ describe("email stress tests", () => {
       email: "test@example.com",
       phone: '"><img src=x onerror=alert(1)>',
       message: '<iframe src="evil.com"></iframe>',
-      listingTitle: "Nice <b>Apt</b> & \"Cozy\"",
+      listingTitle: 'Nice <b>Apt</b> & "Cozy"',
     };
 
     await sendContactEmail(

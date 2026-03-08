@@ -56,11 +56,14 @@ function docToListing(id: string, data: Record<string, unknown>): Listing {
     floorPlans: (data.floorPlans as Listing["photos"]) ?? [],
     generationBatch: data.generationBatch
       ? {
-          jobName: (data.generationBatch as Record<string, unknown>).jobName as string,
-          roomCount: (data.generationBatch as Record<string, unknown>).roomCount as number,
+          jobName: (data.generationBatch as Record<string, unknown>)
+            .jobName as string,
+          roomCount: (data.generationBatch as Record<string, unknown>)
+            .roomCount as number,
           submittedAt:
             toDate(
-              (data.generationBatch as Record<string, unknown>).submittedAt as Timestamp
+              (data.generationBatch as Record<string, unknown>)
+                .submittedAt as Timestamp
             ) ?? new Date(),
         }
       : null,
@@ -393,6 +396,27 @@ export async function getListingsByAddress(
 
 // --- Building Amenities ---
 
+export async function getAllBuildings(): Promise<BuildingAmenities[]> {
+  const db = getDb();
+  const snapshot = await db
+    .collection("buildingAmenities")
+    .orderBy("updatedAt", "asc")
+    .get();
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      address: data.address,
+      amenities: data.amenities ?? [],
+      yearBuilt: (data.yearBuilt as number) ?? null,
+      numFloors: (data.numFloors as number) ?? null,
+      totalUnits: (data.totalUnits as number) ?? null,
+      createdAt: toDate(data.createdAt) ?? new Date(),
+      updatedAt: toDate(data.updatedAt) ?? new Date(),
+    };
+  });
+}
+
 export async function getBuildingAmenities(
   address: string
 ): Promise<BuildingAmenities | null> {
@@ -515,7 +539,11 @@ export async function getSimilarListings(
     .get();
 
   const candidates = snapshot.docs
-    .filter((doc) => doc.id !== listing.id && (doc.data() as Record<string, unknown>).slug !== listing.slug)
+    .filter(
+      (doc) =>
+        doc.id !== listing.id &&
+        (doc.data() as Record<string, unknown>).slug !== listing.slug
+    )
     .map((doc) => docToListing(doc.id, doc.data() as Record<string, unknown>));
 
   // Score by similarity

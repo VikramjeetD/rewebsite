@@ -105,8 +105,7 @@ describe("geocoding stress tests", () => {
 
   it("handles 50 malformed/empty addresses", async () => {
     mockFetch.mockImplementation(async () => ({
-      json: () =>
-        Promise.resolve({ status: "ZERO_RESULTS", results: [] }),
+      json: () => Promise.resolve({ status: "ZERO_RESULTS", results: [] }),
     }));
 
     const addresses = Array.from({ length: 50 }, (_, i) => {

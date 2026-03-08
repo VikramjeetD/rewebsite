@@ -118,7 +118,9 @@ export function GenerateViewsButton({
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-blue-500 transition-all duration-500"
-            style={{ width: `${((progress.current + 0.5) / progress.total) * 100}%` }}
+            style={{
+              width: `${((progress.current + 0.5) / progress.total) * 100}%`,
+            }}
           />
         </div>
       </div>
@@ -200,7 +202,8 @@ export function GenerateViewsButton({
             disabled={selectedUrls.size === 0}
           >
             <Sun className="mr-1.5 h-3.5 w-3.5" />
-            Relight {selectedUrls.size} photo{selectedUrls.size !== 1 ? "s" : ""}
+            Relight {selectedUrls.size} photo
+            {selectedUrls.size !== 1 ? "s" : ""}
           </Button>
           <span className="text-xs text-white/40">
             Each photo gets a brighter, naturally-lit version

@@ -18,11 +18,15 @@ export async function GET(request: Request) {
   const lng = parseFloat(lngStr);
   const radius = radiusStr ? parseFloat(radiusStr) : 0.5;
 
-  if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    return NextResponse.json(
-      { error: "invalid lat/lng" },
-      { status: 400 }
-    );
+  if (
+    isNaN(lat) ||
+    isNaN(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return NextResponse.json({ error: "invalid lat/lng" }, { status: 400 });
   }
 
   if (isNaN(radius) || radius <= 0 || radius > 5) {

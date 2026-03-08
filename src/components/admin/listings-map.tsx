@@ -2,11 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
-import {
-  formatPrice,
-  formatBedrooms,
-  formatBathrooms,
-} from "@/lib/utils";
+import { formatPrice, formatBedrooms, formatBathrooms } from "@/lib/utils";
 
 /** Serializable subset passed from server component */
 export interface MapListing {
@@ -63,14 +59,19 @@ const STATUS_COLORS: Record<string, string> = {
 function markerColor(listings: MapListing[]): string {
   // Use the "best" status in the group
   if (listings.some((l) => l.status === "ACTIVE")) return STATUS_COLORS.ACTIVE;
-  if (listings.some((l) => l.status === "IN_CONTRACT")) return STATUS_COLORS.IN_CONTRACT;
+  if (listings.some((l) => l.status === "IN_CONTRACT"))
+    return STATUS_COLORS.IN_CONTRACT;
   if (listings.some((l) => l.status === "DRAFT")) return STATUS_COLORS.DRAFT;
   return STATUS_COLORS.RENTED;
 }
 
 function buildInfoContent(group: AddressGroup): string {
   const esc = (s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
 
   const isMultiUnit = group.listings.length > 1;
   const header = `<div style="font-weight:700;font-size:14px;color:#111;margin-bottom:6px;">${esc(group.address)}</div>`;
@@ -78,8 +79,16 @@ function buildInfoContent(group: AddressGroup): string {
   const rows = group.listings
     .sort((a, b) => {
       // Sort: ACTIVE first, then by unit
-      const statusOrder = ["ACTIVE", "IN_CONTRACT", "DRAFT", "RENTED", "SOLD", "OFF_MARKET"];
-      const diff = statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+      const statusOrder = [
+        "ACTIVE",
+        "IN_CONTRACT",
+        "DRAFT",
+        "RENTED",
+        "SOLD",
+        "OFF_MARKET",
+      ];
+      const diff =
+        statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
       if (diff !== 0) return diff;
       return (a.unit ?? "").localeCompare(b.unit ?? "");
     })
@@ -138,7 +147,14 @@ function createMarkerDot(color: string, count: number): HTMLDivElement {
 // ── Filter types ─────────────────────────────────────────────────────────────
 
 type TypeFilter = "ALL" | "RENTAL" | "SALE";
-type StatusFilter = "ALL" | "ACTIVE" | "IN_CONTRACT" | "DRAFT" | "RENTED" | "SOLD" | "OFF_MARKET";
+type StatusFilter =
+  | "ALL"
+  | "ACTIVE"
+  | "IN_CONTRACT"
+  | "DRAFT"
+  | "RENTED"
+  | "SOLD"
+  | "OFF_MARKET";
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -157,57 +173,58 @@ export function ListingsMap({ listings }: { listings: MapListing[] }) {
     return true;
   });
 
-  const renderMarkers = useCallback(
-    (filtered: MapListing[]) => {
-      const map = mapRef.current;
-      if (!map) return;
+  const renderMarkers = useCallback((filtered: MapListing[]) => {
+    const map = mapRef.current;
+    if (!map) return;
 
-      // Clear existing markers
-      for (const m of markersRef.current) m.map = null;
-      markersRef.current = [];
+    // Clear existing markers
+    for (const m of markersRef.current) m.map = null;
+    markersRef.current = [];
 
-      const { AdvancedMarkerElement } = google.maps.marker;
-      const iw =
-        infoWindowRef.current ?? new google.maps.InfoWindow({ disableAutoPan: false });
-      infoWindowRef.current = iw;
+    const { AdvancedMarkerElement } = google.maps.marker;
+    const iw =
+      infoWindowRef.current ??
+      new google.maps.InfoWindow({ disableAutoPan: false });
+    infoWindowRef.current = iw;
 
-      const groups = groupByAddress(filtered);
-      const bounds = new google.maps.LatLngBounds();
+    const groups = groupByAddress(filtered);
+    const bounds = new google.maps.LatLngBounds();
 
-      for (const group of groups) {
-        const position = { lat: group.lat, lng: group.lng };
-        bounds.extend(position);
+    for (const group of groups) {
+      const position = { lat: group.lat, lng: group.lng };
+      bounds.extend(position);
 
-        const dot = createMarkerDot(markerColor(group.listings), group.listings.length);
-        const marker = new AdvancedMarkerElement({
-          map,
-          position,
-          content: dot,
-          title: group.address,
-        });
+      const dot = createMarkerDot(
+        markerColor(group.listings),
+        group.listings.length
+      );
+      const marker = new AdvancedMarkerElement({
+        map,
+        position,
+        content: dot,
+        title: group.address,
+      });
 
-        marker.element.addEventListener("mouseenter", () => {
-          dot.style.transform = "scale(1.4)";
-          iw.setContent(buildInfoContent(group));
-          iw.open({ map, anchor: marker });
-        });
-        marker.element.addEventListener("mouseleave", () => {
-          dot.style.transform = "scale(1)";
-        });
-        marker.element.addEventListener("click", () => {
-          iw.setContent(buildInfoContent(group));
-          iw.open({ map, anchor: marker });
-        });
+      marker.element.addEventListener("mouseenter", () => {
+        dot.style.transform = "scale(1.4)";
+        iw.setContent(buildInfoContent(group));
+        iw.open({ map, anchor: marker });
+      });
+      marker.element.addEventListener("mouseleave", () => {
+        dot.style.transform = "scale(1)";
+      });
+      marker.element.addEventListener("click", () => {
+        iw.setContent(buildInfoContent(group));
+        iw.open({ map, anchor: marker });
+      });
 
-        markersRef.current.push(marker);
-      }
+      markersRef.current.push(marker);
+    }
 
-      if (groups.length > 0) {
-        map.fitBounds(bounds, 50);
-      }
-    },
-    []
-  );
+    if (groups.length > 0) {
+      map.fitBounds(bounds, 50);
+    }
+  }, []);
 
   // Init map
   useEffect(() => {
@@ -258,7 +275,9 @@ export function ListingsMap({ listings }: { listings: MapListing[] }) {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4 pb-4">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs uppercase tracking-wider text-white/40 mr-1">Type</span>
+          <span className="text-xs uppercase tracking-wider text-white/40 mr-1">
+            Type
+          </span>
           {typeButtons.map((btn) => (
             <button
               key={btn.value}
@@ -274,7 +293,9 @@ export function ListingsMap({ listings }: { listings: MapListing[] }) {
           ))}
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs uppercase tracking-wider text-white/40 mr-1">Status</span>
+          <span className="text-xs uppercase tracking-wider text-white/40 mr-1">
+            Status
+          </span>
           {statusButtons.map((btn) => (
             <button
               key={btn.value}
@@ -290,7 +311,8 @@ export function ListingsMap({ listings }: { listings: MapListing[] }) {
           ))}
         </div>
         <span className="text-xs text-white/40">
-          {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""}
+          {filteredListings.length} listing
+          {filteredListings.length !== 1 ? "s" : ""}
         </span>
       </div>
 

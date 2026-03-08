@@ -94,9 +94,7 @@ export default async function ListingsPage({
       break;
     case "newest":
     default:
-      filtered.sort(
-        (a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()
-      );
+      filtered.sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
       break;
   }
 

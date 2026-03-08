@@ -34,9 +34,10 @@ OUTPUT QUALITY:
 - If the original contains watermarks or logos, remove them
 - Maintain sharp detail and realistic textures throughout`;
 
-export async function relightPhoto(
-  imageBuffer: { data: Buffer; mimeType: string }
-): Promise<{ data: string; mimeType: string } | null> {
+export async function relightPhoto(imageBuffer: {
+  data: Buffer;
+  mimeType: string;
+}): Promise<{ data: string; mimeType: string } | null> {
   const response = await ai.models.generateContent({
     model: IMAGE_MODEL,
     contents: [

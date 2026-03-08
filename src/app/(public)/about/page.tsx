@@ -6,7 +6,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn more about Brandy Culp, licensed real estate agent associated with SPiRALNY.",
+  description:
+    "Learn more about Brandy Culp, licensed real estate agent associated with SPiRALNY.",
 };
 
 export default async function AboutPage() {

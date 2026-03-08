@@ -97,7 +97,9 @@ function getPlacesNewApi(): PlacesNewApi | null {
   try {
     const places = google.maps.places as unknown as PlacesNewApi;
     if (places?.AutocompleteSuggestion) return places;
-  } catch { /* not available */ }
+  } catch {
+    /* not available */
+  }
   return null;
 }
 
@@ -174,12 +176,16 @@ interface ListingDetailsProps {
 }
 
 export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
-  const [activeModal, setActiveModal] = useState<"floorplan" | "map" | "3d" | null>(null);
+  const [activeModal, setActiveModal] = useState<
+    "floorplan" | "map" | "3d" | null
+  >(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
 
   const routePolylinesRef = useRef<google.maps.Polyline[]>([]);
-  const routeMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const routeMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>(
+    []
+  );
   const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
   const placesLoadedRef = useRef(false);
   const sessionTokenRef = useRef<object | null>(null);
@@ -209,7 +215,8 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
   useEffect(() => {
-    if (activeModal !== "map" || !listing.latitude || !listing.longitude) return;
+    if (activeModal !== "map" || !listing.latitude || !listing.longitude)
+      return;
 
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) return;
@@ -222,10 +229,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       listing.id
     );
 
-    Promise.all([
-      importLibrary("maps"),
-      importLibrary("marker"),
-    ]).then(([]) => {
+    Promise.all([importLibrary("maps"), importLibrary("marker")]).then(([]) => {
       if (!mapRef.current) return;
       const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
       const map = new google.maps.Map(mapRef.current, {
@@ -255,7 +259,8 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
         .then(() => {
           placesLoadedRef.current = true;
           try {
-            sessionTokenRef.current = new (getPlacesNewApi()!).AutocompleteSessionToken();
+            sessionTokenRef.current =
+              new (getPlacesNewApi()!.AutocompleteSessionToken)();
           } catch {
             // New session tokens not available, legacy fallback will be used
           }
@@ -269,7 +274,9 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
   const clearDirections = useCallback(() => {
     routePolylinesRef.current.forEach((p) => p.setMap(null));
     routePolylinesRef.current = [];
-    routeMarkersRef.current.forEach((m) => { m.map = null; });
+    routeMarkersRef.current.forEach((m) => {
+      m.map = null;
+    });
     routeMarkersRef.current = [];
     if (transitLayerRef.current && mapInstanceRef.current) {
       transitLayerRef.current.setMap(mapInstanceRef.current);
@@ -280,114 +287,112 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
     setDirectionsError("");
   }, []);
 
-  const renderRouteOnMap = useCallback(
-    (route: Route, mode: string) => {
-      if (!mapInstanceRef.current) return;
-      routePolylinesRef.current.forEach((p) => p.setMap(null));
-      routePolylinesRef.current = [];
-      routeMarkersRef.current.forEach((m) => { m.map = null; });
-      routeMarkersRef.current = [];
+  const renderRouteOnMap = useCallback((route: Route, mode: string) => {
+    if (!mapInstanceRef.current) return;
+    routePolylinesRef.current.forEach((p) => p.setMap(null));
+    routePolylinesRef.current = [];
+    routeMarkersRef.current.forEach((m) => {
+      m.map = null;
+    });
+    routeMarkersRef.current = [];
 
-      if (transitLayerRef.current) transitLayerRef.current.setMap(null);
+    if (transitLayerRef.current) transitLayerRef.current.setMap(null);
 
-      const bounds = new google.maps.LatLngBounds();
-      const steps = route.legs?.[0]?.steps || [];
+    const bounds = new google.maps.LatLngBounds();
+    const steps = route.legs?.[0]?.steps || [];
 
-      if (mode === "TRANSIT" && steps.length > 0) {
-        for (const step of steps) {
-          if (!step.polyline?.encodedPolyline) continue;
-          const path = decodePolyline(step.polyline.encodedPolyline);
-          path.forEach((p) => bounds.extend(p));
-
-          if (step.travelMode === "WALK") {
-            const polyline = new google.maps.Polyline({
-              path,
-              strokeColor: "#9AA0A6",
-              strokeOpacity: 0,
-              strokeWeight: 4,
-              icons: [
-                {
-                  icon: {
-                    path: "M 0,-1 0,1",
-                    strokeOpacity: 1,
-                    strokeWeight: 4,
-                    scale: 1.5,
-                  },
-                  offset: "0",
-                  repeat: "12px",
-                },
-              ],
-              map: mapInstanceRef.current,
-            });
-            routePolylinesRef.current.push(polyline);
-          } else if (step.travelMode === "TRANSIT") {
-            const color =
-              step.transitDetails?.transitLine?.color || "#4285F4";
-            const polyline = new google.maps.Polyline({
-              path,
-              strokeColor: color,
-              strokeOpacity: 1,
-              strokeWeight: 5,
-              map: mapInstanceRef.current,
-            });
-            routePolylinesRef.current.push(polyline);
-          }
-        }
-      } else if (route.polyline?.encodedPolyline) {
-        const path = decodePolyline(route.polyline.encodedPolyline);
+    if (mode === "TRANSIT" && steps.length > 0) {
+      for (const step of steps) {
+        if (!step.polyline?.encodedPolyline) continue;
+        const path = decodePolyline(step.polyline.encodedPolyline);
         path.forEach((p) => bounds.extend(p));
-        const polyline = new google.maps.Polyline({
-          path,
-          strokeColor: "#4285F4",
-          strokeOpacity: 0.8,
-          strokeWeight: 5,
-          map: mapInstanceRef.current,
-        });
-        routePolylinesRef.current.push(polyline);
-      }
 
-      const overallPath = route.polyline?.encodedPolyline
-        ? decodePolyline(route.polyline.encodedPolyline)
-        : [];
-      if (overallPath.length > 0) {
-        const { AdvancedMarkerElement } = google.maps.marker;
-        const startLabel = document.createElement("div");
-        startLabel.textContent = "A";
-        startLabel.style.cssText = "background:#4285F4;color:#fff;font-weight:bold;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;";
-        const endLabel = document.createElement("div");
-        endLabel.textContent = "B";
-        endLabel.style.cssText = "background:#EA4335;color:#fff;font-weight:bold;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;";
-        const startMarker = new AdvancedMarkerElement({
-          position: overallPath[0],
-          map: mapInstanceRef.current,
-          content: startLabel,
-        });
-        const endMarker = new AdvancedMarkerElement({
-          position: overallPath[overallPath.length - 1],
-          map: mapInstanceRef.current,
-          content: endLabel,
-        });
-        routeMarkersRef.current = [startMarker, endMarker];
-        if (bounds.isEmpty()) {
-          overallPath.forEach((p) => bounds.extend(p));
+        if (step.travelMode === "WALK") {
+          const polyline = new google.maps.Polyline({
+            path,
+            strokeColor: "#9AA0A6",
+            strokeOpacity: 0,
+            strokeWeight: 4,
+            icons: [
+              {
+                icon: {
+                  path: "M 0,-1 0,1",
+                  strokeOpacity: 1,
+                  strokeWeight: 4,
+                  scale: 1.5,
+                },
+                offset: "0",
+                repeat: "12px",
+              },
+            ],
+            map: mapInstanceRef.current,
+          });
+          routePolylinesRef.current.push(polyline);
+        } else if (step.travelMode === "TRANSIT") {
+          const color = step.transitDetails?.transitLine?.color || "#4285F4";
+          const polyline = new google.maps.Polyline({
+            path,
+            strokeColor: color,
+            strokeOpacity: 1,
+            strokeWeight: 5,
+            map: mapInstanceRef.current,
+          });
+          routePolylinesRef.current.push(polyline);
         }
       }
+    } else if (route.polyline?.encodedPolyline) {
+      const path = decodePolyline(route.polyline.encodedPolyline);
+      path.forEach((p) => bounds.extend(p));
+      const polyline = new google.maps.Polyline({
+        path,
+        strokeColor: "#4285F4",
+        strokeOpacity: 0.8,
+        strokeWeight: 5,
+        map: mapInstanceRef.current,
+      });
+      routePolylinesRef.current.push(polyline);
+    }
 
-      if (!bounds.isEmpty()) {
-        mapInstanceRef.current.fitBounds(bounds, 50);
+    const overallPath = route.polyline?.encodedPolyline
+      ? decodePolyline(route.polyline.encodedPolyline)
+      : [];
+    if (overallPath.length > 0) {
+      const { AdvancedMarkerElement } = google.maps.marker;
+      const startLabel = document.createElement("div");
+      startLabel.textContent = "A";
+      startLabel.style.cssText =
+        "background:#4285F4;color:#fff;font-weight:bold;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;";
+      const endLabel = document.createElement("div");
+      endLabel.textContent = "B";
+      endLabel.style.cssText =
+        "background:#EA4335;color:#fff;font-weight:bold;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;";
+      const startMarker = new AdvancedMarkerElement({
+        position: overallPath[0],
+        map: mapInstanceRef.current,
+        content: startLabel,
+      });
+      const endMarker = new AdvancedMarkerElement({
+        position: overallPath[overallPath.length - 1],
+        map: mapInstanceRef.current,
+        content: endLabel,
+      });
+      routeMarkersRef.current = [startMarker, endMarker];
+      if (bounds.isEmpty()) {
+        overallPath.forEach((p) => bounds.extend(p));
       }
-    },
-    []
-  );
+    }
+
+    if (!bounds.isEmpty()) {
+      mapInstanceRef.current.fitBounds(bounds, 50);
+    }
+  }, []);
 
   const selectRoute = useCallback(
     (index: number) => {
       if (index === selectedRouteIndex || !allRoutes[index]) return;
       setSelectedRouteIndex(index);
       const route = allRoutes[index];
-      const durationSeconds = parseInt(
-        route.duration?.replace("s", "") || "0"
-      );
+      const durationSeconds = parseInt(route.duration?.replace("s", "") || "0");
       const steps = route.legs?.[0]?.steps || [];
       setDirectionsResult({
         distance: formatDistance(route.distanceMeters),
@@ -435,7 +440,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       console.error("Places autocomplete error:", err);
       setSuggestions([]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = useCallback(
@@ -457,7 +462,8 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
     setSuggestions([]);
     setShowSuggestions(false);
     try {
-      sessionTokenRef.current = new (getPlacesNewApi()!).AutocompleteSessionToken();
+      sessionTokenRef.current =
+        new (getPlacesNewApi()!.AutocompleteSessionToken)();
     } catch {
       // ignore
     }
@@ -476,19 +482,31 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
       setSelectedRouteIndex(0);
       clearDirections();
 
-      const approxWaypoint = listing.latitude != null && listing.longitude != null
-        ? {
-            location: {
-              latLng: {
-                latitude: getApproximateLocation(listing.latitude, listing.longitude, listing.id).lat,
-                longitude: getApproximateLocation(listing.latitude, listing.longitude, listing.id).lng,
+      const approxWaypoint =
+        listing.latitude != null && listing.longitude != null
+          ? {
+              location: {
+                latLng: {
+                  latitude: getApproximateLocation(
+                    listing.latitude,
+                    listing.longitude,
+                    listing.id
+                  ).lat,
+                  longitude: getApproximateLocation(
+                    listing.latitude,
+                    listing.longitude,
+                    listing.id
+                  ).lng,
+                },
               },
-            },
-          }
-        : { address: `${listing.address}, ${listing.city}, ${listing.state}` };
+            }
+          : {
+              address: `${listing.address}, ${listing.city}, ${listing.state}`,
+            };
       const userWaypoint = { address: directionsInput.trim() };
       const origin = directionType === "to" ? userWaypoint : approxWaypoint;
-      const destination = directionType === "to" ? approxWaypoint : userWaypoint;
+      const destination =
+        directionType === "to" ? approxWaypoint : userWaypoint;
 
       try {
         const response = await fetch("/api/directions", {
@@ -498,12 +516,8 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
             origin,
             destination,
             travelMode: mode,
-            ...(mode === "DRIVE"
-              ? { routingPreference: "TRAFFIC_AWARE" }
-              : {}),
-            ...(mode === "TRANSIT"
-              ? { computeAlternativeRoutes: true }
-              : {}),
+            ...(mode === "DRIVE" ? { routingPreference: "TRAFFIC_AWARE" } : {}),
+            ...(mode === "TRANSIT" ? { computeAlternativeRoutes: true } : {}),
           }),
         });
 
@@ -662,16 +676,19 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
               Map
             </button>
           )}
-          {SHOW_3D_VIEW && buildingInfo && listing.latitude != null && listing.longitude != null && (
-            <button
-              type="button"
-              onClick={() => setActiveModal("3d")}
-              className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/20 hover:text-white cursor-pointer"
-            >
-              <Box className="h-3.5 w-3.5" />
-              3D View
-            </button>
-          )}
+          {SHOW_3D_VIEW &&
+            buildingInfo &&
+            listing.latitude != null &&
+            listing.longitude != null && (
+              <button
+                type="button"
+                onClick={() => setActiveModal("3d")}
+                className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-white/20 hover:text-white cursor-pointer"
+              >
+                <Box className="h-3.5 w-3.5" />
+                3D View
+              </button>
+            )}
         </div>
       </div>
 
@@ -684,7 +701,20 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
             /<[a-z][\s\S]*?>/i.test(listing.description)
               ? listing.description
               : listing.description.replace(/\n/g, "<br>"),
-            { ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br", "span", "p", "div"], ALLOWED_ATTR: ["style"] }
+            {
+              ALLOWED_TAGS: [
+                "b",
+                "strong",
+                "i",
+                "em",
+                "u",
+                "br",
+                "span",
+                "p",
+                "div",
+              ],
+              ALLOWED_ATTR: ["style"],
+            }
           ),
         }}
       />
@@ -839,20 +869,23 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                     Map
                   </button>
                 )}
-                {SHOW_3D_VIEW && buildingInfo && listing.latitude != null && listing.longitude != null && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveModal("3d")}
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition-colors ${
-                      activeModal === "3d"
-                        ? "bg-white text-black"
-                        : "bg-white/10 text-white/60 hover:bg-white/20"
-                    }`}
-                  >
-                    <Box className="h-3.5 w-3.5" />
-                    3D View
-                  </button>
-                )}
+                {SHOW_3D_VIEW &&
+                  buildingInfo &&
+                  listing.latitude != null &&
+                  listing.longitude != null && (
+                    <button
+                      type="button"
+                      onClick={() => setActiveModal("3d")}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition-colors ${
+                        activeModal === "3d"
+                          ? "bg-white text-black"
+                          : "bg-white/10 text-white/60 hover:bg-white/20"
+                      }`}
+                    >
+                      <Box className="h-3.5 w-3.5" />
+                      3D View
+                    </button>
+                  )}
               </div>
               <button
                 type="button"
@@ -887,10 +920,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
               {/* Map */}
               {activeModal === "map" && (
                 <div className="flex h-full flex-col">
-                  <div
-                    ref={mapRef}
-                    className="flex-1 min-h-0"
-                  />
+                  <div ref={mapRef} className="flex-1 min-h-0" />
 
                   {/* Directions panel */}
                   <div className="shrink-0 border-t border-white/10 p-4">
@@ -929,7 +959,10 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                       }}
                       className="relative mt-3 flex gap-2"
                     >
-                      <div className="relative flex-1" ref={autocompleteContainerRef}>
+                      <div
+                        className="relative flex-1"
+                        ref={autocompleteContainerRef}
+                      >
                         <input
                           type="text"
                           value={directionsInput}
@@ -950,33 +983,37 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                           }
                           className="w-full rounded bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 outline-none ring-1 ring-white/10 focus:ring-white/30"
                         />
-                        {showSuggestions && suggestions.length > 0 && autocompletePos && (
-                          <div
-                            className="fixed z-[60] max-h-48 overflow-y-auto rounded bg-zinc-800 shadow-lg ring-1 ring-white/10"
-                            style={{
-                              bottom: `${window.innerHeight - autocompletePos.top + 4}px`,
-                              left: `${autocompletePos.left}px`,
-                              width: `${autocompletePos.width}px`,
-                            }}
-                          >
-                            {suggestions.map((s, i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => handleSuggestionSelect(s.text)}
-                                className="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-white/10"
-                              >
-                                <span className="text-white">{s.mainText}</span>
-                                {s.secondaryText && (
-                                  <span className="ml-1.5 text-white/40">
-                                    {s.secondaryText}
+                        {showSuggestions &&
+                          suggestions.length > 0 &&
+                          autocompletePos && (
+                            <div
+                              className="fixed z-[60] max-h-48 overflow-y-auto rounded bg-zinc-800 shadow-lg ring-1 ring-white/10"
+                              style={{
+                                bottom: `${window.innerHeight - autocompletePos.top + 4}px`,
+                                left: `${autocompletePos.left}px`,
+                                width: `${autocompletePos.width}px`,
+                              }}
+                            >
+                              {suggestions.map((s, i) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => handleSuggestionSelect(s.text)}
+                                  className="w-full px-3 py-2 text-left text-sm transition-colors hover:bg-white/10"
+                                >
+                                  <span className="text-white">
+                                    {s.mainText}
                                   </span>
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                                  {s.secondaryText && (
+                                    <span className="ml-1.5 text-white/40">
+                                      {s.secondaryText}
+                                    </span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                       </div>
                       <button
                         type="submit"
@@ -992,7 +1029,11 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                       {(
                         [
                           { mode: "DRIVE", icon: Car, label: "Drive" },
-                          { mode: "TRANSIT", icon: TrainFront, label: "Transit" },
+                          {
+                            mode: "TRANSIT",
+                            icon: TrainFront,
+                            label: "Transit",
+                          },
                           { mode: "WALK", icon: Footprints, label: "Walk" },
                           { mode: "BICYCLE", icon: Bike, label: "Bike" },
                         ] as const
@@ -1058,19 +1099,17 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                                       {steps.map(
                                         (step: RouteStep, i: number) => {
-                                          const transit =
-                                            step.transitDetails;
+                                          const transit = step.transitDetails;
                                           const dur2 =
-                                            step.localizedValues
-                                              ?.staticDuration?.text;
+                                            step.localizedValues?.staticDuration
+                                              ?.text;
 
                                           if (
                                             step.travelMode === "TRANSIT" &&
                                             transit
                                           ) {
                                             const shortName = (
-                                              transit.transitLine
-                                                ?.nameShort ||
+                                              transit.transitLine?.nameShort ||
                                               transit.transitLine?.name ||
                                               ""
                                             ).replace(/\s*Line$/i, "");
@@ -1078,8 +1117,8 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                                               transit.transitLine?.color ||
                                               "#888";
                                             const textColor =
-                                              transit.transitLine
-                                                ?.textColor || "#fff";
+                                              transit.transitLine?.textColor ||
+                                              "#fff";
                                             const stopCount =
                                               transit.stopCount || 0;
                                             return (
@@ -1104,9 +1143,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                                                 {stopCount > 0 && (
                                                   <span className="text-xs text-white/40">
                                                     {stopCount} stop
-                                                    {stopCount !== 1
-                                                      ? "s"
-                                                      : ""}
+                                                    {stopCount !== 1 ? "s" : ""}
                                                   </span>
                                                 )}
                                               </div>
@@ -1160,86 +1197,77 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                   {mergeTransitSteps(
                                     directionsResult.steps
-                                  ).map(
-                                    (step: RouteStep, i: number) => {
-                                      const transit = step.transitDetails;
-                                      const dur =
-                                        step.localizedValues?.staticDuration
-                                          ?.text;
+                                  ).map((step: RouteStep, i: number) => {
+                                    const transit = step.transitDetails;
+                                    const dur =
+                                      step.localizedValues?.staticDuration
+                                        ?.text;
 
-                                      if (
-                                        step.travelMode === "TRANSIT" &&
-                                        transit
-                                      ) {
-                                        const shortName = (
-                                          transit.transitLine?.nameShort ||
-                                          transit.transitLine?.name ||
-                                          ""
-                                        ).replace(/\s*Line$/i, "");
-                                        const color =
-                                          transit.transitLine?.color ||
-                                          "#888";
-                                        const textColor =
-                                          transit.transitLine?.textColor ||
-                                          "#fff";
-                                        const stopCount =
-                                          transit.stopCount || 0;
-                                        return (
-                                          <div
-                                            key={i}
-                                            className="flex items-center gap-1.5"
-                                          >
-                                            {i > 0 && (
-                                              <span className="text-xs text-white/30">
-                                                →
-                                              </span>
-                                            )}
-                                            <span
-                                              className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[10px] font-bold leading-none"
-                                              style={{
-                                                backgroundColor: color,
-                                                color: textColor,
-                                              }}
-                                            >
-                                              {shortName}
+                                    if (
+                                      step.travelMode === "TRANSIT" &&
+                                      transit
+                                    ) {
+                                      const shortName = (
+                                        transit.transitLine?.nameShort ||
+                                        transit.transitLine?.name ||
+                                        ""
+                                      ).replace(/\s*Line$/i, "");
+                                      const color =
+                                        transit.transitLine?.color || "#888";
+                                      const textColor =
+                                        transit.transitLine?.textColor ||
+                                        "#fff";
+                                      const stopCount = transit.stopCount || 0;
+                                      return (
+                                        <div
+                                          key={i}
+                                          className="flex items-center gap-1.5"
+                                        >
+                                          {i > 0 && (
+                                            <span className="text-xs text-white/30">
+                                              →
                                             </span>
-                                            {stopCount > 0 && (
-                                              <span className="text-xs text-white/40">
-                                                {stopCount} stop
-                                                {stopCount !== 1
-                                                  ? "s"
-                                                  : ""}
-                                              </span>
-                                            )}
-                                          </div>
-                                        );
-                                      }
-
-                                      if (
-                                        step.travelMode === "WALK" &&
-                                        dur
-                                      ) {
-                                        return (
-                                          <div
-                                            key={i}
-                                            className="flex items-center gap-1"
+                                          )}
+                                          <span
+                                            className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1 text-[10px] font-bold leading-none"
+                                            style={{
+                                              backgroundColor: color,
+                                              color: textColor,
+                                            }}
                                           >
-                                            {i > 0 && (
-                                              <span className="text-xs text-white/30">
-                                                →
-                                              </span>
-                                            )}
-                                            <Footprints className="h-3 w-3 text-white/40" />
-                                            <span className="text-xs text-white/50">
-                                              {dur}
+                                            {shortName}
+                                          </span>
+                                          {stopCount > 0 && (
+                                            <span className="text-xs text-white/40">
+                                              {stopCount} stop
+                                              {stopCount !== 1 ? "s" : ""}
                                             </span>
-                                          </div>
-                                        );
-                                      }
-
-                                      return null;
+                                          )}
+                                        </div>
+                                      );
                                     }
-                                  )}
+
+                                    if (step.travelMode === "WALK" && dur) {
+                                      return (
+                                        <div
+                                          key={i}
+                                          className="flex items-center gap-1"
+                                        >
+                                          {i > 0 && (
+                                            <span className="text-xs text-white/30">
+                                              →
+                                            </span>
+                                          )}
+                                          <Footprints className="h-3 w-3 text-white/40" />
+                                          <span className="text-xs text-white/50">
+                                            {dur}
+                                          </span>
+                                        </div>
+                                      );
+                                    }
+
+                                    return null;
+                                  })}
                                 </div>
                               )}
                           </div>
@@ -1248,22 +1276,27 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
                     )}
 
                     {directionsError && (
-                      <p className="mt-3 text-sm text-red-400">{directionsError}</p>
+                      <p className="mt-3 text-sm text-red-400">
+                        {directionsError}
+                      </p>
                     )}
                   </div>
                 </div>
               )}
 
               {/* 3D View */}
-              {SHOW_3D_VIEW && activeModal === "3d" && listing.latitude != null && listing.longitude != null && (
-                <div className="h-full">
-                  <BuildingViewer
-                    latitude={listing.latitude}
-                    longitude={listing.longitude}
-                    address={listing.address}
-                  />
-                </div>
-              )}
+              {SHOW_3D_VIEW &&
+                activeModal === "3d" &&
+                listing.latitude != null &&
+                listing.longitude != null && (
+                  <div className="h-full">
+                    <BuildingViewer
+                      latitude={listing.latitude}
+                      longitude={listing.longitude}
+                      address={listing.address}
+                    />
+                  </div>
+                )}
             </div>
           </div>
         </div>

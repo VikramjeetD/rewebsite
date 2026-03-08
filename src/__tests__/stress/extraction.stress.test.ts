@@ -146,9 +146,7 @@ describe("extraction stress tests", () => {
       response: { text: () => "not valid json {{{" },
     });
 
-    await expect(
-      extractListingFromText("Test listing text")
-    ).rejects.toThrow();
+    await expect(extractListingFromText("Test listing text")).rejects.toThrow();
   });
 
   it("handles missing required fields in Gemini response", async () => {

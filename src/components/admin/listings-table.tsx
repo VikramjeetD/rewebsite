@@ -6,7 +6,10 @@ import Link from "next/link";
 import { cn, formatPrice } from "@/lib/utils";
 import { ListingStatusDropdown } from "@/components/admin/listing-status-dropdown";
 import { DeleteListingButton } from "@/components/admin/delete-listing-button";
-import { bulkDeleteListingsAction } from "@/actions/listings";
+import {
+  bulkDeleteListingsAction,
+  duplicateListingAction,
+} from "@/actions/listings";
 import { Button } from "@/components/ui/button";
 import type { Listing } from "@/types";
 
@@ -183,7 +186,10 @@ export function ListingsTable({ listings }: ListingsTableProps) {
                   >
                     {listing.title}
                   </Link>
-                  <p className="text-xs text-white/40">{listing.address}{listing.unit ? `, ${listing.unit}` : ""}</p>
+                  <p className="text-xs text-white/40">
+                    {listing.address}
+                    {listing.unit ? `, ${listing.unit}` : ""}
+                  </p>
                 </td>
                 <td className="px-6 py-4 text-white/60">
                   <span className="text-xs">{listing.type}</span>
@@ -198,8 +204,8 @@ export function ListingsTable({ listings }: ListingsTableProps) {
                   {formatPrice(listing.price, listing.type)}
                 </td>
                 <td className="px-6 py-4 text-white/60">
-                  {listing.bedrooms === 0 ? "Studio" : `${listing.bedrooms}BD`} /{" "}
-                  {listing.bathrooms}BA
+                  {listing.bedrooms === 0 ? "Studio" : `${listing.bedrooms}BD`}{" "}
+                  / {listing.bathrooms}BA
                 </td>
                 <td className="px-6 py-4 text-white/60">
                   {listing.op != null ? listing.op : "—"}
@@ -212,6 +218,18 @@ export function ListingsTable({ listings }: ListingsTableProps) {
                     >
                       Edit
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        startTransition(() =>
+                          duplicateListingAction(listing.id)
+                        );
+                      }}
+                      disabled={isPending}
+                      className="text-white/40 hover:text-white/60"
+                    >
+                      Duplicate
+                    </button>
                     <DeleteListingButton
                       listingId={listing.id}
                       listingTitle={listing.title}

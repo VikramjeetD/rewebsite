@@ -258,7 +258,10 @@ async function _fetchNearbyPlaces(
       const radiusMi = radius / MI_METERS;
       const isLastStep = radius === RADIUS_STEPS[RADIUS_STEPS.length - 1];
 
-      if ((radiusMi >= MIN_RADIUS_MI && results.length >= MIN_RESULTS) || isLastStep) {
+      if (
+        (radiusMi >= MIN_RADIUS_MI && results.length >= MIN_RESULTS) ||
+        isLastStep
+      ) {
         for (const r of results) {
           if (!seenIds.has(r.id)) {
             seenIds.add(r.id);

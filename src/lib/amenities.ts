@@ -3,7 +3,6 @@ import {
   Video,
   ConciergeBell,
   Gamepad2,
-
   Wrench,
   Bike,
   Sun,
@@ -78,8 +77,16 @@ export const AMENITY_CATALOG: AmenityCategory[] = [
   {
     name: "Laundry",
     amenities: [
-      { key: "in-unit-washer-dryer", label: "In-Unit Washer/Dryer", icon: WashingMachine },
-      { key: "laundry-in-building", label: "Laundry in Building", icon: Building2 },
+      {
+        key: "in-unit-washer-dryer",
+        label: "In-Unit Washer/Dryer",
+        icon: WashingMachine,
+      },
+      {
+        key: "laundry-in-building",
+        label: "Laundry in Building",
+        icon: Building2,
+      },
       { key: "laundry-nearby", label: "Laundry Nearby", icon: MapPin },
     ],
   },
@@ -95,7 +102,11 @@ export const AMENITY_CATALOG: AmenityCategory[] = [
     name: "Utilities Included",
     amenities: [
       { key: "heat-included", label: "Heat Included", icon: Flame },
-      { key: "hot-water-included", label: "Hot Water Included", icon: Droplets },
+      {
+        key: "hot-water-included",
+        label: "Hot Water Included",
+        icon: Droplets,
+      },
       { key: "electric-included", label: "Electric Included", icon: Zap },
       { key: "cable-included", label: "Cable Included", icon: Tv },
       { key: "internet-included", label: "Internet Included", icon: Wifi },
@@ -111,9 +122,17 @@ export const AMENITY_CATALOG: AmenityCategory[] = [
       { key: "exposed-brick", label: "Exposed Brick", icon: SquareStack },
       { key: "fireplace", label: "Fireplace", icon: FlameKindling },
       { key: "balcony-terrace", label: "Balcony/Terrace", icon: Fence },
-      { key: "private-outdoor-space", label: "Private Outdoor Space", icon: Trees },
+      {
+        key: "private-outdoor-space",
+        label: "Private Outdoor Space",
+        icon: Trees,
+      },
       { key: "furnished", label: "Furnished", icon: Sofa },
-      { key: "stainless-steel-appliances", label: "Stainless Steel Appliances", icon: Refrigerator },
+      {
+        key: "stainless-steel-appliances",
+        label: "Stainless Steel Appliances",
+        icon: Refrigerator,
+      },
       { key: "granite-countertops", label: "Stone Countertops", icon: Diamond },
     ],
   },
@@ -139,14 +158,23 @@ const slugMap = new Map<string, AmenityDefinition>();
 
 for (const [, def] of AMENITY_MAP) {
   labelMap.set(def.label.toLowerCase(), def);
-  slugMap.set(def.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), def);
+  slugMap.set(
+    def.label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, ""),
+    def
+  );
 }
 
 /**
  * Resolve a raw amenity string to a definition with icon.
  * Multi-pass: key → label → slug → fallback to Tag icon.
  */
-export function resolveAmenity(raw: string): { label: string; icon: LucideIcon } {
+export function resolveAmenity(raw: string): {
+  label: string;
+  icon: LucideIcon;
+} {
   const trimmed = raw.trim();
   if (!trimmed) return { label: raw, icon: Tag };
 
@@ -159,7 +187,10 @@ export function resolveAmenity(raw: string): { label: string; icon: LucideIcon }
   if (byLabel) return { label: byLabel.label, icon: byLabel.icon };
 
   // 3. Slug match
-  const asSlug = trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const asSlug = trimmed
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
   const bySlug = slugMap.get(asSlug);
   if (bySlug) return { label: bySlug.label, icon: bySlug.icon };
 
@@ -183,7 +214,10 @@ export function normalizeAmenityKey(raw: string): string {
   const byLabel = labelMap.get(trimmed.toLowerCase());
   if (byLabel) return byLabel.key;
 
-  const asSlug = trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const asSlug = trimmed
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
   const bySlug = slugMap.get(asSlug);
   if (bySlug) return bySlug.key;
 
@@ -195,9 +229,7 @@ export function normalizeAmenityKey(raw: string): string {
 
 // Reverse map: key → category name
 const keyCategoryMap = new Map<string, string>(
-  AMENITY_CATALOG.flatMap((cat) =>
-    cat.amenities.map((a) => [a.key, cat.name])
-  )
+  AMENITY_CATALOG.flatMap((cat) => cat.amenities.map((a) => [a.key, cat.name]))
 );
 
 export interface GroupedAmenity {

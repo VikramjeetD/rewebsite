@@ -21,11 +21,15 @@ export async function GET(request: Request) {
   const lat = parseFloat(latStr);
   const lng = parseFloat(lngStr);
 
-  if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    return NextResponse.json(
-      { error: "invalid lat/lng" },
-      { status: 400 }
-    );
+  if (
+    isNaN(lat) ||
+    isNaN(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return NextResponse.json({ error: "invalid lat/lng" }, { status: 400 });
   }
 
   if (!(category in PLACE_CATEGORIES)) {

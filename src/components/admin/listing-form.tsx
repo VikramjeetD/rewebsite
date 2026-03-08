@@ -101,12 +101,8 @@ export function ListingForm({
   const [listingType, setListingType] = useState<string>(
     listing?.type ?? "RENTAL"
   );
-  const [, setCurrentBeds] = useState<number>(
-    listing?.bedrooms ?? 0
-  );
-  const [, setCurrentBaths] = useState<number>(
-    listing?.bathrooms ?? 0
-  );
+  const [, setCurrentBeds] = useState<number>(listing?.bedrooms ?? 0);
+  const [, setCurrentBaths] = useState<number>(listing?.bathrooms ?? 0);
   const [borough, setBorough] = useState<string>(listing?.borough ?? "N/A");
   const [availableImmediately, setAvailableImmediately] = useState<boolean>(
     listing ? !listing.availableDate : false
@@ -143,7 +139,11 @@ export function ListingForm({
   const performPlutoLookup = useCallback(
     async (
       address: string,
-      fallback?: { yearBuilt: number | null; numFloors: number | null; totalUnits: number | null } | null
+      fallback?: {
+        yearBuilt: number | null;
+        numFloors: number | null;
+        totalUnits: number | null;
+      } | null
     ) => {
       setPlutoLoading(true);
       const result = await lookupPlutoAction(address);
@@ -610,9 +610,7 @@ export function ListingForm({
           <AmenitiesPicker
             ref={amenitiesRef}
             defaultValue={listing?.amenities ?? []}
-            label={
-              listingType === "SALE" ? "Features" : "Amenities"
-            }
+            label={listingType === "SALE" ? "Features" : "Amenities"}
           />
           {selectedAddress && (
             <div className="mt-2 flex items-center gap-2">
@@ -635,8 +633,7 @@ export function ListingForm({
                 size="sm"
                 disabled={amenitySaveStatus === "saving"}
                 onClick={async () => {
-                  const amenities =
-                    amenitiesRef.current?.getAmenities() ?? [];
+                  const amenities = amenitiesRef.current?.getAmenities() ?? [];
                   if (amenities.length === 0) return;
 
                   if (

@@ -69,7 +69,9 @@ export function NewListingAutosave({
   const handlePopulateForm = useCallback((data: ExtractionResult) => {
     setPrefill(extractionToPartialListing(data));
     const hasBuildingInfo =
-      data.yearBuilt != null || data.numFloors != null || data.totalUnits != null;
+      data.yearBuilt != null ||
+      data.numFloors != null ||
+      data.totalUnits != null;
     setExtractedBuildingInfo(
       hasBuildingInfo
         ? {

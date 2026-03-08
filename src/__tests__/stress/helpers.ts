@@ -83,10 +83,7 @@ export function makeContactFormData(i: number) {
 /**
  * Returns a mock Google Geocoding API JSON response.
  */
-export function makeGeocodingResponse(
-  i: number,
-  status: string = "OK"
-) {
+export function makeGeocodingResponse(i: number, status: string = "OK") {
   if (status !== "OK") {
     return { status, results: [] };
   }

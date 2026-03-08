@@ -61,8 +61,7 @@ export function AmenityFilterDropdown({
     return () => document.removeEventListener("keydown", handleKey);
   }, [open]);
 
-  const label =
-    value.length > 0 ? `Amenities (${value.length})` : "Amenities";
+  const label = value.length > 0 ? `Amenities (${value.length})` : "Amenities";
 
   const menu =
     open && menuPos

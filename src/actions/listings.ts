@@ -104,9 +104,10 @@ export async function autosaveDraftAction(
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const availableDate = data.availableDate && data.availableDate !== "immediately"
-      ? new Date(data.availableDate)
-      : null;
+    const availableDate =
+      data.availableDate && data.availableDate !== "immediately"
+        ? new Date(data.availableDate)
+        : null;
     const title = (data.title || "").trim() || generateTitle(address, unit); // drafts: fallback for autosave
 
     const slug = slugify(`${address || "draft"} ${neighborhood || "unknown"}`);
@@ -333,7 +334,10 @@ export async function updateListingAction(id: string, formData: FormData) {
     adminNotes: parsed.adminNotes ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
-    availableDate: parsed.availableDate && parsed.availableDate !== "immediately" ? new Date(parsed.availableDate) : null,
+    availableDate:
+      parsed.availableDate && parsed.availableDate !== "immediately"
+        ? new Date(parsed.availableDate)
+        : null,
   });
 
   await ensureBuildingAmenities(parsed.address, parsed.amenities);
@@ -410,7 +414,10 @@ export async function activateDraftAction(id: string, formData: FormData) {
     adminNotes: parsed.adminNotes ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
-    availableDate: parsed.availableDate && parsed.availableDate !== "immediately" ? new Date(parsed.availableDate) : null,
+    availableDate:
+      parsed.availableDate && parsed.availableDate !== "immediately"
+        ? new Date(parsed.availableDate)
+        : null,
   });
 
   await ensureBuildingAmenities(parsed.address, parsed.amenities);
@@ -437,6 +444,66 @@ export async function bulkDeleteListingsAction(ids: string[]) {
   }
 
   revalidateListingPaths();
+}
+
+export async function duplicateListingAction(id: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("Unauthorized");
+
+  const source = await getListingById(id);
+  if (!source) throw new Error("Listing not found");
+
+  const slug = slugify(
+    `${source.address} ${source.unit ?? ""} ${source.neighborhood} copy`
+  );
+
+  const newId = await createListingWithStatus(
+    {
+      slug,
+      title: `${source.title} (Copy)`,
+      description: source.description,
+      type: source.type,
+      status: "DRAFT",
+      price: source.price,
+      freeMonths: source.freeMonths,
+      leaseDuration: source.leaseDuration,
+      bedrooms: source.bedrooms,
+      bathrooms: source.bathrooms,
+      sqft: source.sqft,
+      address: source.address,
+      unit: source.unit,
+      city: source.city,
+      state: source.state,
+      neighborhood: source.neighborhood,
+      borough: source.borough,
+      zipCode: source.zipCode,
+      latitude: source.latitude,
+      longitude: source.longitude,
+      sourceUrl: source.sourceUrl,
+      op: source.op,
+      noFee: source.noFee,
+      estimatedUtilities: source.estimatedUtilities,
+      petPolicy: source.petPolicy,
+      petPolicyDetails: source.petPolicyDetails,
+      parking: source.parking,
+      adminNotes: source.adminNotes,
+      featured: false,
+      amenities: source.amenities,
+      photos: [],
+      floorPlans: [],
+      availableDate: source.availableDate,
+      listedDate: new Date(),
+    },
+    {
+      fromStatus: null,
+      toStatus: "DRAFT",
+      source: "MANUAL",
+      notes: `Duplicated from listing ${id}`,
+    }
+  );
+
+  revalidateListingPaths();
+  redirect(`/admin/listings/${newId}/edit`);
 }
 
 export async function updateListingStatusAction(
@@ -485,9 +552,7 @@ export async function updateListingFloorPlansAction(
   revalidateListingPaths();
 }
 
-export async function loadBuildingAmenitiesAction(
-  address: string
-): Promise<{
+export async function loadBuildingAmenitiesAction(address: string): Promise<{
   success: boolean;
   amenities?: string[];
   yearBuilt?: number | null;
@@ -600,4 +665,3 @@ export async function lookupPlutoAction(
     };
   }
 }
-

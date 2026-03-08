@@ -29,14 +29,27 @@ export interface NearbyStation extends TransitStation {
 // ── Subway Line Colors (official MTA) ────────────────────────────────────────
 
 export const SUBWAY_LINE_COLORS: Record<string, string> = {
-  A: "#0039A6", C: "#0039A6", E: "#0039A6",
-  "1": "#EE352E", "2": "#EE352E", "3": "#EE352E",
-  "4": "#00933C", "5": "#00933C", "6": "#00933C",
+  A: "#0039A6",
+  C: "#0039A6",
+  E: "#0039A6",
+  "1": "#EE352E",
+  "2": "#EE352E",
+  "3": "#EE352E",
+  "4": "#00933C",
+  "5": "#00933C",
+  "6": "#00933C",
   "7": "#B933AD",
-  B: "#FF6319", D: "#FF6319", F: "#FF6319", M: "#FF6319",
-  N: "#FCCC0A", Q: "#FCCC0A", R: "#FCCC0A", W: "#FCCC0A",
+  B: "#FF6319",
+  D: "#FF6319",
+  F: "#FF6319",
+  M: "#FF6319",
+  N: "#FCCC0A",
+  Q: "#FCCC0A",
+  R: "#FCCC0A",
+  W: "#FCCC0A",
   G: "#6CBE45",
-  J: "#996633", Z: "#996633",
+  J: "#996633",
+  Z: "#996633",
   L: "#A7A9AC",
   S: "#808183",
   SIR: "#1D2EA4",
@@ -69,69 +82,454 @@ export const SYSTEM_LABELS: Record<TransitSystem, string> = {
 
 const COMMUTER_STATIONS: TransitStation[] = [
   // PATH (13 stations)
-  { id: "path-wtc", name: "World Trade Center", system: "path", routes: ["Newark–WTC", "Hoboken–WTC"], lat: 40.7115, lng: -74.0104 },
-  { id: "path-exchange", name: "Exchange Place", system: "path", routes: ["Newark–WTC", "Hoboken–33rd St"], lat: 40.7163, lng: -74.0327 },
-  { id: "path-grove", name: "Grove Street", system: "path", routes: ["Newark–WTC", "Journal Square–33rd St"], lat: 40.7195, lng: -74.0431 },
-  { id: "path-jsq", name: "Journal Square", system: "path", routes: ["Newark–WTC", "Journal Square–33rd St"], lat: 40.7333, lng: -74.0634 },
-  { id: "path-harrison", name: "Harrison", system: "path", routes: ["Newark–WTC"], lat: 40.7392, lng: -74.1560 },
-  { id: "path-newark", name: "Newark", system: "path", routes: ["Newark–WTC"], lat: 40.7345, lng: -74.1644 },
-  { id: "path-hoboken", name: "Hoboken", system: "path", routes: ["Hoboken–WTC", "Hoboken–33rd St"], lat: 40.7355, lng: -74.0296 },
-  { id: "path-christopher", name: "Christopher Street", system: "path", routes: ["Hoboken–33rd St"], lat: 40.7327, lng: -74.0070 },
-  { id: "path-9th", name: "9th Street", system: "path", routes: ["Hoboken–33rd St"], lat: 40.7342, lng: -73.9990 },
-  { id: "path-14th", name: "14th Street", system: "path", routes: ["Hoboken–33rd St"], lat: 40.7374, lng: -73.9967 },
-  { id: "path-23rd", name: "23rd Street", system: "path", routes: ["Hoboken–33rd St"], lat: 40.7429, lng: -73.9929 },
-  { id: "path-33rd", name: "33rd Street", system: "path", routes: ["Hoboken–33rd St", "Journal Square–33rd St"], lat: 40.7489, lng: -73.9882 },
-  { id: "path-newport", name: "Newport", system: "path", routes: ["Hoboken–33rd St", "Journal Square–33rd St"], lat: 40.7269, lng: -74.0341 },
+  {
+    id: "path-wtc",
+    name: "World Trade Center",
+    system: "path",
+    routes: ["Newark–WTC", "Hoboken–WTC"],
+    lat: 40.7115,
+    lng: -74.0104,
+  },
+  {
+    id: "path-exchange",
+    name: "Exchange Place",
+    system: "path",
+    routes: ["Newark–WTC", "Hoboken–33rd St"],
+    lat: 40.7163,
+    lng: -74.0327,
+  },
+  {
+    id: "path-grove",
+    name: "Grove Street",
+    system: "path",
+    routes: ["Newark–WTC", "Journal Square–33rd St"],
+    lat: 40.7195,
+    lng: -74.0431,
+  },
+  {
+    id: "path-jsq",
+    name: "Journal Square",
+    system: "path",
+    routes: ["Newark–WTC", "Journal Square–33rd St"],
+    lat: 40.7333,
+    lng: -74.0634,
+  },
+  {
+    id: "path-harrison",
+    name: "Harrison",
+    system: "path",
+    routes: ["Newark–WTC"],
+    lat: 40.7392,
+    lng: -74.156,
+  },
+  {
+    id: "path-newark",
+    name: "Newark",
+    system: "path",
+    routes: ["Newark–WTC"],
+    lat: 40.7345,
+    lng: -74.1644,
+  },
+  {
+    id: "path-hoboken",
+    name: "Hoboken",
+    system: "path",
+    routes: ["Hoboken–WTC", "Hoboken–33rd St"],
+    lat: 40.7355,
+    lng: -74.0296,
+  },
+  {
+    id: "path-christopher",
+    name: "Christopher Street",
+    system: "path",
+    routes: ["Hoboken–33rd St"],
+    lat: 40.7327,
+    lng: -74.007,
+  },
+  {
+    id: "path-9th",
+    name: "9th Street",
+    system: "path",
+    routes: ["Hoboken–33rd St"],
+    lat: 40.7342,
+    lng: -73.999,
+  },
+  {
+    id: "path-14th",
+    name: "14th Street",
+    system: "path",
+    routes: ["Hoboken–33rd St"],
+    lat: 40.7374,
+    lng: -73.9967,
+  },
+  {
+    id: "path-23rd",
+    name: "23rd Street",
+    system: "path",
+    routes: ["Hoboken–33rd St"],
+    lat: 40.7429,
+    lng: -73.9929,
+  },
+  {
+    id: "path-33rd",
+    name: "33rd Street",
+    system: "path",
+    routes: ["Hoboken–33rd St", "Journal Square–33rd St"],
+    lat: 40.7489,
+    lng: -73.9882,
+  },
+  {
+    id: "path-newport",
+    name: "Newport",
+    system: "path",
+    routes: ["Hoboken–33rd St", "Journal Square–33rd St"],
+    lat: 40.7269,
+    lng: -74.0341,
+  },
 
   // Metro-North (NYC-area stations — Manhattan, Bronx, lower Westchester)
-  { id: "mn-gct", name: "Grand Central Terminal", system: "metro-north", routes: ["Hudson", "Harlem", "New Haven"], lat: 40.7527, lng: -73.9772 },
-  { id: "mn-harlem125", name: "Harlem–125th Street", system: "metro-north", routes: ["Hudson", "Harlem", "New Haven"], lat: 40.8053, lng: -73.9390 },
-  { id: "mn-yankees", name: "Yankees–E 153rd St", system: "metro-north", routes: ["Hudson"], lat: 40.8238, lng: -73.9280 },
-  { id: "mn-morris-heights", name: "Morris Heights", system: "metro-north", routes: ["Hudson"], lat: 40.8527, lng: -73.9218 },
-  { id: "mn-univ-heights", name: "University Heights", system: "metro-north", routes: ["Hudson"], lat: 40.8617, lng: -73.9133 },
-  { id: "mn-marble-hill", name: "Marble Hill", system: "metro-north", routes: ["Hudson"], lat: 40.8744, lng: -73.9109 },
-  { id: "mn-spuyten", name: "Spuyten Duyvil", system: "metro-north", routes: ["Hudson"], lat: 40.8783, lng: -73.9218 },
-  { id: "mn-riverdale", name: "Riverdale", system: "metro-north", routes: ["Hudson"], lat: 40.9039, lng: -73.9138 },
-  { id: "mn-ludlow", name: "Ludlow", system: "metro-north", routes: ["Hudson"], lat: 40.9085, lng: -73.9105 },
-  { id: "mn-yonkers", name: "Yonkers", system: "metro-north", routes: ["Hudson"], lat: 40.9324, lng: -73.8990 },
-  { id: "mn-melrose", name: "Melrose", system: "metro-north", routes: ["Harlem"], lat: 40.8255, lng: -73.9152 },
-  { id: "mn-tremont", name: "Tremont", system: "metro-north", routes: ["Harlem"], lat: 40.8493, lng: -73.9056 },
-  { id: "mn-fordham", name: "Fordham", system: "metro-north", routes: ["Harlem"], lat: 40.8613, lng: -73.8902 },
-  { id: "mn-botanical-garden", name: "Botanical Garden", system: "metro-north", routes: ["Harlem"], lat: 40.8674, lng: -73.8813 },
-  { id: "mn-williams-bridge", name: "Williams Bridge", system: "metro-north", routes: ["Harlem"], lat: 40.8783, lng: -73.8711 },
-  { id: "mn-woodlawn", name: "Woodlawn", system: "metro-north", routes: ["Harlem"], lat: 40.8951, lng: -73.8674 },
-  { id: "mn-wakefield", name: "Wakefield", system: "metro-north", routes: ["Harlem"], lat: 40.9039, lng: -73.8558 },
-  { id: "mn-mt-vernon-west", name: "Mount Vernon West", system: "metro-north", routes: ["Harlem"], lat: 40.9130, lng: -73.8382 },
-  { id: "mn-co-op-city", name: "Co-Op City", system: "metro-north", routes: ["New Haven"], lat: 40.8749, lng: -73.8273 },
-  { id: "mn-westchester-sq", name: "Westchester Square", system: "metro-north", routes: ["New Haven"], lat: 40.8418, lng: -73.8380 },
-  { id: "mn-hunts-point", name: "Hunts Point", system: "metro-north", routes: ["New Haven"], lat: 40.8204, lng: -73.8899 },
+  {
+    id: "mn-gct",
+    name: "Grand Central Terminal",
+    system: "metro-north",
+    routes: ["Hudson", "Harlem", "New Haven"],
+    lat: 40.7527,
+    lng: -73.9772,
+  },
+  {
+    id: "mn-harlem125",
+    name: "Harlem–125th Street",
+    system: "metro-north",
+    routes: ["Hudson", "Harlem", "New Haven"],
+    lat: 40.8053,
+    lng: -73.939,
+  },
+  {
+    id: "mn-yankees",
+    name: "Yankees–E 153rd St",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.8238,
+    lng: -73.928,
+  },
+  {
+    id: "mn-morris-heights",
+    name: "Morris Heights",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.8527,
+    lng: -73.9218,
+  },
+  {
+    id: "mn-univ-heights",
+    name: "University Heights",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.8617,
+    lng: -73.9133,
+  },
+  {
+    id: "mn-marble-hill",
+    name: "Marble Hill",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.8744,
+    lng: -73.9109,
+  },
+  {
+    id: "mn-spuyten",
+    name: "Spuyten Duyvil",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.8783,
+    lng: -73.9218,
+  },
+  {
+    id: "mn-riverdale",
+    name: "Riverdale",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.9039,
+    lng: -73.9138,
+  },
+  {
+    id: "mn-ludlow",
+    name: "Ludlow",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.9085,
+    lng: -73.9105,
+  },
+  {
+    id: "mn-yonkers",
+    name: "Yonkers",
+    system: "metro-north",
+    routes: ["Hudson"],
+    lat: 40.9324,
+    lng: -73.899,
+  },
+  {
+    id: "mn-melrose",
+    name: "Melrose",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.8255,
+    lng: -73.9152,
+  },
+  {
+    id: "mn-tremont",
+    name: "Tremont",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.8493,
+    lng: -73.9056,
+  },
+  {
+    id: "mn-fordham",
+    name: "Fordham",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.8613,
+    lng: -73.8902,
+  },
+  {
+    id: "mn-botanical-garden",
+    name: "Botanical Garden",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.8674,
+    lng: -73.8813,
+  },
+  {
+    id: "mn-williams-bridge",
+    name: "Williams Bridge",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.8783,
+    lng: -73.8711,
+  },
+  {
+    id: "mn-woodlawn",
+    name: "Woodlawn",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.8951,
+    lng: -73.8674,
+  },
+  {
+    id: "mn-wakefield",
+    name: "Wakefield",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.9039,
+    lng: -73.8558,
+  },
+  {
+    id: "mn-mt-vernon-west",
+    name: "Mount Vernon West",
+    system: "metro-north",
+    routes: ["Harlem"],
+    lat: 40.913,
+    lng: -73.8382,
+  },
+  {
+    id: "mn-co-op-city",
+    name: "Co-Op City",
+    system: "metro-north",
+    routes: ["New Haven"],
+    lat: 40.8749,
+    lng: -73.8273,
+  },
+  {
+    id: "mn-westchester-sq",
+    name: "Westchester Square",
+    system: "metro-north",
+    routes: ["New Haven"],
+    lat: 40.8418,
+    lng: -73.838,
+  },
+  {
+    id: "mn-hunts-point",
+    name: "Hunts Point",
+    system: "metro-north",
+    routes: ["New Haven"],
+    lat: 40.8204,
+    lng: -73.8899,
+  },
 
   // LIRR (NYC-area stations — Penn Station, Jamaica, Atlantic Terminal, and nearby)
-  { id: "lirr-penn", name: "Penn Station", system: "lirr", routes: ["All Branches"], lat: 40.7506, lng: -73.9935 },
-  { id: "lirr-atlantic", name: "Atlantic Terminal", system: "lirr", routes: ["All Branches"], lat: 40.6842, lng: -73.9775 },
-  { id: "lirr-jamaica", name: "Jamaica", system: "lirr", routes: ["All Branches"], lat: 40.7002, lng: -73.8081 },
-  { id: "lirr-woodside", name: "Woodside", system: "lirr", routes: ["Port Washington", "Main Line"], lat: 40.7454, lng: -73.9029 },
-  { id: "lirr-forest-hills", name: "Forest Hills", system: "lirr", routes: ["Main Line"], lat: 40.7185, lng: -73.8440 },
-  { id: "lirr-kew-gardens", name: "Kew Gardens", system: "lirr", routes: ["Main Line"], lat: 40.7097, lng: -73.8303 },
-  { id: "lirr-flushing-main", name: "Flushing–Main Street", system: "lirr", routes: ["Port Washington"], lat: 40.7610, lng: -73.8300 },
-  { id: "lirr-murray-hill", name: "Murray Hill", system: "lirr", routes: ["Port Washington"], lat: 40.7627, lng: -73.8082 },
-  { id: "lirr-broadway", name: "Broadway", system: "lirr", routes: ["Port Washington"], lat: 40.7610, lng: -73.7587 },
-  { id: "lirr-bayside", name: "Bayside", system: "lirr", routes: ["Port Washington"], lat: 40.7637, lng: -73.7705 },
-  { id: "lirr-little-neck", name: "Little Neck", system: "lirr", routes: ["Port Washington"], lat: 40.7633, lng: -73.7323 },
-  { id: "lirr-mineola", name: "Mineola", system: "lirr", routes: ["Oyster Bay", "Main Line"], lat: 40.7418, lng: -73.6395 },
-  { id: "lirr-east-ny", name: "East New York", system: "lirr", routes: ["Atlantic Branch"], lat: 40.6594, lng: -73.8732 },
-  { id: "lirr-nostrand", name: "Nostrand Avenue", system: "lirr", routes: ["Atlantic Branch"], lat: 40.6698, lng: -73.9502 },
-  { id: "lirr-hunterspoint", name: "Hunterspoint Avenue", system: "lirr", routes: ["Main Line"], lat: 40.7423, lng: -73.9486 },
-  { id: "lirr-long-island-city", name: "Long Island City", system: "lirr", routes: ["Main Line"], lat: 40.7420, lng: -73.9585 },
+  {
+    id: "lirr-penn",
+    name: "Penn Station",
+    system: "lirr",
+    routes: ["All Branches"],
+    lat: 40.7506,
+    lng: -73.9935,
+  },
+  {
+    id: "lirr-atlantic",
+    name: "Atlantic Terminal",
+    system: "lirr",
+    routes: ["All Branches"],
+    lat: 40.6842,
+    lng: -73.9775,
+  },
+  {
+    id: "lirr-jamaica",
+    name: "Jamaica",
+    system: "lirr",
+    routes: ["All Branches"],
+    lat: 40.7002,
+    lng: -73.8081,
+  },
+  {
+    id: "lirr-woodside",
+    name: "Woodside",
+    system: "lirr",
+    routes: ["Port Washington", "Main Line"],
+    lat: 40.7454,
+    lng: -73.9029,
+  },
+  {
+    id: "lirr-forest-hills",
+    name: "Forest Hills",
+    system: "lirr",
+    routes: ["Main Line"],
+    lat: 40.7185,
+    lng: -73.844,
+  },
+  {
+    id: "lirr-kew-gardens",
+    name: "Kew Gardens",
+    system: "lirr",
+    routes: ["Main Line"],
+    lat: 40.7097,
+    lng: -73.8303,
+  },
+  {
+    id: "lirr-flushing-main",
+    name: "Flushing–Main Street",
+    system: "lirr",
+    routes: ["Port Washington"],
+    lat: 40.761,
+    lng: -73.83,
+  },
+  {
+    id: "lirr-murray-hill",
+    name: "Murray Hill",
+    system: "lirr",
+    routes: ["Port Washington"],
+    lat: 40.7627,
+    lng: -73.8082,
+  },
+  {
+    id: "lirr-broadway",
+    name: "Broadway",
+    system: "lirr",
+    routes: ["Port Washington"],
+    lat: 40.761,
+    lng: -73.7587,
+  },
+  {
+    id: "lirr-bayside",
+    name: "Bayside",
+    system: "lirr",
+    routes: ["Port Washington"],
+    lat: 40.7637,
+    lng: -73.7705,
+  },
+  {
+    id: "lirr-little-neck",
+    name: "Little Neck",
+    system: "lirr",
+    routes: ["Port Washington"],
+    lat: 40.7633,
+    lng: -73.7323,
+  },
+  {
+    id: "lirr-mineola",
+    name: "Mineola",
+    system: "lirr",
+    routes: ["Oyster Bay", "Main Line"],
+    lat: 40.7418,
+    lng: -73.6395,
+  },
+  {
+    id: "lirr-east-ny",
+    name: "East New York",
+    system: "lirr",
+    routes: ["Atlantic Branch"],
+    lat: 40.6594,
+    lng: -73.8732,
+  },
+  {
+    id: "lirr-nostrand",
+    name: "Nostrand Avenue",
+    system: "lirr",
+    routes: ["Atlantic Branch"],
+    lat: 40.6698,
+    lng: -73.9502,
+  },
+  {
+    id: "lirr-hunterspoint",
+    name: "Hunterspoint Avenue",
+    system: "lirr",
+    routes: ["Main Line"],
+    lat: 40.7423,
+    lng: -73.9486,
+  },
+  {
+    id: "lirr-long-island-city",
+    name: "Long Island City",
+    system: "lirr",
+    routes: ["Main Line"],
+    lat: 40.742,
+    lng: -73.9585,
+  },
 
   // Amtrak (NYC stations only)
-  { id: "amtrak-penn", name: "Penn Station", system: "amtrak", routes: ["Acela", "Northeast Regional", "Empire Service"], lat: 40.7506, lng: -73.9935 },
-  { id: "amtrak-moynihan", name: "Moynihan Train Hall", system: "amtrak", routes: ["Acela", "Northeast Regional"], lat: 40.7505, lng: -73.9974 },
+  {
+    id: "amtrak-penn",
+    name: "Penn Station",
+    system: "amtrak",
+    routes: ["Acela", "Northeast Regional", "Empire Service"],
+    lat: 40.7506,
+    lng: -73.9935,
+  },
+  {
+    id: "amtrak-moynihan",
+    name: "Moynihan Train Hall",
+    system: "amtrak",
+    routes: ["Acela", "Northeast Regional"],
+    lat: 40.7505,
+    lng: -73.9974,
+  },
 
   // NJ Transit (NYC-area stations — Penn Station + Hoboken Terminal)
-  { id: "njt-penn", name: "Penn Station", system: "nj-transit", routes: ["Northeast Corridor", "North Jersey Coast", "Midtown Direct"], lat: 40.7506, lng: -73.9935 },
-  { id: "njt-hoboken", name: "Hoboken Terminal", system: "nj-transit", routes: ["Main/Bergen", "Pascack Valley", "Port Jervis"], lat: 40.7353, lng: -74.0298 },
-  { id: "njt-secaucus", name: "Secaucus Junction", system: "nj-transit", routes: ["Most Lines"], lat: 40.7612, lng: -74.0755 },
+  {
+    id: "njt-penn",
+    name: "Penn Station",
+    system: "nj-transit",
+    routes: ["Northeast Corridor", "North Jersey Coast", "Midtown Direct"],
+    lat: 40.7506,
+    lng: -73.9935,
+  },
+  {
+    id: "njt-hoboken",
+    name: "Hoboken Terminal",
+    system: "nj-transit",
+    routes: ["Main/Bergen", "Pascack Valley", "Port Jervis"],
+    lat: 40.7353,
+    lng: -74.0298,
+  },
+  {
+    id: "njt-secaucus",
+    name: "Secaucus Junction",
+    system: "nj-transit",
+    routes: ["Most Lines"],
+    lat: 40.7612,
+    lng: -74.0755,
+  },
 ];
 
 // ── Distance Helpers ─────────────────────────────────────────────────────────
@@ -139,8 +537,10 @@ const COMMUTER_STATIONS: TransitStation[] = [
 const EARTH_RADIUS_MI = 3958.8;
 
 function haversineDistanceMi(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
 ): number {
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
@@ -197,12 +597,10 @@ async function fetchSubwayStations(
 
   // Stations dataset has plain latitude/longitude columns (no geo column)
   const stationsWhere = `latitude between '${bb.minLat}' and '${bb.maxLat}' AND longitude between '${bb.minLng}' and '${bb.maxLng}'`;
-  const stationsUrl =
-    `https://data.ny.gov/resource/5f5g-n3cz.json?$where=${encodeURIComponent(stationsWhere)}&$limit=200`;
+  const stationsUrl = `https://data.ny.gov/resource/5f5g-n3cz.json?$where=${encodeURIComponent(stationsWhere)}&$limit=200`;
 
   // Entrances dataset has entrance_georeference geo column
-  const entrancesUrl =
-    `https://data.ny.gov/resource/i9wp-a4ja.json?$where=${encodeURIComponent(`within_circle(entrance_georeference,${lat},${lng},${radiusMeters})`)}&$limit=500`;
+  const entrancesUrl = `https://data.ny.gov/resource/i9wp-a4ja.json?$where=${encodeURIComponent(`within_circle(entrance_georeference,${lat},${lng},${radiusMeters})`)}&$limit=500`;
 
   let stationsRes: Response;
   let entrancesRes: Response;
@@ -217,7 +615,9 @@ async function fetchSubwayStations(
   }
 
   if (!stationsRes.ok || !entrancesRes.ok) {
-    console.error(`[transit] Socrata API error: stations=${stationsRes.status} entrances=${entrancesRes.status}`);
+    console.error(
+      `[transit] Socrata API error: stations=${stationsRes.status} entrances=${entrancesRes.status}`
+    );
     return [];
   }
 
@@ -225,7 +625,10 @@ async function fetchSubwayStations(
   const entrances: SocrataEntrance[] = await entrancesRes.json();
 
   // Group entrances by complex_id for accurate matching
-  const entrancesByComplex = new Map<string, { lat: number; lng: number; type?: string }[]>();
+  const entrancesByComplex = new Map<
+    string,
+    { lat: number; lng: number; type?: string }[]
+  >();
   for (const e of entrances) {
     const eLat = parseFloat(e.entrance_latitude);
     const eLng = parseFloat(e.entrance_longitude);
@@ -245,7 +648,9 @@ async function fetchSubwayStations(
       const routes = s.daytime_routes
         ? s.daytime_routes.split(/\s+/).filter(Boolean)
         : [];
-      const isSIR = s.structure_type === "Staten Island Railway" || routes.some((r) => r === "SIR");
+      const isSIR =
+        s.structure_type === "Staten Island Railway" ||
+        routes.some((r) => r === "SIR");
       return {
         id: `subway-${s.complex_id}`,
         name: s.stop_name,
@@ -312,7 +717,10 @@ async function fetchNearbyBusStops(
   const rows: SocrataBusStop[] = await res.json();
 
   // Group by rounded lat/lng (5 decimals) to deduplicate stops
-  const stopMap = new Map<string, { name: string; lat: number; lng: number; routes: Map<string, string> }>();
+  const stopMap = new Map<
+    string,
+    { name: string; lat: number; lng: number; routes: Map<string, string> }
+  >();
 
   for (const row of rows) {
     const rLat = parseFloat(row.latitude);
@@ -330,7 +738,10 @@ async function fetchNearbyBusStops(
     }
     const stop = stopMap.get(key)!;
     if (row.route_short_name && !stop.routes.has(row.route_short_name)) {
-      stop.routes.set(row.route_short_name, row.route_color ? `#${row.route_color}` : "#1976D2");
+      stop.routes.set(
+        row.route_short_name,
+        row.route_color ? `#${row.route_color}` : "#1976D2"
+      );
     }
   }
 

@@ -46,7 +46,9 @@ export const listingFormSchema = z.object({
   op: z.coerce.number().min(0, "OP must be non-negative").nullable(),
   noFee: z.boolean(),
   estimatedUtilities: z.string().max(500).nullable(),
-  petPolicy: z.enum(["NO_PETS", "CATS_ONLY", "DOGS_ONLY", "CATS_AND_DOGS"]).nullable(),
+  petPolicy: z
+    .enum(["NO_PETS", "CATS_ONLY", "DOGS_ONLY", "CATS_AND_DOGS"])
+    .nullable(),
   petPolicyDetails: z.string().max(500).nullable(),
   parking: z.string().max(500).nullable(),
   adminNotes: z.string().max(5000).nullable(),
@@ -57,7 +59,7 @@ export const listingFormSchema = z.object({
       .map((s) => s.trim())
       .filter(Boolean)
   ),
-  availableDate: z.string().min(1, "Available date is required"),  // "immediately" or a date string (YYYY-MM-DD)
+  availableDate: z.string().min(1, "Available date is required"), // "immediately" or a date string (YYYY-MM-DD)
 });
 
 export type ListingFormData = z.infer<typeof listingFormSchema>;

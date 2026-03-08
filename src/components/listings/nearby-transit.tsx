@@ -20,7 +20,11 @@ import {
   MapPin,
   Loader2,
 } from "lucide-react";
-import type { NearbyStation, TransitSystem, NearbyBusStop } from "@/lib/transit";
+import type {
+  NearbyStation,
+  TransitSystem,
+  NearbyBusStop,
+} from "@/lib/transit";
 import {
   SUBWAY_LINE_COLORS,
   DARK_TEXT_LINES,
@@ -91,7 +95,11 @@ function hexLuminance(hex: string): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
 
-function createDot(color: string, size: number, border: number): HTMLDivElement {
+function createDot(
+  color: string,
+  size: number,
+  border: number
+): HTMLDivElement {
   const el = document.createElement("div");
   el.style.cssText = `width:${size}px;height:${size}px;background:${color};border:${border}px solid rgba(255,255,255,0.85);border-radius:50%;transition:transform 0.15s,box-shadow 0.15s;`;
   return el;
@@ -102,19 +110,26 @@ function placePhotoUrl(photoRef: string): string {
 }
 
 function buildInfoWindowContent(place: NearbyPlace): string {
-  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const esc = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   const mapsUrl = `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(place.id)}`;
   const photo = place.photoRef
     ? `<img src="${esc(placePhotoUrl(place.photoRef))}" style="width:100%;height:130px;object-fit:cover;display:block;" alt="" />`
     : "";
-  const rating = place.rating != null
-    ? `<div style="display:flex;align-items:center;gap:4px;margin-top:4px;font-size:12px;color:#555;">
+  const rating =
+    place.rating != null
+      ? `<div style="display:flex;align-items:center;gap:4px;margin-top:4px;font-size:12px;color:#555;">
         <span style="color:#facc15;">&#9733;</span> ${place.rating.toFixed(1)}${place.userRatingCount != null ? ` <span style="color:#999;">(${place.userRatingCount.toLocaleString()})</span>` : ""}
       </div>`
-    : "";
-  const dist = place.distanceMi < 0.1
-    ? `${Math.round(place.distanceMi * 5280)} ft`
-    : `${place.distanceMi.toFixed(1)} mi`;
+      : "";
+  const dist =
+    place.distanceMi < 0.1
+      ? `${Math.round(place.distanceMi * 5280)} ft`
+      : `${place.distanceMi.toFixed(1)} mi`;
   return `<a href="${esc(mapsUrl)}" target="_blank" rel="noopener noreferrer" style="display:block;min-width:200px;max-width:280px;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;">
     ${photo}
     <div style="padding:8px 10px 10px;">
@@ -149,12 +164,15 @@ export function NearbyTransit({
   const mapRef = useRef<google.maps.Map | null>(null);
   const [mapVisible, setMapVisible] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [highlightedStation, setHighlightedStation] = useState<string | null>(null);
+  const [highlightedStation, setHighlightedStation] = useState<string | null>(
+    null
+  );
   const [highlightedPlace, setHighlightedPlace] = useState<string | null>(null);
   const [highlightedBus, setHighlightedBus] = useState<string | null>(null);
 
   // Category state
-  const [activeCategory, setActiveCategory] = useState<ActiveCategory>("transit");
+  const [activeCategory, setActiveCategory] =
+    useState<ActiveCategory>("transit");
   const [places, setPlaces] = useState<NearbyPlace[]>([]);
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesError, setPlacesError] = useState<string | null>(null);
@@ -168,10 +186,27 @@ export function NearbyTransit({
 
   // Map layer/marker refs
   const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
-  const stationMarkersRef = useRef<Map<string, { dots: HTMLDivElement[]; markers: google.maps.marker.AdvancedMarkerElement[] }>>(new Map());
-  const placeMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const busMarkersRef = useRef<Map<string, { dot: HTMLDivElement; marker: google.maps.marker.AdvancedMarkerElement }>>(new Map());
-  const advancedMarkerClassRef = useRef<typeof google.maps.marker.AdvancedMarkerElement | null>(null);
+  const stationMarkersRef = useRef<
+    Map<
+      string,
+      {
+        dots: HTMLDivElement[];
+        markers: google.maps.marker.AdvancedMarkerElement[];
+      }
+    >
+  >(new Map());
+  const placeMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>(
+    []
+  );
+  const busMarkersRef = useRef<
+    Map<
+      string,
+      { dot: HTMLDivElement; marker: google.maps.marker.AdvancedMarkerElement }
+    >
+  >(new Map());
+  const advancedMarkerClassRef = useRef<
+    typeof google.maps.marker.AdvancedMarkerElement | null
+  >(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const iwCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const iwActiveDotRef = useRef<HTMLDivElement | null>(null);
@@ -202,12 +237,18 @@ export function NearbyTransit({
     });
 
     await importLibrary("maps");
-    const { AdvancedMarkerElement } = await importLibrary("marker") as typeof google.maps.marker;
+    const { AdvancedMarkerElement } = (await importLibrary(
+      "marker"
+    )) as typeof google.maps.marker;
     advancedMarkerClassRef.current = AdvancedMarkerElement;
 
     const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
-    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
+    const approxLocation = getApproximateLocation(
+      listingLat,
+      listingLng,
+      listingId
+    );
 
     const map = new google.maps.Map(mapContainerRef.current!, {
       center: approxLocation,
@@ -231,7 +272,9 @@ export function NearbyTransit({
 
     // Keep InfoWindow open when hovering over the popup bubble
     iw.addListener("domready", () => {
-      const container = document.querySelector(".gm-style-iw-a") as HTMLElement | null;
+      const container = document.querySelector(
+        ".gm-style-iw-a"
+      ) as HTMLElement | null;
       if (container && !container.dataset.hoverBound) {
         container.dataset.hoverBound = "1";
         container.addEventListener("mouseenter", () => {
@@ -282,7 +325,13 @@ export function NearbyTransit({
     bounds.extend(approxLocation);
 
     // Station entrance markers — small colored dots by system
-    const markerMap = new Map<string, { dots: HTMLDivElement[]; markers: google.maps.marker.AdvancedMarkerElement[] }>();
+    const markerMap = new Map<
+      string,
+      {
+        dots: HTMLDivElement[];
+        markers: google.maps.marker.AdvancedMarkerElement[];
+      }
+    >();
 
     for (const station of stations) {
       const color = SYSTEM_COLORS[station.system];
@@ -379,37 +428,50 @@ export function NearbyTransit({
     busMarkersRef.current = new Map();
   }, []);
 
-  const showBusMarkers = useCallback((stopsData: NearbyBusStop[]) => {
-    const map = mapRef.current;
-    const AME = advancedMarkerClassRef.current;
-    if (!map || !AME) return;
+  const showBusMarkers = useCallback(
+    (stopsData: NearbyBusStop[]) => {
+      const map = mapRef.current;
+      const AME = advancedMarkerClassRef.current;
+      if (!map || !AME) return;
 
-    clearBusMarkers();
+      clearBusMarkers();
 
-    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend(approxLocation);
+      const approxLocation = getApproximateLocation(
+        listingLat,
+        listingLng,
+        listingId
+      );
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend(approxLocation);
 
-    const newMarkers = new Map<string, { dot: HTMLDivElement; marker: google.maps.marker.AdvancedMarkerElement }>();
-    for (const stop of stopsData) {
-      const dot = createDot("#1976D2", 10, 1.5);
-      dot.title = `${stop.name} — ${stop.routes.map((r) => r.name).join(", ")}`;
+      const newMarkers = new Map<
+        string,
+        {
+          dot: HTMLDivElement;
+          marker: google.maps.marker.AdvancedMarkerElement;
+        }
+      >();
+      for (const stop of stopsData) {
+        const dot = createDot("#1976D2", 10, 1.5);
+        dot.title = `${stop.name} — ${stop.routes.map((r) => r.name).join(", ")}`;
 
-      const marker = new AME({
-        map,
-        position: { lat: stop.lat, lng: stop.lng },
-        content: dot,
-        title: stop.name,
-      });
-      newMarkers.set(stop.id, { dot, marker });
-      bounds.extend({ lat: stop.lat, lng: stop.lng });
-    }
+        const marker = new AME({
+          map,
+          position: { lat: stop.lat, lng: stop.lng },
+          content: dot,
+          title: stop.name,
+        });
+        newMarkers.set(stop.id, { dot, marker });
+        bounds.extend({ lat: stop.lat, lng: stop.lng });
+      }
 
-    busMarkersRef.current = newMarkers;
-    if (stopsData.length > 0) {
-      map.fitBounds(bounds, 30);
-    }
-  }, [clearBusMarkers, listingLat, listingLng, listingId]);
+      busMarkersRef.current = newMarkers;
+      if (stopsData.length > 0) {
+        map.fitBounds(bounds, 30);
+      }
+    },
+    [clearBusMarkers, listingLat, listingLng, listingId]
+  );
 
   const showStationMarkers = useCallback((visible: boolean) => {
     const map = visible ? mapRef.current : null;
@@ -420,78 +482,89 @@ export function NearbyTransit({
     }
   }, []);
 
-  const showPlaceMarkers = useCallback((placesData: NearbyPlace[], color: string) => {
-    const map = mapRef.current;
-    const AME = advancedMarkerClassRef.current;
-    const iw = infoWindowRef.current;
-    if (!map || !AME) return;
+  const showPlaceMarkers = useCallback(
+    (placesData: NearbyPlace[], color: string) => {
+      const map = mapRef.current;
+      const AME = advancedMarkerClassRef.current;
+      const iw = infoWindowRef.current;
+      if (!map || !AME) return;
 
-    clearPlaceMarkers();
+      clearPlaceMarkers();
 
-    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend(approxLocation);
+      const approxLocation = getApproximateLocation(
+        listingLat,
+        listingLng,
+        listingId
+      );
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend(approxLocation);
 
-    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
-    for (const place of placesData) {
-      const dot = createDot(color, 10, 1.5);
-      dot.title = place.name;
-      dot.dataset.placeId = place.id;
+      const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+      for (const place of placesData) {
+        const dot = createDot(color, 10, 1.5);
+        dot.title = place.name;
+        dot.dataset.placeId = place.id;
 
-      const marker = new AME({
-        map,
-        position: { lat: place.lat, lng: place.lng },
-        content: dot,
-        title: place.name,
-      });
-
-      // Show InfoWindow card on marker hover — delayed close so user can interact with popup
-      if (iw) {
-        marker.element.addEventListener("mouseenter", () => {
-          // Cancel any pending close
-          if (iwCloseTimerRef.current) {
-            clearTimeout(iwCloseTimerRef.current);
-            iwCloseTimerRef.current = null;
-          }
-          // Unhighlight previous dot
-          const prev = iwActiveDotRef.current;
-          if (prev && prev !== dot) {
-            prev.style.transform = "scale(1)";
-            prev.style.boxShadow = "none";
-            prev.style.zIndex = "0";
-          }
-          iwActiveDotRef.current = dot;
-          iw.setContent(buildInfoWindowContent(place));
-          iw.open({ map, anchor: marker });
-          dot.style.transform = "scale(2.2)";
-          dot.style.boxShadow = "0 0 8px rgba(255,255,255,0.7)";
-          dot.style.zIndex = "10";
+        const marker = new AME({
+          map,
+          position: { lat: place.lat, lng: place.lng },
+          content: dot,
+          title: place.name,
         });
-        marker.element.addEventListener("mouseleave", () => {
-          iwCloseTimerRef.current = setTimeout(() => {
-            iw.close();
-            dot.style.transform = "scale(1)";
-            dot.style.boxShadow = "none";
-            dot.style.zIndex = "0";
-            iwActiveDotRef.current = null;
-          }, 300);
-        });
+
+        // Show InfoWindow card on marker hover — delayed close so user can interact with popup
+        if (iw) {
+          marker.element.addEventListener("mouseenter", () => {
+            // Cancel any pending close
+            if (iwCloseTimerRef.current) {
+              clearTimeout(iwCloseTimerRef.current);
+              iwCloseTimerRef.current = null;
+            }
+            // Unhighlight previous dot
+            const prev = iwActiveDotRef.current;
+            if (prev && prev !== dot) {
+              prev.style.transform = "scale(1)";
+              prev.style.boxShadow = "none";
+              prev.style.zIndex = "0";
+            }
+            iwActiveDotRef.current = dot;
+            iw.setContent(buildInfoWindowContent(place));
+            iw.open({ map, anchor: marker });
+            dot.style.transform = "scale(2.2)";
+            dot.style.boxShadow = "0 0 8px rgba(255,255,255,0.7)";
+            dot.style.zIndex = "10";
+          });
+          marker.element.addEventListener("mouseleave", () => {
+            iwCloseTimerRef.current = setTimeout(() => {
+              iw.close();
+              dot.style.transform = "scale(1)";
+              dot.style.boxShadow = "none";
+              dot.style.zIndex = "0";
+              iwActiveDotRef.current = null;
+            }, 300);
+          });
+        }
+
+        newMarkers.push(marker);
+        bounds.extend({ lat: place.lat, lng: place.lng });
       }
 
-      newMarkers.push(marker);
-      bounds.extend({ lat: place.lat, lng: place.lng });
-    }
-
-    placeMarkersRef.current = newMarkers;
-    if (placesData.length > 0) {
-      map.fitBounds(bounds, 30);
-    }
-  }, [clearPlaceMarkers, listingLat, listingLng, listingId]);
+      placeMarkersRef.current = newMarkers;
+      if (placesData.length > 0) {
+        map.fitBounds(bounds, 30);
+      }
+    },
+    [clearPlaceMarkers, listingLat, listingLng, listingId]
+  );
 
   const fitBoundsToStations = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
-    const approxLocation = getApproximateLocation(listingLat, listingLng, listingId);
+    const approxLocation = getApproximateLocation(
+      listingLat,
+      listingLng,
+      listingId
+    );
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(approxLocation);
     for (const station of stations) {
@@ -576,7 +649,10 @@ export function NearbyTransit({
       if (cached) {
         setPlaces(cached);
         setPlacesError(null);
-        showPlaceMarkers(cached, PLACE_CATEGORIES[category as PlaceCategory].color);
+        showPlaceMarkers(
+          cached,
+          PLACE_CATEGORIES[category as PlaceCategory].color
+        );
         return;
       }
 
@@ -595,14 +671,27 @@ export function NearbyTransit({
         const fetched: NearbyPlace[] = data.places ?? [];
         placesCacheRef.current.set(category as PlaceCategory, fetched);
         setPlaces(fetched);
-        showPlaceMarkers(fetched, PLACE_CATEGORIES[category as PlaceCategory].color);
+        showPlaceMarkers(
+          fetched,
+          PLACE_CATEGORIES[category as PlaceCategory].color
+        );
       } catch {
         setPlacesError("Could not load places. Please try again.");
       } finally {
         setPlacesLoading(false);
       }
     },
-    [activeCategory, clearPlaceMarkers, clearBusMarkers, showStationMarkers, showPlaceMarkers, showBusMarkers, fitBoundsToStations, listingLat, listingLng]
+    [
+      activeCategory,
+      clearPlaceMarkers,
+      clearBusMarkers,
+      showStationMarkers,
+      showPlaceMarkers,
+      showBusMarkers,
+      fitBoundsToStations,
+      listingLat,
+      listingLng,
+    ]
   );
 
   // Group stations by system
@@ -631,10 +720,20 @@ export function NearbyTransit({
       {/* Map + scrollable list — stacked on mobile, side-by-side on lg */}
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:h-[clamp(520px,55vh,700px)]">
         {/* Map with category overlay — spans 2 columns on lg */}
-        <div className="relative h-[300px] lg:col-span-2 lg:h-auto min-w-0" style={{ overflow: "visible" }}>
+        <div
+          className="relative h-[300px] lg:col-span-2 lg:h-auto min-w-0"
+          style={{ overflow: "visible" }}
+        >
           {/* Map container — overflow hidden only here so the map tiles are clipped but InfoWindow is not */}
-          <div className="absolute inset-0 rounded-xl bg-white/5" style={{ overflow: "visible" }}>
-            <div ref={mapContainerRef} className="absolute inset-0 rounded-xl" style={{ overflow: "hidden", clipPath: "inset(0 round 0.75rem)" }} />
+          <div
+            className="absolute inset-0 rounded-xl bg-white/5"
+            style={{ overflow: "visible" }}
+          >
+            <div
+              ref={mapContainerRef}
+              className="absolute inset-0 rounded-xl"
+              style={{ overflow: "hidden", clipPath: "inset(0 round 0.75rem)" }}
+            />
             {!mapLoaded && (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500 pointer-events-none">
                 Loading map…
@@ -733,7 +832,11 @@ export function NearbyTransit({
               {placesLoading && (
                 <div className="flex items-center justify-center gap-2 py-8 text-sm text-gray-400">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading {PLACE_CATEGORIES[activeCategory as PlaceCategory].label.toLowerCase()}…
+                  Loading{" "}
+                  {PLACE_CATEGORIES[
+                    activeCategory as PlaceCategory
+                  ].label.toLowerCase()}
+                  …
                 </div>
               )}
               {placesError && (
@@ -743,7 +846,11 @@ export function NearbyTransit({
               )}
               {!placesLoading && !placesError && places.length === 0 && (
                 <div className="py-8 text-center text-sm text-gray-500">
-                  No {PLACE_CATEGORIES[activeCategory as PlaceCategory].label.toLowerCase()} found nearby.
+                  No{" "}
+                  {PLACE_CATEGORIES[
+                    activeCategory as PlaceCategory
+                  ].label.toLowerCase()}{" "}
+                  found nearby.
                 </div>
               )}
               {places.map((place) => (
@@ -786,11 +893,7 @@ function CategoryButton({
           ? "ring-1 ring-white/30 shadow-lg"
           : "bg-black/60 text-white/60 hover:bg-black/80 hover:text-white/90"
       }`}
-      style={
-        active
-          ? { backgroundColor: color, color: "#fff" }
-          : undefined
-      }
+      style={active ? { backgroundColor: color, color: "#fff" } : undefined}
     >
       <Icon className="h-4 w-4" />
       {/* Instant tooltip — appears left of button on hover */}
@@ -815,7 +918,9 @@ function PlaceRow({
   return (
     <div
       className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2 cursor-pointer transition-colors ${
-        highlighted ? "bg-white/15 ring-1 ring-white/20" : "bg-white/5 hover:bg-white/10"
+        highlighted
+          ? "bg-white/15 ring-1 ring-white/20"
+          : "bg-white/5 hover:bg-white/10"
       }`}
       onMouseEnter={() => onHover(place.id)}
       onMouseLeave={() => onHover(null)}
@@ -871,7 +976,9 @@ function BusStopRow({
   return (
     <div
       className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2 cursor-pointer transition-colors ${
-        highlighted ? "bg-white/15 ring-1 ring-white/20" : "bg-white/5 hover:bg-white/10"
+        highlighted
+          ? "bg-white/15 ring-1 ring-white/20"
+          : "bg-white/5 hover:bg-white/10"
       }`}
       onMouseEnter={() => onHover(stop.id)}
       onMouseLeave={() => onHover(null)}
@@ -905,9 +1012,7 @@ function BusStopRow({
             ? `${Math.round(stop.distanceMi * 5280)} ft`
             : `${stop.distanceMi.toFixed(1)} mi`}
         </div>
-        <div className="text-xs text-gray-500">
-          {stop.walkMinutes} min walk
-        </div>
+        <div className="text-xs text-gray-500">{stop.walkMinutes} min walk</div>
       </div>
     </div>
   );
@@ -927,7 +1032,9 @@ function StationRow({
   return (
     <div
       className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2 cursor-pointer transition-colors ${
-        highlighted ? "bg-white/15 ring-1 ring-white/20" : "bg-white/5 hover:bg-white/10"
+        highlighted
+          ? "bg-white/15 ring-1 ring-white/20"
+          : "bg-white/5 hover:bg-white/10"
       }`}
       onMouseEnter={() => onHover(station.id)}
       onMouseLeave={() => onHover(null)}
@@ -939,11 +1046,7 @@ function StationRow({
         </div>
         <div className="mt-1 flex flex-wrap gap-1">
           {station.routes.map((route) => (
-            <RouteBadge
-              key={route}
-              route={route}
-              system={station.system}
-            />
+            <RouteBadge key={route} route={route} system={station.system} />
           ))}
         </div>
       </div>

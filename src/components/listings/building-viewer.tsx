@@ -19,12 +19,16 @@ function ViewerLoading() {
   );
 }
 
-const CesiumViewerWrapper = dynamic(
-  () => import("./cesium-viewer-wrapper"),
-  { ssr: false, loading: () => <ViewerLoading /> }
-);
+const CesiumViewerWrapper = dynamic(() => import("./cesium-viewer-wrapper"), {
+  ssr: false,
+  loading: () => <ViewerLoading />,
+});
 
-export function BuildingViewer({ latitude, longitude, address }: BuildingViewerProps) {
+export function BuildingViewer({
+  latitude,
+  longitude,
+  address,
+}: BuildingViewerProps) {
   return (
     <CesiumViewerWrapper
       latitude={latitude}

@@ -177,7 +177,9 @@ export function AddressAutocomplete({
 
       try {
         const AutocompleteSuggestion = (
-          google.maps.places as unknown as { AutocompleteSuggestion: AutocompleteSuggestionApi }
+          google.maps.places as unknown as {
+            AutocompleteSuggestion: AutocompleteSuggestionApi;
+          }
         ).AutocompleteSuggestion;
 
         const { suggestions } =

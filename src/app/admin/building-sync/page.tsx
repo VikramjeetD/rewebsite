@@ -1,6 +1,10 @@
 import { BuildingSync } from "@/components/admin/building-sync";
+import { BuildingsList } from "@/components/admin/buildings-list";
+import { getBuildingsList } from "@/actions/building-sync";
 
-export default function BuildingSyncPage() {
+export default async function BuildingSyncPage() {
+  const buildings = await getBuildingsList();
+
   return (
     <div>
       <div className="mb-8">
@@ -11,6 +15,7 @@ export default function BuildingSyncPage() {
         </p>
       </div>
       <BuildingSync />
+      {buildings.length > 0 && <BuildingsList buildings={buildings} />}
     </div>
   );
 }

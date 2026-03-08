@@ -7,12 +7,14 @@ import {
   updateListing,
   addStatusChange,
   saveBuildingAmenities,
+  getAllBuildings,
 } from "@/lib/firestore";
 import { getDb } from "@/lib/firebase";
 import { slugify, normalizeUnit, generateTitle } from "@/lib/utils";
 import { geocodeAddress } from "@/lib/geocoding";
 import { cleanupListingAssets } from "@/lib/cleanup";
 import { revalidateListingPaths } from "@/lib/revalidate";
+import { revalidatePath } from "next/cache";
 import { ACTIVE_STATUSES } from "@/lib/constants";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type {
@@ -21,6 +23,12 @@ import type {
   BuildingUnit,
   Listing,
 } from "@/types";
+
+export async function getBuildingsList() {
+  const session = await auth();
+  if (!session?.user) return [];
+  return getAllBuildings();
+}
 
 export async function extractBuildingFromContent(
   content: string,
@@ -216,20 +224,19 @@ export async function executeBuildingSync(params: {
 
     await batch.commit();
 
-    // Save building amenities + building info
-    if (extraction.buildingAmenities.length > 0) {
-      await saveBuildingAmenities(
-        extraction.address,
-        extraction.buildingAmenities,
-        {
-          yearBuilt: extraction.yearBuilt ?? null,
-          numFloors: extraction.numFloors ?? null,
-          totalUnits: extraction.totalUnits ?? null,
-        }
-      );
-    }
+    // Save building amenities + building info (also updates updatedAt)
+    await saveBuildingAmenities(
+      extraction.address,
+      extraction.buildingAmenities,
+      {
+        yearBuilt: extraction.yearBuilt ?? null,
+        numFloors: extraction.numFloors ?? null,
+        totalUnits: extraction.totalUnits ?? null,
+      }
+    );
 
     revalidateListingPaths();
+    revalidatePath("/admin/building-sync");
 
     return {
       success: true,

@@ -87,8 +87,7 @@ export async function POST(request: NextRequest) {
     console.error(`[relight] Error:`, err);
     return NextResponse.json(
       {
-        error:
-          err instanceof Error ? err.message : "Failed to generate image",
+        error: err instanceof Error ? err.message : "Failed to generate image",
       },
       { status: 500 }
     );

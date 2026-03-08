@@ -13,8 +13,7 @@ const BOROUGH_MAP: Record<string, string> = {
   SI: "Staten Island",
 };
 
-const PLUTO_API =
-  "https://data.cityofnewyork.us/resource/64uk-42ks.json";
+const PLUTO_API = "https://data.cityofnewyork.us/resource/64uk-42ks.json";
 
 /** PLUTO uses full street suffix names. Expand abbreviations to match. */
 const SUFFIX_MAP: Record<string, string> = {
@@ -88,8 +87,7 @@ export async function lookupPluto(
     return {
       yearBuilt: parseIntField(row.yearbuilt),
       numFloors: parseIntField(row.numfloors),
-      totalUnits:
-        parseIntField(row.unitstotal) ?? parseIntField(row.unitsres),
+      totalUnits: parseIntField(row.unitstotal) ?? parseIntField(row.unitsres),
       borough: BOROUGH_MAP[row.borough as string] ?? null,
     };
   } catch {

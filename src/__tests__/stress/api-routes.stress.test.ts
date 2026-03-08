@@ -13,21 +13,40 @@ vi.mock("next/cache", () => ({
 
 // Mock places module
 vi.mock("@/lib/places", () => ({
-  fetchNearbyPlaces: vi.fn().mockResolvedValue([
-    { name: "Test Place", lat: 40.7, lng: -74.0, distance: 0.1 },
-  ]),
+  fetchNearbyPlaces: vi
+    .fn()
+    .mockResolvedValue([
+      { name: "Test Place", lat: 40.7, lng: -74.0, distance: 0.1 },
+    ]),
   PLACE_CATEGORIES: {
-    groceries: { label: "Groceries", icon: "ShoppingCart", color: "#22c55e", includedTypes: ["grocery_store"] },
-    restaurants: { label: "Restaurants", icon: "Utensils", color: "#ef4444", includedTypes: ["restaurant"] },
-    cafes: { label: "Cafes", icon: "Coffee", color: "#f59e0b", includedTypes: ["cafe"] },
+    groceries: {
+      label: "Groceries",
+      icon: "ShoppingCart",
+      color: "#22c55e",
+      includedTypes: ["grocery_store"],
+    },
+    restaurants: {
+      label: "Restaurants",
+      icon: "Utensils",
+      color: "#ef4444",
+      includedTypes: ["restaurant"],
+    },
+    cafes: {
+      label: "Cafes",
+      icon: "Coffee",
+      color: "#f59e0b",
+      includedTypes: ["cafe"],
+    },
   },
 }));
 
 // Mock transit module
 vi.mock("@/lib/transit", () => ({
-  getNearbyBusStops: vi.fn().mockResolvedValue([
-    { stopId: "1", name: "Test Stop", lat: 40.7, lng: -74.0 },
-  ]),
+  getNearbyBusStops: vi
+    .fn()
+    .mockResolvedValue([
+      { stopId: "1", name: "Test Stop", lat: 40.7, lng: -74.0 },
+    ]),
 }));
 
 import { GET as nearbyPlacesGET } from "@/app/api/nearby-places/route";
@@ -41,7 +60,7 @@ function makeRequest(url: string, method = "GET", body?: unknown): NextRequest {
     init.body = JSON.stringify(body);
     init.headers = { "Content-Type": "application/json" };
   }
-  return new NextRequest(url, init);
+  return new NextRequest(url, init as RequestInit & { signal?: AbortSignal });
 }
 
 beforeEach(() => {
@@ -88,9 +107,7 @@ describe("api-routes stress tests", () => {
     mockFetch.mockImplementation(async () => ({
       ok: true,
       json: () =>
-        Promise.resolve([
-          { numfloors: "5", bldgfront: "25", bldgdepth: "80" },
-        ]),
+        Promise.resolve([{ numfloors: "5", bldgfront: "25", bldgdepth: "80" }]),
     }));
 
     const { fulfilled, rejected } = await runConcurrent(50, async (i) => {
@@ -118,15 +135,13 @@ describe("api-routes stress tests", () => {
     }));
 
     const { fulfilled, rejected } = await runConcurrent(50, async () => {
-      const req = makeRequest(
-        "http://localhost/api/directions",
-        "POST",
-        {
-          origin: { location: { latLng: { latitude: 40.7, longitude: -74.0 } } },
-          destination: { location: { latLng: { latitude: 40.72, longitude: -73.99 } } },
-          travelMode: "TRANSIT",
-        }
-      );
+      const req = makeRequest("http://localhost/api/directions", "POST", {
+        origin: { location: { latLng: { latitude: 40.7, longitude: -74.0 } } },
+        destination: {
+          location: { latLng: { latitude: 40.72, longitude: -73.99 } },
+        },
+        travelMode: "TRANSIT",
+      });
       const res = await directionsPost(req);
       return res.json();
     });
@@ -229,7 +244,9 @@ describe("api-routes stress tests", () => {
       promises.push(
         (async () => {
           const res = await nearbyBusesGET(
-            makeRequest("http://localhost/api/nearby-buses?lat=40.7128&lng=-74.006")
+            makeRequest(
+              "http://localhost/api/nearby-buses?lat=40.7128&lng=-74.006"
+            )
           );
           return { type: "buses", status: res.status };
         })()
@@ -263,9 +280,7 @@ describe("api-routes stress tests", () => {
     mockFetch.mockImplementation(async () => ({
       ok: true,
       json: () =>
-        Promise.resolve([
-          { numfloors: "3", bldgfront: "20", bldgdepth: "60" },
-        ]),
+        Promise.resolve([{ numfloors: "3", bldgfront: "20", bldgdepth: "60" }]),
     }));
 
     const start = performance.now();
@@ -306,7 +321,9 @@ describe("api-routes stress tests", () => {
     const { fulfilled, rejected } = await runConcurrent(20, async () => {
       const req = makeRequest("http://localhost/api/directions", "POST", {
         origin: { location: { latLng: { latitude: 40.7, longitude: -74.0 } } },
-        destination: { location: { latLng: { latitude: 40.72, longitude: -73.99 } } },
+        destination: {
+          location: { latLng: { latitude: 40.72, longitude: -73.99 } },
+        },
       });
       const res = await directionsPost(req);
       return { status: res.status, body: await res.json() };

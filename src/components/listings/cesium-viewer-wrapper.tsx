@@ -13,7 +13,11 @@ interface Props {
   address: string;
 }
 
-export default function CesiumViewerWrapper({ latitude, longitude, address }: Props) {
+export default function CesiumViewerWrapper({
+  latitude,
+  longitude,
+  address,
+}: Props) {
   return (
     <BuildingViewerInner
       latitude={latitude}

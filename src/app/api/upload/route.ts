@@ -9,11 +9,7 @@ const IMAGE_TYPES = new Set([
   "image/avif",
 ]);
 
-const VIDEO_TYPES = new Set([
-  "video/mp4",
-  "video/webm",
-  "video/quicktime",
-]);
+const VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
@@ -40,7 +36,10 @@ export async function POST(request: NextRequest) {
 
   if (!isImage && !isVideo) {
     return NextResponse.json(
-      { error: "Invalid file type. Allowed: JPEG, PNG, WebP, AVIF, MP4, WebM, MOV" },
+      {
+        error:
+          "Invalid file type. Allowed: JPEG, PNG, WebP, AVIF, MP4, WebM, MOV",
+      },
       { status: 400 }
     );
   }
@@ -48,7 +47,9 @@ export async function POST(request: NextRequest) {
   const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
   if (file.size > maxSize) {
     return NextResponse.json(
-      { error: `File too large. Maximum size is ${isVideo ? "100MB" : "10MB"}` },
+      {
+        error: `File too large. Maximum size is ${isVideo ? "100MB" : "10MB"}`,
+      },
       { status: 400 }
     );
   }

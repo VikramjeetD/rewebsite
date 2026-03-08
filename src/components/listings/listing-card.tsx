@@ -43,9 +43,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
       {/* Top badges */}
       <div className="absolute left-3 top-3 flex items-center gap-2">
-        {listing.status !== "ACTIVE" && (
-          <StatusBadge status={listing.status} />
-        )}
+        {listing.status !== "ACTIVE" && <StatusBadge status={listing.status} />}
         {listing.noFee && listing.type === "RENTAL" && (
           <span className="bg-emerald-500/90 text-white text-xs font-medium px-2 py-0.5 rounded">
             No Fee

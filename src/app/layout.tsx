@@ -6,8 +6,7 @@ export const metadata: Metadata = {
     default: "Brandy Culp Realty",
     template: "%s | Brandy Culp Realty",
   },
-  description:
-    "Expert guidance for buying, selling, and renting in New York",
+  description: "Expert guidance for buying, selling, and renting in New York",
 };
 
 export default function RootLayout({

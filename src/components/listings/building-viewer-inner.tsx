@@ -47,7 +47,14 @@ function createPinImage(): string {
   ctx.moveTo(size / 2, size - 4);
   ctx.bezierCurveTo(size / 2 - 2, size * 0.6, 8, size * 0.38, 8, size * 0.28);
   ctx.arc(size / 2, size * 0.28, size / 2 - 8, Math.PI, 0, false);
-  ctx.bezierCurveTo(size - 8, size * 0.38, size / 2 + 2, size * 0.6, size / 2, size - 4);
+  ctx.bezierCurveTo(
+    size - 8,
+    size * 0.38,
+    size / 2 + 2,
+    size * 0.6,
+    size / 2,
+    size - 4
+  );
   ctx.closePath();
 
   ctx.fillStyle = "#ffffff";
@@ -102,7 +109,9 @@ export function BuildingViewerInner({ latitude, longitude, address }: Props) {
       })
       .catch((err) => {
         console.error("Failed to load Google 3D Tiles:", err);
-        setError("Failed to load 3D tiles. Check that Map Tiles API is enabled.");
+        setError(
+          "Failed to load 3D tiles. Check that Map Tiles API is enabled."
+        );
       });
 
     // Pin marker
