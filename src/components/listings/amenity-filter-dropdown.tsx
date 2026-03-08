@@ -141,14 +141,14 @@ export function AmenityFilterDropdown({
         }}
         className={cn(
           "inline-flex shrink-0 items-center justify-between gap-2 border px-2 py-0.5 text-xs text-white transition-colors focus:outline-none focus:ring-1",
-          "border-white/10 bg-white/5 hover:bg-white/10 focus:border-white/30 focus:ring-white/20",
-          value.length === 0 && "text-white/40"
+          "border-white/20 bg-white/10 hover:bg-white/15 focus:border-white/40 focus:ring-white/30",
+          value.length === 0 && "text-white/50"
         )}
       >
         <span className="truncate">{label}</span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-white/40 transition-transform",
+            "h-4 w-4 shrink-0 text-white/50 transition-transform",
             open && "rotate-180"
           )}
         />

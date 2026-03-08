@@ -280,6 +280,16 @@ export const PhotoUpload = forwardRef<PhotoUploadHandle, PhotoUploadProps>(
       const newPhotos = photos.map((p, i) =>
         i === index ? { ...p, hidden: !p.hidden } : p
       );
+      // If hiding the primary image, reassign primary to the next visible image
+      const hidingPrimary =
+        !photos[index].hidden && photos[index].isPrimary;
+      if (hidingPrimary) {
+        newPhotos[index].isPrimary = false;
+        const nextVisible = newPhotos.find(
+          (p) => !p.hidden && p.type !== "video"
+        );
+        if (nextVisible) nextVisible.isPrimary = true;
+      }
       updatePhotos(newPhotos);
     }
 

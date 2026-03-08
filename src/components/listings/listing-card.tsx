@@ -62,11 +62,11 @@ export function ListingCard({ listing }: ListingCardProps) {
             {listing.neighborhood}
           </span>
         </div>
-        <div className="mt-1 flex items-baseline justify-between gap-3">
-          <p className="shrink-0 text-xl font-bold text-white">
+        <div className="mt-1 flex items-baseline flex-wrap gap-x-3 gap-y-0.5">
+          <p className="text-xl font-bold text-white">
             {formatPrice(listing.price, listing.type)}
           </p>
-          <div className="flex shrink-0 items-center gap-2 text-sm text-white/70">
+          <div className="flex items-center gap-2 text-sm text-white/70">
             <span>{formatBedrooms(listing.bedrooms)}</span>
             <span className="text-white/30">|</span>
             <span>{formatBathrooms(listing.bathrooms)}</span>

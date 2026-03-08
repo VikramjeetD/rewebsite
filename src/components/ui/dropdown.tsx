@@ -176,11 +176,11 @@ export function Dropdown({
         className={cn(
           "inline-flex items-center justify-between gap-2 border text-white transition-colors focus:outline-none focus:ring-1 disabled:pointer-events-none disabled:opacity-50",
           {
-            "border-white/10 bg-white/5 hover:bg-white/10 focus:border-white/30 focus:ring-white/20":
+            "border-white/20 bg-white/10 hover:bg-white/15 focus:border-white/40 focus:ring-white/30":
               variant === "default",
-            "border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 focus:border-white/30 focus:ring-white/20":
+            "border-white/20 bg-white/10 backdrop-blur-sm hover:bg-white/15 focus:border-white/40 focus:ring-white/30":
               variant === "glass",
-            "rounded-full border-white/10 bg-white/5 hover:bg-white/10 focus:ring-white/20":
+            "rounded-full border-white/20 bg-white/10 hover:bg-white/15 focus:ring-white/30":
               variant === "pill",
           },
           {
@@ -189,14 +189,14 @@ export function Dropdown({
             "px-5 py-3 text-base": size === "lg",
           },
           error && "border-red-500/50 focus:border-red-500 focus:ring-red-500",
-          !selectedOption && "text-white/40",
+          !selectedOption && "text-white/50",
           className
         )}
       >
         <span className="truncate">{displayLabel}</span>
         <ChevronDown
           className={cn(
-            "shrink-0 text-white/40 transition-transform",
+            "shrink-0 text-white/50 transition-transform",
             {
               "h-3 w-3": size === "sm",
               "h-4 w-4": size === "md" || size === "lg",

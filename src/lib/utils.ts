@@ -16,7 +16,7 @@ export function formatPrice(
     maximumFractionDigits: 0,
   }).format(dollars);
   if (type === "RENTAL") {
-    return `${formatted}/month`;
+    return `${formatted}/mo`;
   }
   return formatted;
 }

@@ -129,7 +129,7 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
       {/* Price range */}
       <div className="flex shrink-0 items-center gap-1">
         <div className="relative">
-          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/40">
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/60">
             $
           </span>
           <input
@@ -139,12 +139,12 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
             onChange={(e) =>
               handleDebouncedFilterChange("priceMin", e.target.value)
             }
-            className="w-20 border border-white/10 bg-white/5 py-1 pl-5 pr-1 text-xs text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
+            className="w-20 border border-white/20 bg-white/10 py-1 pl-5 pr-1 text-xs text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30"
           />
         </div>
-        <span className="text-xs text-white/40">–</span>
+        <span className="text-xs text-white/50">–</span>
         <div className="relative">
-          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/40">
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white/60">
             $
           </span>
           <input
@@ -154,7 +154,7 @@ export function ListingFilters({ neighborhoods }: ListingFiltersProps) {
             onChange={(e) =>
               handleDebouncedFilterChange("priceMax", e.target.value)
             }
-            className="w-20 border border-white/10 bg-white/5 py-1 pl-5 pr-1 text-xs text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
+            className="w-20 border border-white/20 bg-white/10 py-1 pl-5 pr-1 text-xs text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30"
           />
         </div>
       </div>

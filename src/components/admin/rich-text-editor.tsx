@@ -187,7 +187,8 @@ export function RichTextEditor({
           onKeyDown={handleKeyDown}
           onMouseUp={updateActiveFormats}
           onSelect={updateActiveFormats}
-          className="rte-editor min-h-[120px] resize-y overflow-auto bg-white/5 px-4 py-2 text-sm text-white outline-none [&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline"
+          style={{ fontSize: "16px" }}
+          className="rte-editor min-h-[120px] resize-y overflow-auto bg-white/5 px-4 py-2 text-white outline-none [&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline"
           suppressContentEditableWarning
         />
         {/* Placeholder when empty */}
