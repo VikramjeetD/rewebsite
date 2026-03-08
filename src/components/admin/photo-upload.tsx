@@ -107,6 +107,7 @@ function SortablePhoto({
       <div className="absolute inset-0 flex items-start justify-between bg-black/0 p-2 opacity-0 transition-opacity group-hover:bg-black/40 group-hover:opacity-100">
         <div className="flex items-center gap-1">
           <button
+            type="button"
             {...attributes}
             {...listeners}
             className="cursor-grab rounded bg-white/20 p-1 text-white backdrop-blur-sm hover:bg-white/30 active:cursor-grabbing"
