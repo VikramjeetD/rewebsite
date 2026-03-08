@@ -264,7 +264,7 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
           // Places library not available, autocomplete disabled
         });
     });
-  }, [activeModal, listing.latitude, listing.longitude]);
+  }, [activeModal, listing.id, listing.latitude, listing.longitude]);
 
   const clearDirections = useCallback(() => {
     routePolylinesRef.current.forEach((p) => p.setMap(null));

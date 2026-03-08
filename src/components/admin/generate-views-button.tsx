@@ -29,26 +29,6 @@ export function GenerateViewsButton({
 
   const imagePhotos = photos.filter((p) => p.type !== "video");
 
-  if (imagePhotos.length === 0) return null;
-
-  function openSelector() {
-    setSelectedUrls(new Set(imagePhotos.map((p) => p.url)));
-    setError(null);
-    setStatus("selecting");
-  }
-
-  function togglePhoto(url: string) {
-    setSelectedUrls((prev) => {
-      const next = new Set(prev);
-      if (next.has(url)) {
-        next.delete(url);
-      } else {
-        next.add(url);
-      }
-      return next;
-    });
-  }
-
   const handleGenerate = useCallback(async () => {
     if (selectedUrls.size === 0) return;
     setError(null);
@@ -107,6 +87,26 @@ export function GenerateViewsButton({
       setError("No images could be generated. Check the server logs.");
     }
   }, [selectedUrls, listingId, ensureListingId, onPhotosGenerated]);
+
+  if (imagePhotos.length === 0) return null;
+
+  function openSelector() {
+    setSelectedUrls(new Set(imagePhotos.map((p) => p.url)));
+    setError(null);
+    setStatus("selecting");
+  }
+
+  function togglePhoto(url: string) {
+    setSelectedUrls((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) {
+        next.delete(url);
+      } else {
+        next.add(url);
+      }
+      return next;
+    });
+  }
 
   if (status === "generating") {
     return (

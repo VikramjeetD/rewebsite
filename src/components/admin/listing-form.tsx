@@ -101,10 +101,10 @@ export function ListingForm({
   const [listingType, setListingType] = useState<string>(
     listing?.type ?? "RENTAL"
   );
-  const [currentBeds, setCurrentBeds] = useState<number>(
+  const [, setCurrentBeds] = useState<number>(
     listing?.bedrooms ?? 0
   );
-  const [currentBaths, setCurrentBaths] = useState<number>(
+  const [, setCurrentBaths] = useState<number>(
     listing?.bathrooms ?? 0
   );
   const [borough, setBorough] = useState<string>(listing?.borough ?? "N/A");

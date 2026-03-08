@@ -7,7 +7,6 @@ import {
   formatBedrooms,
   formatBathrooms,
 } from "@/lib/utils";
-import type { Listing } from "@/types";
 
 /** Serializable subset passed from server component */
 export interface MapListing {
