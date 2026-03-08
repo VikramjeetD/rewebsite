@@ -536,8 +536,6 @@ export async function updateListingPhotosAction(
   if (!session?.user) throw new Error("Unauthorized");
 
   await updateListing(id, { photos });
-
-  revalidateListingPaths();
 }
 
 export async function updateListingFloorPlansAction(
@@ -548,8 +546,6 @@ export async function updateListingFloorPlansAction(
   if (!session?.user) throw new Error("Unauthorized");
 
   await updateListing(id, { floorPlans });
-
-  revalidateListingPaths();
 }
 
 export async function loadBuildingAmenitiesAction(address: string): Promise<{
