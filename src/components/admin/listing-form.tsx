@@ -108,7 +108,9 @@ export function ListingForm({
     listing?.bathrooms ?? 0
   );
   const [borough, setBorough] = useState<string>(listing?.borough ?? "N/A");
-  const [availableImmediately, setAvailableImmediately] = useState<boolean>(false);
+  const [availableImmediately, setAvailableImmediately] = useState<boolean>(
+    listing ? !listing.availableDate : false
+  );
 
   const cityRef = useRef<HTMLInputElement>(null);
   const stateRef = useRef<HTMLInputElement>(null);
