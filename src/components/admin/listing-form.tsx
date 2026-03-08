@@ -108,6 +108,7 @@ export function ListingForm({
     listing?.bathrooms ?? 0
   );
   const [borough, setBorough] = useState<string>(listing?.borough ?? "N/A");
+  const [availableImmediately, setAvailableImmediately] = useState<boolean>(false);
 
   const cityRef = useRef<HTMLInputElement>(null);
   const stateRef = useRef<HTMLInputElement>(null);
@@ -481,17 +482,49 @@ export function ListingForm({
           min="0"
           defaultValue={listing?.sqft ?? ""}
         />
-        <Input
-          name="availableDate"
-          label="Available Date"
-          type="date"
-          defaultValue={
-            listing?.availableDate
-              ? listing.availableDate.toISOString().split("T")[0]
-              : ""
-          }
-          required
-        />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-white/80">
+            Available Date
+          </label>
+          <div className="flex items-center gap-3 mb-2">
+            <label className="flex items-center gap-1.5 text-sm text-white/80 cursor-pointer">
+              <input
+                type="radio"
+                name="availableDateType"
+                value="immediately"
+                checked={availableImmediately}
+                onChange={() => setAvailableImmediately(true)}
+                className="accent-white"
+              />
+              Available Now
+            </label>
+            <label className="flex items-center gap-1.5 text-sm text-white/80 cursor-pointer">
+              <input
+                type="radio"
+                name="availableDateType"
+                value="specific"
+                checked={!availableImmediately}
+                onChange={() => setAvailableImmediately(false)}
+                className="accent-white"
+              />
+              Specific Date
+            </label>
+          </div>
+          {availableImmediately ? (
+            <input type="hidden" name="availableDate" value="immediately" />
+          ) : (
+            <Input
+              name="availableDate"
+              type="date"
+              defaultValue={
+                listing?.availableDate
+                  ? listing.availableDate.toISOString().split("T")[0]
+                  : ""
+              }
+              required
+            />
+          )}
+        </div>
         <Input
           name="sourceUrl"
           label="Source URL"

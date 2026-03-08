@@ -57,7 +57,7 @@ export const listingFormSchema = z.object({
       .map((s) => s.trim())
       .filter(Boolean)
   ),
-  availableDate: z.string().min(1, "Available date is required"),
+  availableDate: z.string().min(1, "Available date is required"),  // "immediately" or a date string (YYYY-MM-DD)
 });
 
 export type ListingFormData = z.infer<typeof listingFormSchema>;

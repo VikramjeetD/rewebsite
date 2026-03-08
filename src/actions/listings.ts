@@ -58,7 +58,7 @@ function parseFormDataToRaw(raw: Record<string, FormDataEntryValue>) {
     op: raw.op || null,
     zipCode: raw.zipCode || null,
     sourceUrl: raw.sourceUrl || null,
-    availableDate: raw.availableDate || null,
+    availableDate: raw.availableDate || "immediately",
   };
 }
 
@@ -104,7 +104,7 @@ export async function autosaveDraftAction(
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const availableDate = data.availableDate
+    const availableDate = data.availableDate && data.availableDate !== "immediately"
       ? new Date(data.availableDate)
       : null;
     const title = (data.title || "").trim() || generateTitle(address, unit); // drafts: fallback for autosave
@@ -333,7 +333,7 @@ export async function updateListingAction(id: string, formData: FormData) {
     adminNotes: parsed.adminNotes ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
-    availableDate: parsed.availableDate ? new Date(parsed.availableDate) : null,
+    availableDate: parsed.availableDate && parsed.availableDate !== "immediately" ? new Date(parsed.availableDate) : null,
   });
 
   await ensureBuildingAmenities(parsed.address, parsed.amenities);
@@ -410,7 +410,7 @@ export async function activateDraftAction(id: string, formData: FormData) {
     adminNotes: parsed.adminNotes ?? null,
     featured: parsed.featured,
     amenities: parsed.amenities,
-    availableDate: parsed.availableDate ? new Date(parsed.availableDate) : null,
+    availableDate: parsed.availableDate && parsed.availableDate !== "immediately" ? new Date(parsed.availableDate) : null,
   });
 
   await ensureBuildingAmenities(parsed.address, parsed.amenities);

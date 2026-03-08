@@ -632,16 +632,14 @@ export function ListingDetails({ listing, buildingInfo }: ListingDetailsProps) {
               </span>
             </>
           )}
-          {listing.availableDate && (
-            <>
-              <span className="text-white/30">|</span>
-              <span>
-                {listing.availableDate <= new Date()
-                  ? "Available Now"
-                  : `Available ${format(listing.availableDate, "MMM d, yyyy")}`}
-              </span>
-            </>
-          )}
+          <>
+            <span className="text-white/30">|</span>
+            <span>
+              {!listing.availableDate || listing.availableDate <= new Date()
+                ? "Available Now"
+                : `Available ${format(listing.availableDate, "MMM d, yyyy")}`}
+            </span>
+          </>
         </div>
         <div className="flex flex-wrap gap-2">
           {listing.floorPlans.length > 0 && (

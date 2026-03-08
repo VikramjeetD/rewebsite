@@ -183,7 +183,7 @@ export function ListingsTable({ listings }: ListingsTableProps) {
                   >
                     {listing.title}
                   </Link>
-                  <p className="text-xs text-white/40">{listing.address}</p>
+                  <p className="text-xs text-white/40">{listing.address}{listing.unit ? `, ${listing.unit}` : ""}</p>
                 </td>
                 <td className="px-6 py-4 text-white/60">
                   <span className="text-xs">{listing.type}</span>
@@ -198,7 +198,7 @@ export function ListingsTable({ listings }: ListingsTableProps) {
                   {formatPrice(listing.price, listing.type)}
                 </td>
                 <td className="px-6 py-4 text-white/60">
-                  {listing.bedrooms === 0 ? "Studio" : listing.bedrooms}BD /{" "}
+                  {listing.bedrooms === 0 ? "Studio" : `${listing.bedrooms}BD`} /{" "}
                   {listing.bathrooms}BA
                 </td>
                 <td className="px-6 py-4 text-white/60">
